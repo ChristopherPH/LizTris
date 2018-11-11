@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define NEWMENUTEST
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -299,6 +300,11 @@ namespace Liztris
 
             base.Update(gameTime);
 
+#if NEWMENUTEST
+            TestMenu.MyMenu.Update(gameTime);
+            return;
+#endif
+
             if (CurrentMenu != null)
             {
                 if (CurrentMenu.Update(gameTime, out GlobalMenuItems? Choice))
@@ -443,6 +449,17 @@ namespace Liztris
             spriteBatch.FillRectangle(GameRectangle, Color.CornflowerBlue);
 
             spriteBatch.Draw(Background[BackgroundIndex], GameRectangle, Color.White);
+#if NEWMENUTEST
+            var r = new Rectangle(
+                (GamePixelWidth / 8) * 3,
+                GamePixelHeight / 4,
+                GamePixelWidth / 4,
+                GamePixelHeight / 2);
+
+            TestMenu.MyMenu.Draw(spriteBatch, fontMenu, r);
+            spriteBatch.End();
+            return;
+#endif
 
             if (CurrentMenu != null)
             {

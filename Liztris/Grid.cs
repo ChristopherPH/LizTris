@@ -373,7 +373,7 @@ namespace Liztris
 
                             if (lines >= ScoreMultiplier.Length)
                             {
-                                lines = ScoreMultiplier.Length - 1;
+                                lines = ScoreMultiplier.Length;
                                 c = Color.Aqua;
                                 ss = SoundState.Tetris;
                             }

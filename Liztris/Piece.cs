@@ -13,22 +13,32 @@ namespace Liztris
     {
         public static int AvailablePieceCount => AvailablePieces.Length;
 
-        private static int[][,] AvailablePieces = new int[][,]
+        static int[][,] AvailablePieces =>
+            StandardPieces;
+            //StupidPieces;
+            //TestHalfBlock;
+            //TestFullBlock;
+
+        private static int[][,] TestFullBlock = new int[][,]
         {
-/*
             new int[,] {
                 {1,5,9,13},
                 {2,6,10,14},
                 {3,7,11,15},
                 {4,8,12,16},
             },
+        };
 
-
+        private static int[][,] TestHalfBlock = new int[][,]
+        {
             new int[,] {
                 {1,5,9,13},
                 {2,6,10,14},
             },
-*/
+        };
+
+        private static int[][,] StandardPieces = new int[][,]
+        {
             new int[,] {
                 {0,0,0,0},
                 {0,14,14,0},
@@ -64,6 +74,67 @@ namespace Liztris
             new int[,] {
                 {0,8,0,0},
                 {0,8,8,0},
+                {0,8,0,0},
+            },
+        };
+
+        private static int[][,] StupidPieces = new int[][,]
+        {
+            new int[,] {
+                {0,14,14,14},
+                {0,14,0,14},
+                {0,14,14,14},
+                {0,0,0,0},
+            },
+            new int[,] {
+                {3,3,3,0},
+                {3,0,0,0},
+                {3,3,3,0},
+            },
+            new int[,] {
+                {0,15,15,0},
+                {0,0,15,0},
+                {0,15,15,0},
+            },
+            new int[,] {
+                {0,20,0,0},
+                {0,20,20,20},
+                {0,20,0,20},
+                {0,20,0,0},
+            },
+            new int[,] {
+                {0,13,0,0},
+                {13,13,13,0},
+                {13,0,13,0},
+            },
+            new int[,] {
+                {0,0,6,0},
+                {0,0,6,0},
+                {0,0,0,0},
+            },
+            new int[,] {
+                {0,0,8,0},
+                {0,0,8,0},
+                {0,0,8,0},
+            },
+            new int[,] {
+                {0,0,7,0},
+                {0,0,7,0},
+                {0,0,0,0},
+            },
+            new int[,] {
+                {0,0,0,0},
+                {0,0,5,0},
+                {0,0,0,0},
+            },
+            new int[,] {
+                {0,0,0,0},
+                {0,0,4,0},
+                {0,0,0,0},
+            },
+            new int[,] {
+                {0,8,0,0},
+                {8,8,8,0},
                 {0,8,0,0},
             },
         };

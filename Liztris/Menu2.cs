@@ -1,4 +1,5 @@
 ﻿using Common;
+using Common.MenuSystem;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -102,20 +103,9 @@ using System.Threading.Tasks;
  */
 namespace Liztris
 {
-    public class Menu2 : SubMenu
+    public class Menu2 : MenuBase
     {
-        enum MenuCommands
-        {
-            MenuBack,
-            MenuSelect,
-            MenuUp,
-            MenuDown,
-            MenuLeft,
-            MenuRight,
-        }
-
-        public Menu2(MenuItem[] MenuItems) :
-            base(string.Empty, MenuItems)
+        public Menu2(MenuItem[] MenuItems) : base(MenuItems)
         {
             inputManager.AddAction(MenuCommands.MenuSelect, Keys.Enter);
             inputManager.AddAction(MenuCommands.MenuSelect, InputManager<MenuCommands>.GamePadButtons.A);
@@ -134,19 +124,11 @@ namespace Liztris
 
             inputManager.AddAction(MenuCommands.MenuRight, Keys.Right);
             inputManager.AddAction(MenuCommands.MenuRight, InputManager<MenuCommands>.GamePadButtons.Right);
-
-            Reset();
         }
 
-        public void Reset()
-        {
-            _Menus.Clear();
-            _Menus.Push(this);
-        }
 
-        public bool IsMenuActive => _Menus.Count != 0;
 
-        private Stack<SubMenu> _Menus = new Stack<SubMenu>();
+        
         public SerializableDictionary<string, object> Options { get; } = new SerializableDictionary<string, object>();
         InputManager<MenuCommands> inputManager = new InputManager<MenuCommands>();
         float _scale = 1;
@@ -155,12 +137,6 @@ namespace Liztris
 
         public bool Update(GameTime gameTime)
         {
-            if (_Menus.Count == 0)
-                //throw new Exception();
-                return false;
-
-            var CurrentMenu = _Menus.Peek();
-
             AnimationTimer.UpdateAndCheck(gameTime, () =>
             {
                 if (!_scaleReverse)
@@ -175,151 +151,56 @@ namespace Liztris
                     if (_scale <= 1)
                         _scaleReverse = false;
                 }
-                System.Diagnostics.Debug.Print("{0}", gameTime.TotalGameTime.TotalMilliseconds);
             });
 
             inputManager.Update(PlayerIndex.One);
 
-            //handle choices
-            var choiceMenu = CurrentMenu.SelectedItem as Choice;
+            bool rc = false;
 
-            if ((choiceMenu != null) &&
-                inputManager.IsActionTriggered(MenuCommands.MenuSelect) &&
-                HandleSelectItem(choiceMenu.SelectedItem))
+            if (inputManager.IsActionTriggered(MenuCommands.MenuUp))
+                rc = RunMenuCommand(MenuCommands.MenuUp);
+            else if (inputManager.IsActionTriggered(MenuCommands.MenuDown))
+                rc = RunMenuCommand(MenuCommands.MenuDown);
+            else if (inputManager.IsActionTriggered(MenuCommands.MenuLeft))
+                rc = RunMenuCommand(MenuCommands.MenuLeft);
+            else if (inputManager.IsActionTriggered(MenuCommands.MenuRight))
+                rc = RunMenuCommand(MenuCommands.MenuRight);
+            else if (inputManager.IsActionTriggered(MenuCommands.MenuSelect))
+                rc = RunMenuCommand(MenuCommands.MenuSelect);
+            else if (inputManager.IsActionTriggered(MenuCommands.MenuBack))
+                rc = RunMenuCommand(MenuCommands.MenuBack);
+
+            if (rc)
             {
                 //play sound
             }
-            else if ((choiceMenu != null) &&
-                inputManager.IsActionTriggered(MenuCommands.MenuLeft) &&
-                choiceMenu.PreviousItem() &&
-                HandleSetProperty(choiceMenu.SelectedItem))
-            {
-                //play sound
-            }
-            else if ((choiceMenu != null) &&
-                inputManager.IsActionTriggered(MenuCommands.MenuRight) &&
-                choiceMenu.NextItem() &&
-                HandleSetProperty(choiceMenu.SelectedItem))
-            {
-                //play sound
-            }
-            else if (inputManager.IsActionTriggered(MenuCommands.MenuSelect) && 
-                HandleSelectItem(CurrentMenu.SelectedItem))
-            {
-                //play sound
-            }
-            else if (inputManager.IsActionTriggered(MenuCommands.MenuBack) &&
-                CloseMenu())
-            {
-                //play sound
-            }
-            else if (inputManager.IsActionTriggered(MenuCommands.MenuUp) &&
-                CurrentMenu.PreviousItem())
-            {
-                //play sound
-            }
-            else if (inputManager.IsActionTriggered(MenuCommands.MenuDown) &&
-                CurrentMenu.NextItem())
-            {
-                //play sound
-            }
-            
+
             return IsMenuActive;
         }
 
 
-        public bool HandleSetProperty(MenuItem Selection)
+        protected override void OnSetProperty(string Property, object Value)
         {
-            if (!string.IsNullOrWhiteSpace(Selection.SetProperty))
-            {
-                Options[Selection.SetProperty] = Selection.Value;
-                System.Diagnostics.Debug.Print("Set {0} to {1}",
-                    Selection.SetProperty, Selection.Value);
-
-                return true;
-            }
-
-            return false;
+            Options[Property] = Value;
+            System.Diagnostics.Debug.Print("Set {0} to {1}",
+                Property, Value);
         }
 
 
-        public bool HandleSelectItem(MenuItem Selection)
+        protected override void OnAction(object Action)
         {
-            if (Selection == null)
-                return false;
-
-            bool rc = false;
-
-            if (HandleSetProperty(Selection))
-            {
-                rc = true;
-            }
-
-            if (Selection.DoAction != null)
-            {
-                //do something for action
-                System.Diagnostics.Debug.Print("Do Action {0}",
-                    Selection.DoAction);
-                rc = true;
-            }
-
-            var openMenu = Selection as OpenMenu;
-            if (openMenu != null)
-            {
-                OpenMenu(openMenu.SubMenu);
-                rc = true;
-            }
-
-            var closeMenu = Selection as CloseMenu;
-            if (closeMenu != null)
-            {
-                CloseMenu();
-                rc = true;
-            }
-
-            return rc;
+            System.Diagnostics.Debug.Print("Action {0}", Action);
         }
 
-        private bool CloseMenu()
-        {
-            if (_Menus.Count == 0)
-                return false;
-
-            _Menus.Pop();
-            if (_Menus.Count > 0)
-                _Menus.Peek().SetDefaultItem();
-
-            return true;
-        }
-
-        private bool OpenMenu(SubMenu menu)
-        {
-            if ((menu == null) || (menu.MenuItems == null) || (menu.MenuItems.Length == 0))
-                return false;
-
-            _Menus.Push(menu);
-            menu.SetDefaultItem();
-            return true;
-        }
-
-        public void Draw(Common.ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect)
-        {
-            if (_Menus.Count == 0)
-                return;
-
-            var CurrentMenu = _Menus.Peek();
-
-            Draw(_Menus.Peek(), spriteBatch, spriteFont, MenuRect, _scale, Color.Aquamarine);
-        }
-
-        private void DrawBackground(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect)
+        protected override void DrawMenuBegin(ExtendedSpriteBatch spriteBatch, 
+            SpriteFont spriteFont, Rectangle MenuRect, SubMenu CurrentMenu)
         {
             spriteBatch.DrawRectangle(MenuRect, Color.Teal, 3, false);
 
             //spriteBatch.Draw(transparentDarkTexture, MenuRect, Color.White* 0.5f);
         }
 
-        private void DrawItem(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect, 
+        protected override void DrawItem(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect, 
             MenuItem CurrentItem, Rectangle ItemRect, bool IsSelected)
         {
             var c = Color.White;
@@ -335,7 +216,7 @@ namespace Liztris
                 ExtendedSpriteBatch.Alignment.Center, c, scale);
         }
 
-        private void DrawChoice(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect,
+        protected override void DrawChoice(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect,
             Choice CurrentItem, Rectangle ItemRect, bool IsSelected, MenuItem[] Choices, MenuItem SelectedChoice)
         {
             int PixelsBetweenChoices = 30;
@@ -364,141 +245,8 @@ namespace Liztris
             }
         }
 
-        private void Draw(SubMenu CurrentMenu, ExtendedSpriteBatch spriteBatch, 
-            SpriteFont spriteFont, Rectangle MenuRect, float SelectedItemScale, Color SelectedItemColor)
-        {
-            var LetterSize = spriteFont.MeasureString("W");
-            int PixelsBetweenLines = 10;
-
-            int ItemCount = CurrentMenu.MenuItems.Length;
-            var TotalLetterHeight = ((int)LetterSize.Y * ItemCount) + (PixelsBetweenLines * (ItemCount - 1));
-            int YOffset = (MenuRect.Y) + (MenuRect.Height / 2) - (TotalLetterHeight / 2);
-
-
-            foreach (var CurrentItem in CurrentMenu.MenuItems)
-            {
-                var ItemRect = new Rectangle(MenuRect.X, YOffset, 
-                    MenuRect.Width, (int)LetterSize.Y);
-
-                var ItemSize = spriteFont.MeasureString(CurrentItem.Text);
-
-                var choice = CurrentItem as Choice;
-                if (choice != null)
-                {
-                    DrawChoice(spriteBatch, spriteFont, MenuRect, choice, ItemRect,
-                        CurrentItem == CurrentMenu.SelectedItem, choice.MenuItems, choice.SelectedItem);
-                }
-                else
-                {
-                    DrawItem(spriteBatch, spriteFont, MenuRect, CurrentItem, ItemRect, 
-                        CurrentItem == CurrentMenu.SelectedItem);
-                }
-
-                YOffset += (int)LetterSize.Y;
-                YOffset += PixelsBetweenLines;
-            }
-        }
     }
 
-    public class MenuItem
-    {
-        public MenuItem(string Text)
-        {
-            this.Text = Text;
-        }
-        //public MenuItem2(string Text, string Key, object Value) { }
-        //public MenuItem2(string Text, object Action) { }
-
-        public string Text { get; set; }
-        public string SetProperty { get; set; }
-        public object Value { get; set; }
-        public object DoAction { get; set; }
-    }
-
-    public class OpenMenu : MenuItem
-    {
-        public OpenMenu(string Text) : base(Text)
-        {
-            this.SubMenu = SubMenu;
-        }
-
-        public Menu2 SubMenu { get; set; }
-    }
-
-    public class CloseMenu : MenuItem
-    {
-        public CloseMenu(string Text) : base(Text) { }
-    }
-
-    public abstract class MenuItemCollection : MenuItem
-    {
-        public MenuItemCollection(string Text, MenuItem[] MenuItems)
-            : base(Text)
-        {
-            this.MenuItems = MenuItems;
-
-            SetDefaultItem();
-        }
-
-        public MenuItem[] MenuItems;
-        private int SelectedIndex = 0;
-
-        public int? StartingIndex
-        {
-            get { return _StartingIndex; }
-            set { _StartingIndex = value; SetDefaultItem(); }
-        }
-        private int? _StartingIndex;
-
-        public void SetDefaultItem()
-        {
-            if (StartingIndex != null)
-            {
-                SelectedIndex = StartingIndex.Value;
-
-                if (SelectedIndex < 0)
-                    SelectedIndex = 0;
-                if (SelectedIndex > MenuItems.Length - 1)
-                    SelectedIndex = MenuItems.Length - 1;
-            }
-            else
-            {
-                SelectedIndex = 0;
-            }
-        }
-
-        public bool NextItem()
-        {
-            if (SelectedIndex >= MenuItems.Length - 1)
-                return false;
-
-            SelectedIndex++;
-            return true;
-        }
-
-        public bool PreviousItem()
-        {
-            if (SelectedIndex <= 0)
-                return false;
-
-            SelectedIndex--;
-            return true;
-        }
-
-        public MenuItem SelectedItem => MenuItems[SelectedIndex];
-    }
-
-    public class SubMenu : MenuItemCollection
-    {
-        public SubMenu(string Text, MenuItem[] MenuItems) :
-            base(Text, MenuItems) { }
-    }
-
-    public class Choice : MenuItemCollection
-    {
-        public Choice(string Text, MenuItem[] MenuItems) :
-            base(Text, MenuItems) { }
-    }
 
     public static class TestMenu
     {

@@ -144,8 +144,40 @@ namespace Liztris
                 return;
 
             CurrentPiece.RotateCounterClockwise();
+
             if (!Grid.CheckPiece(CurrentPiece, piece_x, piece_y))
-                CurrentPiece.RotateClockwise();
+            {
+                if (!Grid.CheckPiece(CurrentPiece, piece_x + 1, piece_y))
+                {
+                    if (!Grid.CheckPiece(CurrentPiece, piece_x - 1, piece_y))
+                    {
+                        if (!Grid.CheckPiece(CurrentPiece, piece_x + 2, piece_y))
+                        {
+                            if (!Grid.CheckPiece(CurrentPiece, piece_x - 2, piece_y))
+                            {
+                                //put back
+                                CurrentPiece.RotateClockwise();
+                            }
+                            else
+                            {
+                                piece_x -= 2;
+                            }
+                        }
+                        else
+                        {
+                            piece_x += 2;
+                        }
+                    }
+                    else
+                    {
+                        piece_x--;
+                    }
+                }
+                else
+                {
+                    piece_x++;
+                }
+            }
         }
 
         public void RotatePieceClockwise()
@@ -154,8 +186,40 @@ namespace Liztris
                 return;
 
             CurrentPiece.RotateClockwise();
+
             if (!Grid.CheckPiece(CurrentPiece, piece_x, piece_y))
-                CurrentPiece.RotateCounterClockwise();
+            {
+                if (!Grid.CheckPiece(CurrentPiece, piece_x + 1, piece_y))
+                {
+                    if (!Grid.CheckPiece(CurrentPiece, piece_x - 1, piece_y))
+                    {
+                        if (!Grid.CheckPiece(CurrentPiece, piece_x + 2, piece_y))
+                        {
+                            if (!Grid.CheckPiece(CurrentPiece, piece_x - 2, piece_y))
+                            {
+                                //put back
+                                CurrentPiece.RotateCounterClockwise();
+                            }
+                            else
+                            {
+                                piece_x-=2;
+                            }
+                        }
+                        else
+                        {
+                            piece_x+=2;
+                        }
+                    }
+                    else
+                    {
+                        piece_x--;
+                    }
+                }
+                else
+                {
+                    piece_x++;
+                }
+            }
         }
 
         public Timer repeatTimer = null;
