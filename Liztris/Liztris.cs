@@ -300,6 +300,14 @@ namespace Liztris
 
             base.Update(gameTime);
 
+            if (!toggle)
+            {
+                if (toggleTimer.UpdateAndCheck(gameTime))
+                    toggle = !toggle;
+            }
+            else if (toggle2Timer.UpdateAndCheck(gameTime))
+                toggle = !toggle;
+
 #if NEWMENUTEST
             TestMenu.MyMenu.Update(gameTime);
             return;
@@ -430,8 +438,10 @@ namespace Liztris
             Toasts.Update(gameTime);
         }
 
-       
 
+        Timer toggleTimer = new Timer(9000);
+        Timer toggle2Timer = new Timer(1000);
+        bool toggle = false;
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -490,12 +500,26 @@ namespace Liztris
             foreach (var grid in Grids)
             {
                 //draw grid info on upper left of grid
-                spriteBatch.DrawString(fontScore, "Level: " + grid.Level.ToString(),
-                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 140), Color.Gold);
-                spriteBatch.DrawString(fontScore, "Lines: " + grid.LineCount.ToString(),
-                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Gold);
-                spriteBatch.DrawString(fontScore, "Pts: " + grid.Score.ToString(),
-                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Gold);
+                if (!toggle ||
+                    ((grid.LineCount == grid.BestLineCount) && 
+                     (grid.Score == grid.BestScore)))
+                {
+                    spriteBatch.DrawString(fontScore, "Level: " + grid.Level.ToString(),
+                        new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 140), Color.Gold);
+                    spriteBatch.DrawString(fontScore, "Lines: " + grid.LineCount.ToString(),
+                        new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Gold);
+                    spriteBatch.DrawString(fontScore, "Pts: " + grid.Score.ToString(),
+                        new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Gold);
+                }
+                else
+                {
+                    spriteBatch.DrawString(fontScore, "Best:",
+                        new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 140), Color.Gold);
+                    spriteBatch.DrawString(fontScore, "Lines: " + grid.BestLineCount.ToString(),
+                        new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Gold);
+                    spriteBatch.DrawString(fontScore, "Pts: " + grid.BestScore.ToString(),
+                        new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Gold);
+                }
 
                 //draw grid border
                 var borderRect = grid.ScreenRect;
