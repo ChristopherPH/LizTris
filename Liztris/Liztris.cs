@@ -192,13 +192,6 @@ namespace Liztris
             }
 
             NewGame();
-        }
-
-
-        public void NewGame()
-        {
-            foreach (var grid in Grids)
-                grid.NewGame();
 
             MainMenu = new Menu(new string[]
             {
@@ -206,6 +199,13 @@ namespace Liztris
                 "Options",
                 "Quit"
             }, fontScore);
+        }
+
+
+        public void NewGame()
+        {
+            foreach (var grid in Grids)
+                grid.NewGame();
         }
 
         /// <summary>
@@ -219,20 +219,39 @@ namespace Liztris
 
             base.Update(gameTime);
 
-            inputManager.Update(PlayerIndex.One);
-
-            if (inputManager.IsActionPressed(GlobalCommands.Pause))
-                Exit();
-
             if (MainMenu != null)
             {
-                if (MainMenu.Update(out int Choice))
+                if (MainMenu.Update(gameTime, out int Choice))
                 {
                     //do something
-                    MainMenu = null;
+                    switch (Choice)
+                    {
+                        case 0:
+                            NewGame();
+                            MainMenu = null;
+                            break;
+                        case 1: break;
+                        case 2: Exit(); break;
+                        case 3:
+                            MainMenu = null;
+                            break;
+                    }
                 }
 
                 return;
+            }
+
+            inputManager.Update(PlayerIndex.One);
+
+            if (inputManager.IsActionTriggered(GlobalCommands.Pause))
+            {
+                MainMenu = new Menu(new string[]
+                {
+                "New Game",
+                "Options",
+                "Quit",
+                "Resume",
+                }, fontScore, 3);
             }
 
             foreach (var grid in Grids)
@@ -261,27 +280,27 @@ namespace Liztris
 
             if (MainMenu != null)
             {
-                MainMenu.Draw(spriteBatch, new Rectangle(0, 0, 100, 100));
+                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 150), Color.Black,
+                    -0.4f, Vector2.Zero, 2f, SpriteEffects.None, 0f);
+                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 148), Color.Red,
+                    -0.4f, Vector2.Zero, 2f, SpriteEffects.None, 0f);
+
+                var MenuRect = new Rectangle(
+                    (GamePixelWidth / 8) * 3, 
+                    GamePixelHeight / 4, 
+                    GamePixelWidth / 4, 
+                    GamePixelHeight / 2);
+
+                spriteBatch.DrawRectangle(MenuRect, Color.Teal, 3, false);
+
+                spriteBatch.Draw(tmpTexture, MenuRect, Color.White * 0.5f);
+
+                MainMenu.Draw(spriteBatch, MenuRect);
                 spriteBatch.End();
                 return;
             }
 
             //draw
-            if (MainMenu != null)
-            {
-                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 10), Color.Black);
-                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 8), Color.Red,
-                    0, Vector2.Zero, 1.25f, SpriteEffects.None, 0f);
-
-                //spriteBatch.Draw(tmpTexture, grid.ScreenRect, Color.White * 0.5f);
-
-                spriteBatch.DrawString(fontScore, "New Game", 
-                    new Vector2(100, 100), Color.Black);
-
-                spriteBatch.End();
-                return;
-            }
-
             spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 10), Color.Black);
             spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 8), Color.Red);
 
