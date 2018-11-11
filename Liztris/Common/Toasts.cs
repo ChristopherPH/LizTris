@@ -29,7 +29,7 @@ namespace Common
 
         public static void AddToast(Rectangle r, int ms, string Text, Color c, float Scale = 1.0f)
         {
-            Vector2 size = spriteFont.MeasureString(Text);
+            Vector2 size = spriteFont.MeasureString(Text) * Scale;
 
             int x = (r.Width / 2) - ((int)size.X / 2) + r.X;
             int y = (r.Height / 2) - ((int)size.Y / 2) + r.Y;

@@ -48,6 +48,7 @@ namespace Liztris
         {
             Level = 1;
             LineCount = 0;
+            Score = 0;
             GridDropTime.SetDelay(LevelSpeeds[LineCount]);
             GridDropTime.Reset();
 
@@ -346,8 +347,6 @@ namespace Liztris
 
                         AddPieceToGrid(player.CurrentPiece,
                             player.piece_x, player.piece_y);
-                        player.CurrentPiece = null;
-                        player.repeatTimer = null;
 
                         var lines = ClearFilledLines();
                         if (lines > 0)
@@ -370,39 +369,36 @@ namespace Liztris
                                 }
                             }
 
-                            if (LineCount == ScoreMultiplier.Length)
-                                ss = SoundState.Tetris;
+                            var c = Color.Gold;
 
                             if (lines >= ScoreMultiplier.Length)
                             {
                                 lines = ScoreMultiplier.Length - 1;
-                                Score += ScoreMultiplier[lines];
-
-                                Toasts.AddToast(
-                                    this.ScreenRect.X + (player.piece_x * 32),
-                                    this.ScreenRect.Y + (player.piece_y * 32),
-                                    1500,
-                                    ScoreMultiplier[lines].ToString(),
-                                    Color.Gold, 2.0f);
+                                c = Color.Aqua;
+                                ss = SoundState.Tetris;
                             }
-                            else
-                            {
-                                Score += ScoreMultiplier[lines];
 
-                                Toasts.AddToast(
-                                    this.ScreenRect.X + (player.piece_x * 32),
-                                    this.ScreenRect.Y + (player.piece_y * 32),
-                                    1000,
-                                    ScoreMultiplier[lines].ToString(),
-                                    Color.Aqua);
-                            }
-                            
+                            Score += ScoreMultiplier[lines - 1];
 
+                            var r = new Rectangle(
+                                this.ScreenRect.X + (player.piece_x * 32),
+                                this.ScreenRect.Y + (player.piece_y * 32),
+                                player.CurrentPiece.Width * 32,
+                                player.CurrentPiece.Height * 32
+                                );
+
+                            Toasts.AddToast(r, 1500,
+                                ScoreMultiplier[lines - 1].ToString(),
+                                c, lines);
+  
                             if (LineCount > BestLineCount)
                                 BestLineCount = LineCount;
                             if (Score > BestScore)
                                 BestScore = Score;
                         }
+
+                        player.CurrentPiece = null;
+                        player.repeatTimer = null;
                     }
 
                     switch (ss)

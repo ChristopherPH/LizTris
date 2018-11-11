@@ -72,7 +72,7 @@ namespace Liztris
 
         public int[] LevelSpeeds = { 1000, 900, 800, 700, 600, 500, 400, 350, 300, 250, 225, 200, 175, 150, 125 };
         public int[] LevelLines =  { 0,    10,  20,  30,  40,  50,  60,  70,  80,  90,  100, 125, 150, 175, 200 };
-        public int[] ScoreMultiplier = { 50, 250, 500, 1000 };
+        public int[] ScoreMultiplier = { 100, 250, 500, 1000 };
 
         protected override int WantedGameResolutionWidth => 1280;
         protected override int WantedGameResolutionHeight => 720;
@@ -109,7 +109,7 @@ namespace Liztris
 
             musicDefaultInstance.Volume = 0.20f;
             musicDefaultInstance.IsLooped = true;
-            musicDefaultInstance.Play();
+            //musicDefaultInstance.Play();
 
             //var targetFPS = 120;
 
@@ -434,9 +434,9 @@ namespace Liztris
                 spriteBatch.DrawString(fontScore, "Level: " + grid.Level.ToString(),
                     new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 140), Color.Gold);
                 spriteBatch.DrawString(fontScore, "Lines: " + grid.LineCount.ToString(),
-                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Goldenrod);
-                spriteBatch.DrawString(fontScore, "Score: " + grid.Score.ToString(),
-                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.DimGray);
+                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Gold);
+                spriteBatch.DrawString(fontScore, "Pts: " + grid.Score.ToString(),
+                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Gold);
 
                 //draw grid border
                 var borderRect = grid.ScreenRect;

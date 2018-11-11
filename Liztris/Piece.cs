@@ -15,6 +15,21 @@ namespace Liztris
 
         private static int[][,] AvailablePieces = new int[][,]
         {
+/*
+            new int[,] {
+                {1,5,9,13},
+                {2,6,10,14},
+                {3,7,11,15},
+                {4,8,12,16},
+            },
+*/
+
+            new int[,] {
+                {1,5,9,13},
+                {2,6,10,14},
+            },
+
+/*
             new int[,] {
                 {0,0,0,0},
                 {0,14,14,0},
@@ -51,7 +66,7 @@ namespace Liztris
                 {0,8,0,0},
                 {0,8,8,0},
                 {0,8,0,0},
-            },
+            },*/
         };
 
         private static Random randomizer = new Random();
