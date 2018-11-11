@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -41,6 +43,11 @@ namespace Liztris
                 {0,0,6,0},
                 {0,6,6,0},
                 {0,6,0,0},
+            },
+            new int[,] {
+                {0,7,0,0},
+                {0,7,7,0},
+                {0,7,0,0},
             },
         };
 
@@ -104,6 +111,28 @@ namespace Liztris
                     new_piece[x, h - 1 - y] = BlockMap[y, x];
 
             BlockMap = new_piece;
+        }
+
+        public void Draw(SpriteBatch spriteBatch, SpriteSheet Blocks, int BlockPixelSize, 
+            int XOffset, int YOffset)
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    var BlockIndex = BlockMap[y, x] - 1;
+                    if (BlockIndex <= -1)
+                        continue;
+
+                    if (BlockIndex > Blocks.Rows - 1)
+                        BlockIndex = Blocks.Rows - 1;
+
+                    Blocks.Draw(spriteBatch, 0, BlockIndex,
+                        new Vector2(
+                            XOffset + (BlockPixelSize * x),
+                            YOffset + (BlockPixelSize * y)));
+                }
+            }
         }
     }
 }

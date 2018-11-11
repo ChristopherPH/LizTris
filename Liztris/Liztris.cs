@@ -32,12 +32,12 @@ namespace Liztris
         InputManager<GlobalCommands> inputManager = new InputManager<GlobalCommands>();
 
         List<Grid> Grids = new List<Grid>();
-        List<Player> Players = new List<Player>();
 
         const int GridXPerPlayer = 8;
-        const int GridY = 7;
+        const int GridY = 13;
         const int BlockPixelSize = 32;
         const int BlocksBetweenGrids = 4;
+        const int BlocksAboveBottom = 1;
 
         public int[] LevelSpeeds = { 1000, 900, 800, 700, 600, 500, 400, 350, 300, 250 };
 
@@ -75,7 +75,7 @@ namespace Liztris
             soundMusicInstance.Volume = 0.20f;
             soundMusicInstance.IsLooped = true;
             soundMusicInstance.Play();
-            SetupGame(1, false);
+            SetupGame(2, true);
         }
 
         /// <summary>
@@ -121,31 +121,35 @@ namespace Liztris
         {
             if (SharedGrid)
             {
-                var g = new Grid(GridXPerPlayer * PlayerCount, GridY);
-                Grids.Add(g);
+                var grid = new Grid(GridXPerPlayer * PlayerCount, GridY, LevelSpeeds);
+                Grids.Add(grid);
 
                 for (int i = 0; i < PlayerCount; i++)
-                    Players.Add(new Player(g, (PlayerIndex)i, null));
+                {
+                    var player = new Player(grid, (PlayerIndex)i, null);
+                    grid.Players.Add(player);
+                }
             }
             else
             {
                 for (int i = 0; i < PlayerCount; i++)
                 {
-                    var g = new Grid(GridXPerPlayer, GridY);
-                    Grids.Add(g);
+                    var grid = new Grid(GridXPerPlayer, GridY, LevelSpeeds);
+                    Grids.Add(grid);
 
-                    Players.Add(new Player(g, (PlayerIndex)i, null));
+                    var player = new Player(grid, (PlayerIndex)i, null);
+                    grid.Players.Add(player);
                 }
             }
 
             //setup screen and grid locations
             var GridPad = (BlockPixelSize * BlocksBetweenGrids);
+            var HeightPad = (BlockPixelSize * BlocksAboveBottom);
 
             var TotalGridPixelWidth = Grids.Sum(grid => (BlockPixelSize * grid.WidthInBlocks)) + ((Grids.Count - 1) * GridPad);
             var StartOffsetX = ((GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - (TotalGridPixelWidth / 2));
 
-            var MaxGridPixelHeight = Grids.Max(grid => (BlockPixelSize * grid.HeightInBlocks)) + (BlockPixelSize * 2);
-            //int StartOffsetY = ((GraphicsDevice.PresentationParameters.BackBufferHeight / 2) - (MaxGridPixelHeight / 2));
+            var MaxGridPixelHeight = Grids.Max(grid => (BlockPixelSize * grid.HeightInBlocks)) + HeightPad;
             var StartOffsetY = GraphicsDevice.PresentationParameters.BackBufferHeight - MaxGridPixelHeight;
 
             var XOffset = StartOffsetX;
@@ -169,17 +173,6 @@ namespace Liztris
         {
             foreach (var grid in Grids)
                 grid.NewGame();
-
-            foreach (var player in Players)
-                player.NewGame();
-        }
-
-        enum PieceState
-        {
-            None = 0,
-            AddToGrid = 1,
-            ClearedLines = 2,
-            NextLevel = 3,
         }
 
         /// <summary>
@@ -198,88 +191,10 @@ namespace Liztris
             if (inputManager.IsActionPressed(GlobalCommands.Pause))
                 Exit();
 
-            foreach (var player in Players)
-                player.Update(gameTime);
-            /*
             foreach (var grid in Grids)
                 grid.Update(gameTime);
-
-            // next piece
-            if (Player1.CurrentPiece == null)
-            {
-                if (Player1.NewPiece() == false)
-                {
-                    soundLose.Play();
-                    NewGame();
-                }
-            }
-            
-
-            //drop time?
-            timer += gameTime.ElapsedGameTime.TotalMilliseconds;
-
-            if (timer < GameDelay)
-                return;
-
-            timer -= GameDelay;
-
-            int gamevent = 0;
-
-            //game logic
-            if (CheckPiece(piece_x, piece_y + 1))
-            {
-                piece_y++;
-                gamevent = 0;
-            }
-            else
-            {
-                gamevent = 1;
-
-                Player1.Grid.AddPieceToGrid(Player1.CurrentPiece, Player1.piece_x, Player1.piece_y);
-                Player1.CurrentPiece = null;
-                var clearedLines = Player1.Grid.ClearFilledLines();
-                
-                if (clearedLines > 0)
-                {
-                    Player1.LineCount += clearedLines;
-                    gamevent = 2;
-
-                    if ((Player1.LineCount > 0) && (Player1.LineCount % 5 == 0))
-                    {
-                        Player1.Level++;
-                        GameDelay -= 100;
-                        if (GameDelay < 250)
-                            GameDelay = 250;
-
-                        gamevent = 3;
-                    }
-                }
-            }
-
-            if (gamevent == 1)
-                soundDrop.Play();
-            else if (gamevent == 2)
-                soundLine.Play();
-            else if (gamevent == 3)
-                soundLevel.Play();
-                */
         }
 
-
-        public enum PlayerAction
-        {
-            Pause,
-            RestartAllPlayers,
-            HelpPlayers,
-            HinderPlayers,
-        }
-
-
-        KeyboardState OldKeyboardState;
-        double timer;
-        double GameDelay = 0;
-
-        
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -292,7 +207,6 @@ namespace Liztris
             // TODO: Add your drawing code here
             spriteBatch.Begin();
             
-
             //draw
             spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 10), Color.Black);
             spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 8), Color.Red);
@@ -316,14 +230,9 @@ namespace Liztris
                 grid.Draw(spriteBatch, Blocks, BlockPixelSize);
             }
 
-            foreach (var player in Players)
-            {
-                player.Draw(spriteBatch, Blocks, BlockPixelSize);
-            }
-   
-            base.Draw(gameTime);
-
             spriteBatch.End();
+
+            base.Draw(gameTime);
         }
     }
 }

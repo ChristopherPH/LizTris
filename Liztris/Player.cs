@@ -29,31 +29,61 @@ namespace Liztris
 
             inputManager = new InputManager<Actions>();
 
-            inputManager.AddAction(Actions.Left, Keys.Left);
-            inputManager.AddAction(Actions.Left, InputManager<Actions>.GamePadButtons.Left);
+            switch (Player)
+            {
+                case PlayerIndex.Two:
+                    inputManager.AddAction(Actions.Left, Keys.Left);
+                    inputManager.AddAction(Actions.Left, InputManager<Actions>.GamePadButtons.Left);
 
-            inputManager.AddAction(Actions.Right, Keys.Right);
-            inputManager.AddAction(Actions.Right, InputManager<Actions>.GamePadButtons.Right);
+                    inputManager.AddAction(Actions.Right, Keys.Right);
+                    inputManager.AddAction(Actions.Right, InputManager<Actions>.GamePadButtons.Right);
 
-            inputManager.AddAction(Actions.Drop, Keys.Down);
-            inputManager.AddAction(Actions.Drop, InputManager<Actions>.GamePadButtons.Down);
+                    inputManager.AddAction(Actions.Drop, Keys.Down);
+                    inputManager.AddAction(Actions.Drop, InputManager<Actions>.GamePadButtons.Down);
 
-            inputManager.AddAction(Actions.Rotate, Keys.Up);
-            inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.A);
-            inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.X);
+                    inputManager.AddAction(Actions.Rotate, Keys.Up);
+                    inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.A);
+                    inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.X);
 
-            inputManager.AddAction(Actions.RotateCounter, InputManager<Actions>.GamePadButtons.B);
-            inputManager.AddAction(Actions.RotateCounter, InputManager<Actions>.GamePadButtons.Y);
-            inputManager.AddAction(Actions.RotateCounter, Keys.Space);
+                    inputManager.AddAction(Actions.RotateCounter, InputManager<Actions>.GamePadButtons.B);
+                    inputManager.AddAction(Actions.RotateCounter, InputManager<Actions>.GamePadButtons.Y);
+                    //inputManager.AddAction(Actions.RotateCounter, Keys.Space);
+                    break;
+
+                case PlayerIndex.One:
+                    inputManager.AddAction(Actions.Left, Keys.A);
+                    inputManager.AddAction(Actions.Left, InputManager<Actions>.GamePadButtons.Left);
+
+                    inputManager.AddAction(Actions.Right, Keys.D);
+                    inputManager.AddAction(Actions.Right, InputManager<Actions>.GamePadButtons.Right);
+
+                    inputManager.AddAction(Actions.Drop, Keys.S);
+                    inputManager.AddAction(Actions.Drop, InputManager<Actions>.GamePadButtons.Down);
+
+                    inputManager.AddAction(Actions.Rotate, Keys.W);
+                    inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.A);
+                    inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.X);
+
+                    inputManager.AddAction(Actions.RotateCounter, InputManager<Actions>.GamePadButtons.B);
+                    inputManager.AddAction(Actions.RotateCounter, InputManager<Actions>.GamePadButtons.Y);
+                    //inputManager.AddAction(Actions.RotateCounter, Keys.Space);
+                    break;
+            }
+
+
         }
 
         private InputManager<Actions> inputManager;
         private PlayerIndex playerIndex;
-        private Grid Grid;
+        public Grid Grid { get; private set; }
 
-        public int Score { get; private set; }
+        public Piece CurrentPiece;
+        public int piece_x;
+        public int piece_y;
+        public int Score { get; set; }
 
         //TODO: Implement
+
         public string Name;
         public Color Color;
 
@@ -66,21 +96,23 @@ namespace Liztris
             Fastest
         }
 
+
+        /*
+        public enum PlayerAction
+        {
+            Pause,
+            RestartAllPlayers,
+            HelpPlayers,
+            HinderPlayers,
+        }
+        */
+
+
         public void NewGame()
         {
             Score = 0;
             CurrentPiece = null;
-            NextPiece = null;
         }
-
-        
-
-        public Piece CurrentPiece;
-        public Piece NextPiece;
-
-        public int piece_x;
-        public int piece_y;
-
 
         public void MovePieceLeft()
         {
@@ -132,15 +164,6 @@ namespace Liztris
 
         public void Update(GameTime gameTime)
         {
-            if (NextPiece == null)
-                NextPiece = PieceDefinition.GetRandomPiece();
-
-            if (CurrentPiece == null)
-            {
-                CurrentPiece = NextPiece;
-                NextPiece = PieceDefinition.GetRandomPiece();
-            }
-
             inputManager.Update(playerIndex);
 
             if (inputManager.IsActionTriggered(Actions.Left))
@@ -170,47 +193,9 @@ namespace Liztris
             if (CurrentPiece == null)
                 return;
 
-            for (int x = 0; x < CurrentPiece.Width; x++)
-            {
-                for (int y = 0; y < CurrentPiece.Height; y++)
-                {
-                    var BlockIndex = CurrentPiece.BlockMap[y, x] - 1;
-                    if (BlockIndex <= -1)
-                        continue;
-
-                    Blocks.Draw(spriteBatch, 0, BlockIndex,
-                        new Vector2(
-                            Grid.ScreenRect.X + (BlockPixelSize * (piece_x + x)),
-                            Grid.ScreenRect.Y + (BlockPixelSize * (piece_y + y))));
-                }
-            }
-        }
-
-
-
-        public bool NewPiece()
-        {/*
-            var newPiece = Piece.GetPiece();
-
-            piece_x = (Grid.BlocksX - newPiece.Width) / 2;
-            piece_y = -newPiece.Height;
-
-            int y = 0;
-            for (y = 0; y <= newPiece.Height; y++)
-            {
-                if (Grid.CheckPiece(newPiece, piece_x, piece_y))
-                    break;
-
-                piece_y++;
-            }
-            if (y == newPiece.Height + 1)
-            {
-                return false;
-            }
-
-
-            CurrentPiece = newPiece;*/
-            return true;
+            CurrentPiece.Draw(spriteBatch, Blocks, BlockPixelSize,
+                Grid.ScreenRect.X + (BlockPixelSize * piece_x),
+                Grid.ScreenRect.Y + (BlockPixelSize * piece_y));
         }
     }
 }
