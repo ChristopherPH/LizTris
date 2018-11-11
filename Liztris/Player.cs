@@ -59,6 +59,13 @@ namespace Liztris
                     inputManager.AddAction(Actions.Drop, Keys.K);
                     inputManager.AddAction(Actions.Rotate, Keys.I);
                     break;
+
+                case PlayerIndex.Four:
+                    inputManager.AddAction(Actions.Left, Keys.NumPad4);
+                    inputManager.AddAction(Actions.Right, Keys.NumPad6);
+                    inputManager.AddAction(Actions.Drop, Keys.NumPad5);
+                    inputManager.AddAction(Actions.Rotate, Keys.NumPad8);
+                    break;
             }
 
 

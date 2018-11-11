@@ -53,9 +53,9 @@ namespace Common
         protected abstract int WindowHeight { get; }
         protected abstract bool WindowFullScreen { get; }
 
+#if USE_INDEPENDANT_RESOLUTION
         protected void SetupGameResolution(ref GraphicsDeviceManager graphics)
         {
-#if USE_INDEPENDANT_RESOLUTION
             IndependentResolutionRendering.Resolution.Init(ref graphics);
 
             //Virtual Resolution (Game Resolution): 
@@ -65,8 +65,10 @@ namespace Common
 
             //Window/Screen Resolution
             IndependentResolutionRendering.Resolution.SetResolution(WindowWidth, WindowHeight, WindowFullScreen);
-
+        }
 #else
+        protected void SetupGameResolution(ref GraphicsDeviceManager graphics)
+        {
             //Note: this is what is actually happening (The game resolution is set to the window resolution)
             //GameResolutionWidth = WindowWidth;
             //GameResolutionHeight = WindowHeight;
@@ -75,8 +77,8 @@ namespace Common
             graphics.PreferredBackBufferHeight = WindowHeight;
             graphics.IsFullScreen = WindowFullScreen;
             graphics.ApplyChanges();
-#endif
         }
+#endif
 
         protected override void Draw(GameTime gameTime)
         {

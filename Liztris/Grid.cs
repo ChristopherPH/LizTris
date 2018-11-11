@@ -14,6 +14,7 @@ namespace Liztris
     {
         public int Level { get; private set; } = 1;
         public int LineCount { get; private set; } = 0;
+        public int BestLineCount { get; private set; } = 0;
 
         public int WidthInBlocks { get; private set; }
         public int HeightInBlocks { get; private set; }
@@ -325,6 +326,9 @@ namespace Liztris
 
                                 ss = SoundState.NextLevel;
                             }
+
+                            if (LineCount > BestLineCount)
+                                BestLineCount = LineCount;
                         }
                     }
 
@@ -373,7 +377,7 @@ namespace Liztris
             {
                 piece.Draw(spriteBatch, Blocks, BlockPixelSize,
                     ScreenRect.X + (XOffset * BlockPixelSize),
-                    ScreenRect.Y - (YOffset * BlockPixelSize)
+                    ScreenRect.Y - (YOffset * BlockPixelSize) - 8 //8 to get above border
                     );
 
                 XOffset += piece.Width + 1;

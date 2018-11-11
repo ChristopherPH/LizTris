@@ -16,13 +16,13 @@ namespace Liztris
     {
         GraphicsDeviceManager graphics;
         Common.ExtendedSpriteBatch spriteBatch;
-        Texture2D BlankTexture;
-        Texture2D tmpTexture;
-        Texture2D Background;
+        Texture2D transparentDarkTexture;
+        Texture2D[] Background;
         SpriteSheet Blocks;
         SpriteFont fontScore, fontTitle, fontMenu;
         SoundEffect soundLine, soundLevel, soundLose, soundMusic, soundDrop;
         SoundEffectInstance soundMusicInstance;
+        int BackgroundIndex = 0;
 
         enum GlobalCommands
         {
@@ -39,6 +39,7 @@ namespace Liztris
             OnePlayer,
             TwoPlayer,
             ThreePlayer,
+            FourPlayer,
 
             GridPerPlayer,
             SharedGrid,
@@ -62,7 +63,7 @@ namespace Liztris
         const int GridXPerPlayer = 8;
         const int GridY = 17;
         const int BlockPixelSize = 32;
-        const int BlocksBetweenGrids = 4;
+        const int BlocksBetweenGrids = 8;
         const int BlocksAboveBottom = 1;
         const int PlayerCount = 2;
         const bool ShareGrid = true;
@@ -120,16 +121,17 @@ namespace Liztris
             spriteBatch = new Common.ExtendedSpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            BlankTexture = new Texture2D(GraphicsDevice, 1, 1);
-            BlankTexture.SetData(new[] { Color.White });
-
-            tmpTexture = new Texture2D(GraphicsDevice, 1, 1);
-            tmpTexture.SetData(new[] { Color.DarkSlateGray });
+            transparentDarkTexture = new Texture2D(GraphicsDevice, 1, 1);
+            transparentDarkTexture.SetData(new[] { Color.DarkSlateGray });
 
             Texture2D tex = Content.Load<Texture2D>("Blocks");
             Blocks = new SpriteSheet(tex, 5, 4);
 
-            Background = Content.Load<Texture2D>("Backgrounds/Beach");
+            Background = new Texture2D[3];
+            Background[0] = Content.Load<Texture2D>("Backgrounds/Beach"); 
+            Background[1] = Content.Load<Texture2D>("Backgrounds/Ocean"); 
+            Background[2] = Content.Load<Texture2D>("Backgrounds/Ruins");
+            BackgroundIndex = 0;
 
             fontScore = Content.Load<SpriteFont>("Score");
             fontTitle = Content.Load<SpriteFont>("Title");
@@ -146,14 +148,14 @@ namespace Liztris
 
             StartMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
                 new Menu<GlobalMenuItems>.MenuItem("New Game", GlobalMenuItems.NewGame),
-                new Menu<GlobalMenuItems>.MenuItem("Options", GlobalMenuItems.Options),
+                new Menu<GlobalMenuItems>.MenuItem("Full Screen", GlobalMenuItems.Options),
                 new Menu<GlobalMenuItems>.MenuItem("Quit", GlobalMenuItems.Quit),
             }, fontMenu);
 
             GameMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
                 new Menu<GlobalMenuItems>.MenuItem("Resume", GlobalMenuItems.Resume),
                 new Menu<GlobalMenuItems>.MenuItem("New Game", GlobalMenuItems.NewGame),
-                new Menu<GlobalMenuItems>.MenuItem("Options", GlobalMenuItems.Options),
+                new Menu<GlobalMenuItems>.MenuItem("Full Screen", GlobalMenuItems.Options),
                 new Menu<GlobalMenuItems>.MenuItem("Quit", GlobalMenuItems.Quit),
             }, fontMenu, 0, GlobalMenuItems.Resume);
 
@@ -161,6 +163,7 @@ namespace Liztris
                 new Menu<GlobalMenuItems>.MenuItem("One Player", GlobalMenuItems.OnePlayer),
                 new Menu<GlobalMenuItems>.MenuItem("Two Players", GlobalMenuItems.TwoPlayer),
                 new Menu<GlobalMenuItems>.MenuItem("Three Players", GlobalMenuItems.ThreePlayer),
+                new Menu<GlobalMenuItems>.MenuItem("Four Players", GlobalMenuItems.FourPlayer),
                 new Menu<GlobalMenuItems>.MenuItem("Back", GlobalMenuItems.BackToGameMenu),
             }, fontMenu, 0, GlobalMenuItems.BackToGameMenu);
 
@@ -177,9 +180,9 @@ namespace Liztris
         /// </summary>
         protected override void UnloadContent()
         {
+            
             // TODO: Unload any non ContentManager content here
-            BlankTexture.Dispose();
-            tmpTexture.Dispose();
+            transparentDarkTexture.Dispose();
         }
 
 
@@ -213,7 +216,8 @@ namespace Liztris
             }
 
             //setup screen and grid locations
-            var GridPad = (BlockPixelSize * BlocksBetweenGrids);
+            var BlocksBetweenGridsPerPlayer = BlocksBetweenGrids / PlayerCount;
+            var GridPad = (BlockPixelSize * BlocksBetweenGridsPerPlayer);
             var HeightPad = (BlockPixelSize * BlocksAboveBottom);
 
 
@@ -233,13 +237,15 @@ namespace Liztris
                     BlockPixelSize * grid.WidthInBlocks,
                     BlockPixelSize * grid.HeightInBlocks);
 
-                XOffset += BlockPixelSize * (grid.WidthInBlocks + BlocksBetweenGrids);
+                XOffset += BlockPixelSize * (grid.WidthInBlocks + BlocksBetweenGridsPerPlayer);
 
                 grid.soundDrop = soundDrop;
                 grid.soundLine = soundLine;
                 grid.soundLose = soundLose;
                 grid.soundLevel = soundLevel;
             }
+
+            BackgroundIndex = new Random().Next(3);
 
             foreach (var grid in Grids)
                 grid.NewGame();
@@ -267,6 +273,7 @@ namespace Liztris
                         switch (Choice.Value)
                         {
                             case GlobalMenuItems.Quit:
+                                soundMusicInstance.Stop();
                                 Exit();
                                 break;
 
@@ -298,6 +305,12 @@ namespace Liztris
                                 CurrentMenu.ResetMenu();
                                 break;
 
+                            case GlobalMenuItems.FourPlayer:
+                                mnuPlayers = 4;
+                                CurrentMenu = SharedGrid;
+                                CurrentMenu.ResetMenu();
+                                break;
+
                             case GlobalMenuItems.GridPerPlayer:
                                 NewGame(mnuPlayers, false);
                                 CurrentMenu = null;
@@ -317,6 +330,10 @@ namespace Liztris
                                 CurrentMenu = PlayerCountMenu;
                                 CurrentMenu.ResetMenu();
                                 mnuPlayers = 0;
+                                break;
+
+                            case GlobalMenuItems.Options:
+                                IndependentResolutionRendering.Resolution.SetResolution(1920, 1080, true);
                                 break;
                         }
                     }
@@ -358,14 +375,14 @@ namespace Liztris
 
             spriteBatch.FillRectangle(GameRectangle, Color.CornflowerBlue);
 
-            spriteBatch.Draw(Background, GameRectangle, Color.White);
+            spriteBatch.Draw(Background[BackgroundIndex], GameRectangle, Color.White);
 
             if (CurrentMenu != null)
             {
-                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 150), Color.Black,
-                    -0.4f, Vector2.Zero, 2f, SpriteEffects.None, 0f);
-                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 148), Color.Red,
-                    -0.4f, Vector2.Zero, 2f, SpriteEffects.None, 0f);
+                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 250), Color.Black,
+                    -0.5f, Vector2.Zero, 2.5f, SpriteEffects.None, 0f);
+                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 248), Color.Red,
+                    -0.5f, Vector2.Zero, 2.5f, SpriteEffects.None, 0f);
 
                 var MenuRect = new Rectangle(
                     (GamePixelWidth / 8) * 3, 
@@ -375,7 +392,7 @@ namespace Liztris
 
                 spriteBatch.DrawRectangle(MenuRect, Color.Teal, 3, false);
 
-                spriteBatch.Draw(tmpTexture, MenuRect, Color.White * 0.5f);
+                spriteBatch.Draw(transparentDarkTexture, MenuRect, Color.White * 0.5f);
 
                 CurrentMenu.Draw(spriteBatch, MenuRect);
                 spriteBatch.End();
@@ -383,15 +400,17 @@ namespace Liztris
             }
 
             //draw
-            spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 10), Color.Black);
-            spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 8), Color.Red);
+            spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 2), Color.Black);
+            spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 0), Color.Red);
 
             foreach (var grid in Grids)
             {
                 //draw grid info on upper left of grid
+                spriteBatch.DrawString(fontScore, "Level: " + grid.Level.ToString(),
+                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 140), Color.Black);
                 spriteBatch.DrawString(fontScore, "Lines: " + grid.LineCount.ToString(),
                     new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Black);
-                spriteBatch.DrawString(fontScore, "Level: " + grid.Level.ToString(),
+                spriteBatch.DrawString(fontScore, "Best: " + grid.BestLineCount.ToString(),
                     new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Black);
 
                 //draw grid border
@@ -400,7 +419,7 @@ namespace Liztris
                 //spriteBatch.DrawRectangle(borderRect, Color.Gray, 6, false);
                 spriteBatch.DrawRectangle(borderRect, Color.Teal, 3, false);
 
-                spriteBatch.Draw(tmpTexture, grid.ScreenRect, Color.White * 0.5f);
+                spriteBatch.Draw(transparentDarkTexture, grid.ScreenRect, Color.White * 0.5f);
 
                 //draw grid
                 grid.Draw(spriteBatch, Blocks, BlockPixelSize);
