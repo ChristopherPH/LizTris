@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -25,11 +26,34 @@ namespace Liztris
 
         enum GlobalCommands
         {
-            Pause,
-            MenuSelect,
-            MenuUp,
-            MenuDown,
+            Menu,
         }
+
+        enum GlobalMenuItems
+        {
+            Resume,
+            NewGame,
+            Options,
+            Quit,
+
+            OnePlayer,
+            TwoPlayer,
+            ThreePlayer,
+
+            GridPerPlayer,
+            SharedGrid,
+
+            BackToGameMenu,
+            BackToPlayerCountMenu,
+        }
+
+        Menu<GlobalMenuItems> StartMenu = null;
+        Menu<GlobalMenuItems> GameMenu = null;
+        Menu<GlobalMenuItems> PlayerCountMenu = null;
+        Menu<GlobalMenuItems> SharedGrid = null;
+
+        Menu<GlobalMenuItems> CurrentGameMenu = null;
+        Menu<GlobalMenuItems> CurrentMenu = null;
 
         InputManager<GlobalCommands> inputManager = new InputManager<GlobalCommands>();
 
@@ -75,23 +99,16 @@ namespace Liztris
             //Window.IsBorderless = true;
             //Window.Position = new Point(0, 0);
 
-            inputManager.AddAction(GlobalCommands.Pause, Keys.Escape);
-            inputManager.AddAction(GlobalCommands.Pause, InputManager<GlobalCommands>.GamePadButtons.Start);
-            inputManager.AddAction(GlobalCommands.Pause, InputManager<GlobalCommands>.GamePadButtons.Back);
-
-            inputManager.AddAction(GlobalCommands.MenuSelect, Keys.Enter);
-            inputManager.AddAction(GlobalCommands.MenuSelect, InputManager<GlobalCommands>.GamePadButtons.A);
-
-            inputManager.AddAction(GlobalCommands.MenuUp, Keys.Up);
-            inputManager.AddAction(GlobalCommands.MenuUp, InputManager<GlobalCommands>.GamePadButtons.Up);
-
-            inputManager.AddAction(GlobalCommands.MenuDown, Keys.Down);
-            inputManager.AddAction(GlobalCommands.MenuDown, InputManager<GlobalCommands>.GamePadButtons.Down);
+            inputManager.AddAction(GlobalCommands.Menu, Keys.Escape);
+            inputManager.AddAction(GlobalCommands.Menu, InputManager<GlobalCommands>.GamePadButtons.Start);
+            inputManager.AddAction(GlobalCommands.Menu, InputManager<GlobalCommands>.GamePadButtons.Back);
 
             soundMusicInstance.Volume = 0.20f;
             soundMusicInstance.IsLooped = true;
             //soundMusicInstance.Play();
-            SetupGame(PlayerCount, ShareGrid);
+
+            CurrentGameMenu = StartMenu;
+            CurrentMenu = CurrentGameMenu;
         }
 
         /// <summary>
@@ -128,6 +145,33 @@ namespace Liztris
             soundDrop = Content.Load<SoundEffect>("Drop");
 
             soundMusicInstance = soundMusic.CreateInstance();
+
+
+            StartMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
+                new Menu<GlobalMenuItems>.MenuItem("New Game", GlobalMenuItems.NewGame),
+                new Menu<GlobalMenuItems>.MenuItem("Options", GlobalMenuItems.Options),
+                new Menu<GlobalMenuItems>.MenuItem("Quit", GlobalMenuItems.Quit),
+            }, fontScore);
+
+            GameMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
+                new Menu<GlobalMenuItems>.MenuItem("Resume", GlobalMenuItems.Resume),
+                new Menu<GlobalMenuItems>.MenuItem("New Game", GlobalMenuItems.NewGame),
+                new Menu<GlobalMenuItems>.MenuItem("Options", GlobalMenuItems.Options),
+                new Menu<GlobalMenuItems>.MenuItem("Quit", GlobalMenuItems.Quit),
+            }, fontScore, 0, GlobalMenuItems.Resume);
+
+            PlayerCountMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
+                new Menu<GlobalMenuItems>.MenuItem("One Player", GlobalMenuItems.OnePlayer),
+                new Menu<GlobalMenuItems>.MenuItem("Two Players", GlobalMenuItems.TwoPlayer),
+                new Menu<GlobalMenuItems>.MenuItem("Three Players", GlobalMenuItems.ThreePlayer),
+                new Menu<GlobalMenuItems>.MenuItem("Back", GlobalMenuItems.BackToGameMenu),
+            }, fontScore, 0, GlobalMenuItems.BackToGameMenu);
+
+            SharedGrid = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
+                new Menu<GlobalMenuItems>.MenuItem("Grid Per Player", GlobalMenuItems.GridPerPlayer),
+                new Menu<GlobalMenuItems>.MenuItem("Shared Grid", GlobalMenuItems.SharedGrid),
+                new Menu<GlobalMenuItems>.MenuItem("Back", GlobalMenuItems.BackToPlayerCountMenu),
+            }, fontScore, 0, GlobalMenuItems.BackToPlayerCountMenu);
         }
 
         /// <summary>
@@ -142,8 +186,12 @@ namespace Liztris
         }
 
 
-        public void SetupGame(int PlayerCount, bool SharedGrid)
+        public void NewGame(int PlayerCount, bool SharedGrid)
         {
+            foreach (var grid in Grids)
+                grid.Players.Clear();
+            Grids.Clear();
+
             if (SharedGrid)
             {
                 var grid = new Grid(GridXPerPlayer * PlayerCount, GridY, LevelSpeeds);
@@ -191,22 +239,11 @@ namespace Liztris
                 XOffset += BlockPixelSize * (grid.WidthInBlocks + BlocksBetweenGrids);
             }
 
-            NewGame();
-
-            MainMenu = new Menu(new string[]
-            {
-                "New Game",
-                "Options",
-                "Quit"
-            }, fontScore);
-        }
-
-
-        public void NewGame()
-        {
             foreach (var grid in Grids)
                 grid.NewGame();
         }
+
+        private int mnuPlayers = 0;
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -219,22 +256,67 @@ namespace Liztris
 
             base.Update(gameTime);
 
-            if (MainMenu != null)
+            if (CurrentMenu != null)
             {
-                if (MainMenu.Update(gameTime, out int Choice))
+                if (CurrentMenu.Update(gameTime, out GlobalMenuItems? Choice))
                 {
-                    //do something
-                    switch (Choice)
+                    if (Choice != null)
                     {
-                        case 0:
-                            NewGame();
-                            MainMenu = null;
-                            break;
-                        case 1: break;
-                        case 2: Exit(); break;
-                        case 3:
-                            MainMenu = null;
-                            break;
+                        switch (Choice.Value)
+                        {
+                            case GlobalMenuItems.Quit:
+                                Exit();
+                                break;
+
+                            case GlobalMenuItems.Resume:
+                                CurrentMenu = null;
+                                break;
+
+                            case GlobalMenuItems.NewGame:
+                                CurrentMenu = PlayerCountMenu;
+                                CurrentMenu.ResetMenu();
+                                mnuPlayers = 0;
+                                break;
+
+                            case GlobalMenuItems.OnePlayer:
+                                mnuPlayers = 1;
+                                CurrentMenu = SharedGrid;
+                                CurrentMenu.ResetMenu();
+                                break;
+
+                            case GlobalMenuItems.TwoPlayer:
+                                mnuPlayers = 2;
+                                CurrentMenu = SharedGrid;
+                                CurrentMenu.ResetMenu();
+                                break;
+
+                            case GlobalMenuItems.ThreePlayer:
+                                mnuPlayers = 3;
+                                CurrentMenu = SharedGrid;
+                                CurrentMenu.ResetMenu();
+                                break;
+
+                            case GlobalMenuItems.GridPerPlayer:
+                                NewGame(mnuPlayers, false);
+                                CurrentMenu = null;
+                                break;
+
+                            case GlobalMenuItems.SharedGrid:
+                                NewGame(mnuPlayers, true);
+                                CurrentMenu = null;
+                                break;
+
+                            case GlobalMenuItems.BackToGameMenu:
+                                CurrentMenu = CurrentGameMenu;
+                                CurrentMenu.ResetMenu();
+                                break;
+
+                            case GlobalMenuItems.BackToPlayerCountMenu:
+                                CurrentMenu = PlayerCountMenu;
+                                CurrentMenu.ResetMenu();
+                                mnuPlayers = 0;
+                                break;
+                        }
                     }
                 }
 
@@ -242,23 +324,21 @@ namespace Liztris
             }
 
             inputManager.Update(PlayerIndex.One);
-
-            if (inputManager.IsActionTriggered(GlobalCommands.Pause))
+            if (inputManager.IsActionTriggered(GlobalCommands.Menu))
             {
-                MainMenu = new Menu(new string[]
-                {
-                "New Game",
-                "Options",
-                "Quit",
-                "Resume",
-                }, fontScore, 3);
+                CurrentGameMenu = GameMenu; //change to resumable menu
+
+                CurrentMenu = CurrentGameMenu;
+                CurrentMenu.ResetMenu();
+                
+                return;
             }
 
             foreach (var grid in Grids)
                 grid.Update(gameTime);
         }
 
-        Menu MainMenu = null;
+       
 
 
         /// <summary>
@@ -278,7 +358,7 @@ namespace Liztris
 
             spriteBatch.Draw(Background, GameRectangle, Color.White);
 
-            if (MainMenu != null)
+            if (CurrentMenu != null)
             {
                 spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 150), Color.Black,
                     -0.4f, Vector2.Zero, 2f, SpriteEffects.None, 0f);
@@ -295,7 +375,7 @@ namespace Liztris
 
                 spriteBatch.Draw(tmpTexture, MenuRect, Color.White * 0.5f);
 
-                MainMenu.Draw(spriteBatch, MenuRect);
+                CurrentMenu.Draw(spriteBatch, MenuRect);
                 spriteBatch.End();
                 return;
             }

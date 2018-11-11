@@ -9,13 +9,28 @@ using System.Threading.Tasks;
 
 namespace Liztris
 {
-    public class Menu
+    public class Menu<T> where T : struct, IComparable
     {
-        public Menu(string[] Options, SpriteFont font, int Choice = 0)
+        public class MenuItem
+        {
+            public MenuItem() { }
+            public MenuItem(string Title, T value)
+            {
+                this.Title = Title;
+                this.value = value;
+            }
+
+            public string Title { get; set; }
+            public T value { get; set; }
+        }
+
+        public Menu(MenuItem[] MenuItems, SpriteFont font, int StartingIndex = 0, T? BackSelection = null)
         {
             Font = font;
-            this.Options = Options;
-            this._Choice = Choice;
+            this.MenuItems = MenuItems;
+            this.StartingIndex = StartingIndex;
+            this.SelectedIndex = StartingIndex;
+            this.BackSelection = BackSelection;
 
             inputManager.AddAction(MenuCommands.MenuSelect, Keys.Enter);
             inputManager.AddAction(MenuCommands.MenuSelect, InputManager<MenuCommands>.GamePadButtons.A);
@@ -29,15 +44,25 @@ namespace Liztris
             inputManager.AddAction(MenuCommands.MenuDown, Keys.Down);
             inputManager.AddAction(MenuCommands.MenuDown, InputManager<MenuCommands>.GamePadButtons.Down);
 
-            inputManager.Update(PlayerIndex.One);
+            inputManager.AddAction(MenuCommands.MenuLeft, Keys.Left);
+            inputManager.AddAction(MenuCommands.MenuLeft, InputManager<MenuCommands>.GamePadButtons.Left);
+
+            inputManager.AddAction(MenuCommands.MenuRight, Keys.Right);
+            inputManager.AddAction(MenuCommands.MenuRight, InputManager<MenuCommands>.GamePadButtons.Right);
+
+            ResetMenu();
         }
 
+        public MenuItem[] MenuItems { get; private set; }
+
         SpriteFont Font;
-        string[] Options;
-        int _Choice = 0;
+        int SelectedIndex;
+        int StartingIndex;
         float _scale = 1;
         bool _scaleReverse = false;
         Timer AnimationTimer = new Timer(10);
+        T? BackSelection;
+
 
         enum MenuCommands
         {
@@ -45,11 +70,19 @@ namespace Liztris
             MenuSelect,
             MenuUp,
             MenuDown,
+            MenuLeft,
+            MenuRight,
         }
 
         InputManager<MenuCommands> inputManager = new InputManager<MenuCommands>();
 
-        public bool Update(GameTime gameTime, out int Choice)
+        public void ResetMenu()
+        {
+            inputManager.Update(PlayerIndex.One);
+            this.SelectedIndex = StartingIndex;
+        }
+
+        public bool Update(GameTime gameTime, out T? Selection)
         {
             if (AnimationTimer.UpdateAndCheck(gameTime))
             {
@@ -71,29 +104,34 @@ namespace Liztris
 
             if (inputManager.IsActionTriggered(MenuCommands.MenuSelect))
             {
-                Choice = _Choice;
+                //valid option
+                Selection = MenuItems[SelectedIndex].value;
                 return true;
             }
 
-            Choice = -1;
-
             if (inputManager.IsActionTriggered(MenuCommands.MenuBack))
+            {
+                Selection = BackSelection;
                 return true;
+            }
+
+            //no option selected
+            Selection = null;
 
             if (inputManager.IsActionTriggered(MenuCommands.MenuUp))
             {
-                if (_Choice > 0)
+                if (SelectedIndex > 0)
                 {
-                    _Choice--;
+                    SelectedIndex--;
                     _scale = 1;
                     _scaleReverse = false;
                 }
             }
             else if (inputManager.IsActionTriggered(MenuCommands.MenuDown))
             {
-                if (_Choice < Options.Length - 1)
+                if (SelectedIndex < MenuItems.Length - 1)
                 {
-                    _Choice++;
+                    SelectedIndex++;
                     _scale = 1;
                     _scaleReverse = false;
                 }
@@ -107,7 +145,7 @@ namespace Liztris
             var sz = Font.MeasureString("W");
             int linepad = 10;
 
-            var height = ((int)sz.Y * Options.Length) + (linepad * (Options.Length - 1));
+            var height = ((int)sz.Y * MenuItems.Length) + (linepad * (MenuItems.Length - 1));
             //spriteBatch.FillRectangle(new Rectangle(MenuRect.X, MenuRect.Y, 100, height), Color.Purple);
 
             int offset = (MenuRect.Y) + (MenuRect.Height / 2) - (height / 2);
@@ -116,19 +154,19 @@ namespace Liztris
             offset += (int)(sz.Y / 2); //offset start as we scale the font
             
 
-            for (int i = 0; i < Options.Length; i++)
+            for (int i = 0; i < MenuItems.Length; i++)
             {
-                sz = Font.MeasureString(Options[i]);
+                sz = Font.MeasureString(MenuItems[i].Title);
                 var c = Color.White;
                 var scale = 1.0f;
 
-                if (i == _Choice)
+                if (i == SelectedIndex)
                 {
                     c = Color.LightGreen;
                     scale = _scale;
                 }
 
-                spriteBatch.DrawString(Font, Options[i],
+                spriteBatch.DrawString(Font, MenuItems[i].Title,
                         new Vector2(MenuRect.X + (MenuRect.Width / 2) - ((sz.X * scale) / 2),
                         offset - (sz.Y/2 * scale)), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
                         //offset ), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);

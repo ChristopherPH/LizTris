@@ -41,6 +41,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Common\EnumHelper.cs" />
     <Compile Include="Common\ExtendedSpriteBatch.cs" />
     <Compile Include="Common\GameResolution.cs" />
     <Compile Include="Common\Resolution.cs" />
