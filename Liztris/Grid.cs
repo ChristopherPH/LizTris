@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -159,6 +160,9 @@ namespace Liztris
 
         bool SetupPlayerPiece(Player player)
         {
+            if (NextPieces.Count == 0)
+                return false;
+
             var nextPiece = NextPieces.Dequeue();
 
             //split the grid into even sections for players
@@ -232,8 +236,26 @@ namespace Liztris
             Lose = 4,
         }
 
+        public SoundEffect soundLine { get; set; }
+        public SoundEffect soundLevel { get; set; }
+        public SoundEffect soundLose { get; set; }
+        public SoundEffect soundDrop { get; set; }
+
+        Timer GameOverTimer = null;
+
         public void Update(GameTime gameTime)
         {
+            if (GameOverTimer != null)
+            {
+                if (GameOverTimer.UpdateAndCheck(gameTime))
+                {
+                    GameOverTimer = null;
+                    NewGame();
+                }
+
+                return;
+            }
+
             SoundState ss = SoundState.None;
 
             //allow players to move pieces
@@ -244,7 +266,20 @@ namespace Liztris
                     if (!SetupPlayerPiece(player))
                     {
                         ss = SoundState.Lose;
-                        NewGame();
+                        soundLose.Play();
+                        GameOverTimer = new Timer(3000);
+
+                        for (int x = 0; x < WidthInBlocks; x++)
+                        {
+                            for (int y = 0; y < HeightInBlocks; y++)
+                            {
+                                if (BlockMap[y, x] > 0)
+                                {
+                                    BlockMap[y, x] = 1;
+                                }
+                            }
+                        }
+
                         return;
                     }
                 }
@@ -296,15 +331,15 @@ namespace Liztris
                     switch (ss)
                     {
                         case SoundState.AddToGrid:
-                            //soundDrop.Play();
+                            soundDrop.Play();
                             break;
 
                         case SoundState.ClearedLines:
-                            //soundLine.Play();
+                            soundLine.Play();
                             break;
 
                         case SoundState.NextLevel:
-                            //soundLevel.Play();
+                            soundLevel.Play();
                             break;
                     }
                 }

@@ -105,7 +105,7 @@ namespace Liztris
 
             soundMusicInstance.Volume = 0.20f;
             soundMusicInstance.IsLooped = true;
-            //soundMusicInstance.Play();
+            soundMusicInstance.Play();
 
             CurrentGameMenu = StartMenu;
             CurrentMenu = CurrentGameMenu;
@@ -126,9 +126,6 @@ namespace Liztris
 
             tmpTexture = new Texture2D(GraphicsDevice, 1, 1);
             tmpTexture.SetData(new[] { Color.DarkSlateGray });
-
-            //Texture2D tex = Content.Load<Texture2D>("Bricks");
-            //Blocks = new SpriteSheet(tex, 4, 6);
 
             Texture2D tex = Content.Load<Texture2D>("Blocks");
             Blocks = new SpriteSheet(tex, 5, 4);
@@ -237,6 +234,11 @@ namespace Liztris
                     BlockPixelSize * grid.HeightInBlocks);
 
                 XOffset += BlockPixelSize * (grid.WidthInBlocks + BlocksBetweenGrids);
+
+                grid.soundDrop = soundDrop;
+                grid.soundLine = soundLine;
+                grid.soundLose = soundLose;
+                grid.soundLevel = soundLevel;
             }
 
             foreach (var grid in Grids)
