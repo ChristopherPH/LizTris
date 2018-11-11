@@ -172,7 +172,8 @@ namespace Liztris
             if (NextPieces.Count == 0)
                 return false;
 
-            var nextPiece = NextPieces.Dequeue();
+            //just peek so we continue to draw the 'next piece'
+            var nextPiece = NextPieces.Peek();
 
             //split the grid into even sections for players
             var blocksPerPlayer = (double)WidthInBlocks / (double)(Players.Count);
@@ -201,6 +202,8 @@ namespace Liztris
             player.piece_x = piece_x;
             player.piece_y = piece_y;
 
+            //actually remove piece, add new random piece
+            NextPieces.Dequeue();
             NextPieces.Enqueue(PieceDefinition.GetRandomPiece());
             return true;
         }
@@ -276,7 +279,7 @@ namespace Liztris
 
                     if (player.inputManager.IsActionTriggered(Player.Actions.Rotate) ||
                         player.inputManager.IsActionTriggered(Player.Actions.RotateCounter) ||
-                        player.inputManager.IsActionTriggered(Player.Actions.Drop))
+                        player.inputManager.IsActionTriggered(Player.Actions.SoftDrop))
                     {
                         NewGame();
                         CanResetGameOver = false;

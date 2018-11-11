@@ -40,41 +40,39 @@ namespace Liztris
         private static int[][,] StandardPieces = new int[][,]
         {
             new int[,] {
+                {14,14},
+                {14,14},
+            },
+            new int[,] {
+                {0,0,3},
+                {3,3,3},
+                {0,0,0},
+            },
+            new int[,] {
+                {15,0,0},
+                {15,15,15},
+                {0,0,0},
+            },
+            new int[,] {
                 {0,0,0,0},
-                {0,14,14,0},
-                {0,14,14,0},
+                {20,20,20,20},
+                {0,0,0,0},
                 {0,0,0,0},
             },
             new int[,] {
-                {0,3,0,0},
-                {0,3,0,0},
-                {0,3,3,0},
+                {0,0,0},
+                {0,13,13},
+                {13,13,0},
             },
             new int[,] {
-                {0,0,15,0},
-                {0,0,15,0},
-                {0,15,15,0},
+                {0,0,0},
+                {6,6,0},
+                {0,6,6},
             },
             new int[,] {
-                {0,20,0,0},
-                {0,20,0,0},
-                {0,20,0,0},
-                {0,20,0,0},
-            },
-            new int[,] {
-                {0,13,0,0},
-                {0,13,13,0},
-                {0,0,13,0},
-            },
-            new int[,] {
-                {0,0,6,0},
-                {0,6,6,0},
-                {0,6,0,0},
-            },
-            new int[,] {
-                {0,8,0,0},
-                {0,8,8,0},
-                {0,8,0,0},
+                {0,8,0},
+                {8,8,8},
+                {0,0,0},
             },
         };
 
@@ -173,7 +171,7 @@ namespace Liztris
         public int Height => BlockMap.GetHeight();
         public int Width => BlockMap.GetWidth();
 
-        public void RotateClockwise()
+        public void RotateCounterClockwise()
         {
             var h = BlockMap.GetHeight();
             var w = BlockMap.GetWidth();
@@ -187,7 +185,7 @@ namespace Liztris
             BlockMap = new_piece;
         }
 
-        public void RotateCounterClockwise()
+        public void RotateClockwise()
         {
             var h = BlockMap.GetHeight();
             var w = BlockMap.GetWidth();

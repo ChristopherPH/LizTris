@@ -17,7 +17,7 @@ namespace Liztris
         {
             Left,
             Right,
-            Drop,
+            SoftDrop,
             Rotate,
             RotateCounter,
         }
@@ -32,7 +32,7 @@ namespace Liztris
 
             inputManager.AddAction(Actions.Left, InputManager<Actions>.GamePadButtons.Left);
             inputManager.AddAction(Actions.Right, InputManager<Actions>.GamePadButtons.Right);
-            inputManager.AddAction(Actions.Drop, InputManager<Actions>.GamePadButtons.Down);
+            inputManager.AddAction(Actions.SoftDrop, InputManager<Actions>.GamePadButtons.Down);
             inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.A);
             inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.X);
             inputManager.AddAction(Actions.RotateCounter, InputManager<Actions>.GamePadButtons.B);
@@ -43,33 +43,31 @@ namespace Liztris
                 case PlayerIndex.One:
                     inputManager.AddAction(Actions.Left, Keys.A);
                     inputManager.AddAction(Actions.Right, Keys.D);
-                    inputManager.AddAction(Actions.Drop, Keys.S);
+                    inputManager.AddAction(Actions.SoftDrop, Keys.S);
                     inputManager.AddAction(Actions.Rotate, Keys.W);
                     break;
 
                 case PlayerIndex.Two:
                     inputManager.AddAction(Actions.Left, Keys.Left);
                     inputManager.AddAction(Actions.Right, Keys.Right);
-                    inputManager.AddAction(Actions.Drop, Keys.Down);
+                    inputManager.AddAction(Actions.SoftDrop, Keys.Down);
                     inputManager.AddAction(Actions.Rotate, Keys.Up);
                     break;
 
                 case PlayerIndex.Three:
                     inputManager.AddAction(Actions.Left, Keys.J);
                     inputManager.AddAction(Actions.Right, Keys.L);
-                    inputManager.AddAction(Actions.Drop, Keys.K);
+                    inputManager.AddAction(Actions.SoftDrop, Keys.K);
                     inputManager.AddAction(Actions.Rotate, Keys.I);
                     break;
 
                 case PlayerIndex.Four:
                     inputManager.AddAction(Actions.Left, Keys.NumPad4);
                     inputManager.AddAction(Actions.Right, Keys.NumPad6);
-                    inputManager.AddAction(Actions.Drop, Keys.NumPad5);
+                    inputManager.AddAction(Actions.SoftDrop, Keys.NumPad5);
                     inputManager.AddAction(Actions.Rotate, Keys.NumPad8);
                     break;
             }
-
-
         }
 
         public InputManager<Actions> inputManager;
@@ -79,32 +77,6 @@ namespace Liztris
         public Piece CurrentPiece;
         public int piece_x;
         public int piece_y;
-
-        //TODO: Implement
-
-        public string Name;
-        public Color Color;
-
-        public enum Speed
-        {
-            Slowest,
-            Slow,
-            Normal,
-            Fast,
-            Fastest
-        }
-
-
-        /*
-        public enum PlayerAction
-        {
-            Pause,
-            RestartAllPlayers,
-            HelpPlayers,
-            HinderPlayers,
-        }
-        */
-
 
         public void NewGame()
         {
@@ -240,7 +212,7 @@ namespace Liztris
                 MovePieceRight();
                 repeatTimer = new Timer(moveRepeatTime);
             }
-            else if (inputManager.IsActionTriggered(Actions.Drop))
+            else if (inputManager.IsActionTriggered(Actions.SoftDrop))
             {
                 MovePieceDown();
                 repeatTimer = new Timer(dropRepeatTime);
@@ -257,7 +229,7 @@ namespace Liztris
             {
                 var left = inputManager.IsActionPressed(Actions.Left);
                 var right = inputManager.IsActionPressed(Actions.Right);
-                var drop = inputManager.IsActionPressed(Actions.Drop);
+                var drop = inputManager.IsActionPressed(Actions.SoftDrop);
 
                 if (!right && !left && !drop)
                     repeatTimer = null;
