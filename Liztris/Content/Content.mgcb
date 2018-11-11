@@ -63,19 +63,26 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/Score.spritefont
 
-#begin Fonts/Toast.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Fonts/Toast.spritefont
-
 #begin Fonts/Title.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:Fonts/Title.spritefont
+
+#begin Fonts/TitleHuge.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/TitleHuge.spritefont
+
+#begin Fonts/Toast.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/Toast.spritefont
 
 #begin Graphics/Blocks.png
 /importer:TextureImporter

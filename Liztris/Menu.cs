@@ -61,7 +61,7 @@ namespace Liztris
         int StartingIndex;
         float _scale = 1;
         bool _scaleReverse = false;
-        Timer AnimationTimer = new Timer(10);
+        Timer AnimationTimer = new Timer(20);
         T? BackSelection;
 
 

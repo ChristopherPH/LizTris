@@ -299,6 +299,14 @@ namespace Liztris
                         soundLose.Play();
                         GameOverTimer = new Timer(3000);
 
+                        Toasts.AddToast(
+                            new Rectangle(ScreenRect.X, 
+                                ScreenRect.Y + (ScreenRect.Height/2), 
+                                ScreenRect.Width, 100),
+                            2000,
+                            "Game Over",
+                            Color.Red, 1f);
+
                         for (int x = 0; x < WidthInBlocks; x++)
                         {
                             for (int y = 0; y < HeightInBlocks; y++)
@@ -375,7 +383,7 @@ namespace Liztris
                                     this.ScreenRect.Y + (player.piece_y * 32),
                                     1500,
                                     ScoreMultiplier[lines].ToString(),
-                                    Color.Aquamarine, 2.0f);
+                                    Color.Gold, 2.0f);
                             }
                             else
                             {
@@ -386,7 +394,7 @@ namespace Liztris
                                     this.ScreenRect.Y + (player.piece_y * 32),
                                     1000,
                                     ScoreMultiplier[lines].ToString(),
-                                    Color.LightBlue);
+                                    Color.Aqua);
                             }
                             
 

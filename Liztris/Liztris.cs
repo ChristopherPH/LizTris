@@ -20,7 +20,7 @@ namespace Liztris
         Texture2D transparentDarkTexture;
         Texture2D[] Background;
         SpriteSheet Blocks;
-        SpriteFont fontScore, fontTitle, fontMenu;
+        SpriteFont fontScore, fontTitle, fontMenu, fontTitleHuge;
         SoundEffect soundLine, soundLevel, soundLose, musicDefault, soundDrop, soundTetris;
         SoundEffectInstance musicDefaultInstance;
         int BackgroundIndex = 0;
@@ -148,6 +148,7 @@ namespace Liztris
             fontScore = Content.Load<SpriteFont>("Fonts/Score");
             fontTitle = Content.Load<SpriteFont>("Fonts/Title");
             fontMenu = Content.Load<SpriteFont>("Fonts/Menu");
+            fontTitleHuge = Content.Load<SpriteFont>("Fonts/TitleHuge");
 
             Toasts.spriteFont = Content.Load<SpriteFont>("Fonts/Toast");
 
@@ -269,8 +270,6 @@ namespace Liztris
 
         private int mnuPlayers = 0;
 
-        Vector2 mousePos;
-
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -281,11 +280,6 @@ namespace Liztris
             // TODO: Add your update logic here
 
             base.Update(gameTime);
-
-            if (logicTimer.UpdateAndCheck(gameTime))
-                logic = 1 / gameTime.ElapsedGameTime.TotalSeconds;
-
-            mousePos = TranslateLocation(Mouse.GetState().Position.ToVector2());
 
             if (CurrentMenu != null)
             {
@@ -388,10 +382,8 @@ namespace Liztris
             Toasts.Update(gameTime);
         }
 
-        Timer fpsTimer = new Timer(100);
-        double framerate = 0;
-        Timer logicTimer = new Timer(100);
-        double logic = 0;
+       
+
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -412,10 +404,10 @@ namespace Liztris
 
             if (CurrentMenu != null)
             {
-                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 250), Color.Black,
-                    -0.5f, Vector2.Zero, 2.5f, SpriteEffects.None, 0f);
-                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 248), Color.Wheat,
-                    -0.5f, Vector2.Zero, 2.5f, SpriteEffects.None, 0f);
+                spriteBatch.DrawString(fontTitleHuge, "LIZTRIS", new Vector2(30, 250), Color.Black,
+                    -0.5f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+                spriteBatch.DrawString(fontTitleHuge, "LIZTRIS", new Vector2(28, 248), Color.Wheat,
+                    -0.5f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 
                 var MenuRect = new Rectangle(
                     (GamePixelWidth / 8) * 3, 
@@ -428,35 +420,23 @@ namespace Liztris
                 spriteBatch.Draw(transparentDarkTexture, MenuRect, Color.White * 0.5f);
 
                 CurrentMenu.Draw(spriteBatch, MenuRect);
-                spriteBatch.DrawString(fontMenu, "Mouse: " + 
-                    (int)mousePos.X + " " + (int)mousePos.Y, new Vector2(), Color.White);
-
-                if (fpsTimer.UpdateAndCheck(gameTime))
-                    framerate = 1 / gameTime.ElapsedGameTime.TotalSeconds;
-
-                spriteBatch.DrawString(fontMenu, "FPS: " +
-                    framerate.ToString("N2"), new Vector2(0, 60), Color.White);
-                spriteBatch.DrawString(fontMenu, "LPS: " +
-                    logic.ToString("N2"), new Vector2(0, 120), Color.White);
-
-
                 spriteBatch.End();
                 return;
             }
 
             //draw
             spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 2), Color.Black);
-            spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 0), Color.Red);
+            spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 0), Color.Wheat);
 
             foreach (var grid in Grids)
             {
                 //draw grid info on upper left of grid
                 spriteBatch.DrawString(fontScore, "Level: " + grid.Level.ToString(),
-                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 140), Color.Black);
+                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 140), Color.Gold);
                 spriteBatch.DrawString(fontScore, "Lines: " + grid.LineCount.ToString(),
-                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Black);
+                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Goldenrod);
                 spriteBatch.DrawString(fontScore, "Score: " + grid.Score.ToString(),
-                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Black);
+                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.DimGray);
 
                 //draw grid border
                 var borderRect = grid.ScreenRect;

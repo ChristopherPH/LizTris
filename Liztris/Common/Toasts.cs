@@ -27,6 +27,28 @@ namespace Common
             });
         }
 
+        public static void AddToast(Rectangle r, int ms, string Text, Color c, float Scale = 1.0f)
+        {
+            Vector2 size = spriteFont.MeasureString(Text);
+
+            int x = (r.Width / 2) - ((int)size.X / 2) + r.X;
+            int y = (r.Height / 2) - ((int)size.Y / 2) + r.Y;
+
+            _toasts.Add(new Toast()
+            {
+                x = x,
+                y = y,
+                ttl = ms,
+                text = Text,
+                c = c,
+                scale = Scale,
+
+                dx = 0,
+                dy = -1,
+                dalpha = 0.05f,
+            });
+        }
+
         private class Toast
         {
             public string text;
