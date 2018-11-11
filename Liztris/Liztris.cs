@@ -34,7 +34,8 @@ namespace Liztris
             Resume,
             NewGame,
             Options,
-            Quit,
+            QuitGame,
+            Exit,
 
             OnePlayer,
             TwoPlayer,
@@ -80,8 +81,6 @@ namespace Liztris
 
         public Liztris()
         {
-            Common.GameMenu.MenuTest.Savemenu();
-
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
@@ -157,14 +156,13 @@ namespace Liztris
             StartMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
                 new Menu<GlobalMenuItems>.MenuItem("New Game", GlobalMenuItems.NewGame),
                 new Menu<GlobalMenuItems>.MenuItem("Full Screen", GlobalMenuItems.Options),
-                new Menu<GlobalMenuItems>.MenuItem("Quit", GlobalMenuItems.Quit),
+                new Menu<GlobalMenuItems>.MenuItem("Exit Liztris", GlobalMenuItems.Exit),
             }, fontMenu);
 
             GameMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
                 new Menu<GlobalMenuItems>.MenuItem("Resume", GlobalMenuItems.Resume),
                 new Menu<GlobalMenuItems>.MenuItem("New Game", GlobalMenuItems.NewGame),
-                new Menu<GlobalMenuItems>.MenuItem("Full Screen", GlobalMenuItems.Options),
-                new Menu<GlobalMenuItems>.MenuItem("Quit", GlobalMenuItems.Quit),
+                new Menu<GlobalMenuItems>.MenuItem("Quit Game", GlobalMenuItems.QuitGame),
             }, fontMenu, 0, GlobalMenuItems.Resume);
 
             PlayerCountMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
@@ -281,13 +279,19 @@ namespace Liztris
                     {
                         switch (Choice.Value)
                         {
-                            case GlobalMenuItems.Quit:
+                            case GlobalMenuItems.Exit:
                                 musicDefaultInstance.Stop();
                                 Exit();
                                 break;
 
                             case GlobalMenuItems.Resume:
                                 CurrentMenu = null;
+                                break;
+
+                            case GlobalMenuItems.QuitGame:
+                                CurrentGameMenu = StartMenu;
+                                CurrentMenu = CurrentGameMenu;
+                                CurrentMenu.ResetMenu();
                                 break;
 
                             case GlobalMenuItems.NewGame:
