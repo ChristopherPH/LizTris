@@ -110,6 +110,52 @@ namespace Liztris
                 piece_y++;
         }
 
+        private bool PlacePiece(Piece CurrentPiece, ref int piece_x, ref int piece_y)
+        {
+            //piece fits, great!
+            if (Grid.CheckPiece(CurrentPiece, piece_x, piece_y))
+            {
+                return true;
+            }
+
+            //wall kicks
+            if (Grid.CheckPiece(CurrentPiece, piece_x + 1, piece_y))
+            {
+                piece_x += 1;
+                return true;
+            }
+
+            if (Grid.CheckPiece(CurrentPiece, piece_x - 1, piece_y))
+            {
+                piece_x -= 1;
+                return true;
+            }
+
+            if (Grid.CheckPiece(CurrentPiece, piece_x + 2, piece_y))
+            {
+                piece_x += 2;
+                return true;
+            }
+
+            if (Grid.CheckPiece(CurrentPiece, piece_x - 2, piece_y))
+            {
+                piece_x -= 2;
+                return true;
+            }
+
+            //allow rotate from top line by pushing down one
+            if (piece_y - CurrentPiece.Height <= 0)
+            {
+                if (Grid.CheckPiece(CurrentPiece, piece_x, piece_y + 1))
+                {
+                    piece_y += 1;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public void RotatePieceCounterClockwise()
         {
             if ((CurrentPiece == null) || (Grid == null))
@@ -117,38 +163,10 @@ namespace Liztris
 
             CurrentPiece.RotateCounterClockwise();
 
-            if (!Grid.CheckPiece(CurrentPiece, piece_x, piece_y))
+            if (!PlacePiece(CurrentPiece, ref piece_x, ref piece_y))
             {
-                if (!Grid.CheckPiece(CurrentPiece, piece_x + 1, piece_y))
-                {
-                    if (!Grid.CheckPiece(CurrentPiece, piece_x - 1, piece_y))
-                    {
-                        if (!Grid.CheckPiece(CurrentPiece, piece_x + 2, piece_y))
-                        {
-                            if (!Grid.CheckPiece(CurrentPiece, piece_x - 2, piece_y))
-                            {
-                                //put back
-                                CurrentPiece.RotateClockwise();
-                            }
-                            else
-                            {
-                                piece_x -= 2;
-                            }
-                        }
-                        else
-                        {
-                            piece_x += 2;
-                        }
-                    }
-                    else
-                    {
-                        piece_x--;
-                    }
-                }
-                else
-                {
-                    piece_x++;
-                }
+                //put back
+                CurrentPiece.RotateClockwise();
             }
         }
 
@@ -159,38 +177,10 @@ namespace Liztris
 
             CurrentPiece.RotateClockwise();
 
-            if (!Grid.CheckPiece(CurrentPiece, piece_x, piece_y))
+            if (!PlacePiece(CurrentPiece, ref piece_x, ref piece_y))
             {
-                if (!Grid.CheckPiece(CurrentPiece, piece_x + 1, piece_y))
-                {
-                    if (!Grid.CheckPiece(CurrentPiece, piece_x - 1, piece_y))
-                    {
-                        if (!Grid.CheckPiece(CurrentPiece, piece_x + 2, piece_y))
-                        {
-                            if (!Grid.CheckPiece(CurrentPiece, piece_x - 2, piece_y))
-                            {
-                                //put back
-                                CurrentPiece.RotateCounterClockwise();
-                            }
-                            else
-                            {
-                                piece_x-=2;
-                            }
-                        }
-                        else
-                        {
-                            piece_x+=2;
-                        }
-                    }
-                    else
-                    {
-                        piece_x--;
-                    }
-                }
-                else
-                {
-                    piece_x++;
-                }
+                //put back
+                CurrentPiece.RotateCounterClockwise();
             }
         }
 

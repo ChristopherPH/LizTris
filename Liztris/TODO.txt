@@ -1,0 +1,26 @@
+﻿Better menu system
+Remap keys?
+Wait for players screen, so that pressing a controller becomes that player, or pressing keyboard becomes that one
+Game states (intro screen with animation, etc)
+Per player, per mode, per speed, high scores, saved
+Player names / profiles
+
+Game modes
+ - Challenge
+   - own grid, best score, endless
+ - Co-op
+   - shared grid
+ - Battle
+   - help / hinder magic
+     - help fills holes?
+	 - hinder sends bad 'rainbow' blocks with weird shapes?
+ - puzzle
+ - dr mario / color match
+ - falling blocks when detached
+
+Saved options
+ - resolution
+ - fullscreen
+ - vsync
+ - sound/music volume
+ - controller inputs / keyboard map
