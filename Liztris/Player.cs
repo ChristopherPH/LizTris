@@ -71,14 +71,13 @@ namespace Liztris
 
         }
 
-        private InputManager<Actions> inputManager;
-        private PlayerIndex playerIndex;
+        public InputManager<Actions> inputManager;
+        public PlayerIndex playerIndex;
         public Grid Grid { get; private set; }
 
         public Piece CurrentPiece;
         public int piece_x;
         public int piece_y;
-        public int Score { get; set; }
 
         //TODO: Implement
 
@@ -108,7 +107,6 @@ namespace Liztris
 
         public void NewGame()
         {
-            Score = 0;
             CurrentPiece = null;
         }
 
@@ -159,7 +157,7 @@ namespace Liztris
                 CurrentPiece.RotateCounterClockwise();
         }
 
-        Timer repeatTimer = null;
+        public Timer repeatTimer = null;
         const int moveRepeatTime = 150;
         const int dropRepeatTime = 100;
 

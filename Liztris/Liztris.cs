@@ -20,8 +20,8 @@ namespace Liztris
         Texture2D[] Background;
         SpriteSheet Blocks;
         SpriteFont fontScore, fontTitle, fontMenu;
-        SoundEffect soundLine, soundLevel, soundLose, soundMusic, soundDrop;
-        SoundEffectInstance soundMusicInstance;
+        SoundEffect soundLine, soundLevel, soundLose, musicDefault, soundDrop, soundTetris;
+        SoundEffectInstance musicDefaultInstance;
         int BackgroundIndex = 0;
 
         enum GlobalCommands
@@ -68,7 +68,9 @@ namespace Liztris
         const int PlayerCount = 2;
         const bool ShareGrid = true;
 
-        public int[] LevelSpeeds = { 1000, 900, 800, 700, 600, 500, 400, 350, 300, 250 };
+        public int[] LevelSpeeds = { 1000, 900, 800, 700, 600, 500, 400, 350, 300, 250, 225, 200, 175, 150, 125 };
+        public int[] LevelLines =  { 0,    10,  20,  30,  40,  50,  60,  70,  80,  90,  100, 125, 150, 175, 200 };
+        public int[] ScoreMultiplier = { 50, 250, 500, 1000 };
 
         protected override int WantedGameResolutionWidth => 1280;
         protected override int WantedGameResolutionHeight => 720;
@@ -78,6 +80,8 @@ namespace Liztris
 
         public Liztris()
         {
+            Common.GameMenu.MenuTest.Savemenu();
+
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
@@ -103,9 +107,9 @@ namespace Liztris
             inputManager.AddAction(GlobalCommands.Menu, InputManager<GlobalCommands>.GamePadButtons.Start);
             inputManager.AddAction(GlobalCommands.Menu, InputManager<GlobalCommands>.GamePadButtons.Back);
 
-            soundMusicInstance.Volume = 0.20f;
-            soundMusicInstance.IsLooped = true;
-            soundMusicInstance.Play();
+            musicDefaultInstance.Volume = 0.20f;
+            musicDefaultInstance.IsLooped = true;
+            musicDefaultInstance.Play();
 
             CurrentGameMenu = StartMenu;
             CurrentMenu = CurrentGameMenu;
@@ -124,7 +128,7 @@ namespace Liztris
             transparentDarkTexture = new Texture2D(GraphicsDevice, 1, 1);
             transparentDarkTexture.SetData(new[] { Color.DarkSlateGray });
 
-            Texture2D tex = Content.Load<Texture2D>("Blocks");
+            Texture2D tex = Content.Load<Texture2D>("Graphics/Blocks");
             Blocks = new SpriteSheet(tex, 5, 4);
 
             Background = new Texture2D[3];
@@ -133,17 +137,21 @@ namespace Liztris
             Background[2] = Content.Load<Texture2D>("Backgrounds/Ruins");
             BackgroundIndex = 0;
 
-            fontScore = Content.Load<SpriteFont>("Score");
-            fontTitle = Content.Load<SpriteFont>("Title");
-            fontMenu = Content.Load<SpriteFont>("Menu");
+            fontScore = Content.Load<SpriteFont>("Fonts/Score");
+            fontTitle = Content.Load<SpriteFont>("Fonts/Title");
+            fontMenu = Content.Load<SpriteFont>("Fonts/Menu");
 
-            soundLine = Content.Load<SoundEffect>("Line");
-            soundLevel = Content.Load<SoundEffect>("Level");
-            soundLose = Content.Load<SoundEffect>("Lose");
-            soundMusic = Content.Load<SoundEffect>("Music");
-            soundDrop = Content.Load<SoundEffect>("Drop");
+            Toasts.spriteFont = Content.Load<SpriteFont>("Fonts/Toast");
 
-            soundMusicInstance = soundMusic.CreateInstance();
+            musicDefault = Content.Load<SoundEffect>("Music/Music");
+
+            soundLine = Content.Load<SoundEffect>("Sounds/Line");
+            soundLevel = Content.Load<SoundEffect>("Sounds/Level");
+            soundLose = Content.Load<SoundEffect>("Sounds/Lose");
+            soundDrop = Content.Load<SoundEffect>("Sounds/Drop");
+            soundTetris = Content.Load<SoundEffect>("Sounds/Tetris");
+
+            musicDefaultInstance = musicDefault.CreateInstance();
 
 
             StartMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
@@ -194,7 +202,7 @@ namespace Liztris
 
             if (SharedGrid)
             {
-                var grid = new Grid(GridXPerPlayer * PlayerCount, GridY, LevelSpeeds);
+                var grid = new Grid(GridXPerPlayer * PlayerCount, GridY, LevelSpeeds, LevelLines, ScoreMultiplier);
                 Grids.Add(grid);
 
                 for (int i = 0; i < PlayerCount; i++)
@@ -207,7 +215,7 @@ namespace Liztris
             {
                 for (int i = 0; i < PlayerCount; i++)
                 {
-                    var grid = new Grid(GridXPerPlayer, GridY, LevelSpeeds);
+                    var grid = new Grid(GridXPerPlayer, GridY, LevelSpeeds, LevelLines, ScoreMultiplier);
                     Grids.Add(grid);
 
                     var player = new Player(grid, (PlayerIndex)i, null);
@@ -243,6 +251,7 @@ namespace Liztris
                 grid.soundLine = soundLine;
                 grid.soundLose = soundLose;
                 grid.soundLevel = soundLevel;
+                grid.soundTetris = soundTetris;
             }
 
             BackgroundIndex = new Random().Next(3);
@@ -273,7 +282,7 @@ namespace Liztris
                         switch (Choice.Value)
                         {
                             case GlobalMenuItems.Quit:
-                                soundMusicInstance.Stop();
+                                musicDefaultInstance.Stop();
                                 Exit();
                                 break;
 
@@ -355,6 +364,8 @@ namespace Liztris
 
             foreach (var grid in Grids)
                 grid.Update(gameTime);
+
+            Toasts.Update(gameTime);
         }
 
        
@@ -410,7 +421,7 @@ namespace Liztris
                     new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 140), Color.Black);
                 spriteBatch.DrawString(fontScore, "Lines: " + grid.LineCount.ToString(),
                     new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Black);
-                spriteBatch.DrawString(fontScore, "Best: " + grid.BestLineCount.ToString(),
+                spriteBatch.DrawString(fontScore, "Score: " + grid.Score.ToString(),
                     new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Black);
 
                 //draw grid border
@@ -424,6 +435,8 @@ namespace Liztris
                 //draw grid
                 grid.Draw(spriteBatch, Blocks, BlockPixelSize);
             }
+
+            Toasts.Draw(spriteBatch);
 
             spriteBatch.End();
         }

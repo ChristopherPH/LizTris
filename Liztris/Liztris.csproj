@@ -45,6 +45,8 @@
     <Compile Include="Common\ExtendedSpriteBatch.cs" />
     <Compile Include="Common\GameResolution.cs" />
     <Compile Include="Common\Resolution.cs" />
+    <Compile Include="Common\Menu.cs" />
+    <Compile Include="Common\XMLHelper.cs" />
     <Compile Include="Controls.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Liztris.cs" />
@@ -56,6 +58,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpriteSheet.cs" />
     <Compile Include="Timer.cs" />
+    <Compile Include="Toasts.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

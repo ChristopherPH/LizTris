@@ -15,6 +15,8 @@ namespace Liztris
         public int Level { get; private set; } = 1;
         public int LineCount { get; private set; } = 0;
         public int BestLineCount { get; private set; } = 0;
+        public int Score { get; private set; } = 0;
+        public int BestScore { get; private set; } = 0;
 
         public int WidthInBlocks { get; private set; }
         public int HeightInBlocks { get; private set; }
@@ -24,15 +26,19 @@ namespace Liztris
         public Rectangle ScreenRect { get; set; } = Rectangle.Empty;
 
         int[] LevelSpeeds;
+        int[] LevelLines;
+        int[] ScoreMultiplier;
         public List<Player> Players { get; } = new List<Player>();
         Timer GridDropTime = new Timer();
         Queue<Piece> NextPieces = new Queue<Piece>();
 
-        public Grid(int WidthInBlocks, int HeightInBlocks, int[] LevelSpeeds)
+        public Grid(int WidthInBlocks, int HeightInBlocks, int[] LevelSpeeds, int[] LevelLines, int [] ScoreMultiplier)
         {
             this.WidthInBlocks = WidthInBlocks;
             this.HeightInBlocks = HeightInBlocks;
             this.LevelSpeeds = LevelSpeeds;
+            this.LevelLines = LevelLines;
+            this.ScoreMultiplier = ScoreMultiplier;
 
             BlockMap = new int[HeightInBlocks, WidthInBlocks];
         }
@@ -234,15 +240,18 @@ namespace Liztris
             AddToGrid = 1,
             ClearedLines = 2,
             NextLevel = 3,
-            Lose = 4,
+            Tetris = 4,
+            Lose = 5,
         }
 
         public SoundEffect soundLine { get; set; }
         public SoundEffect soundLevel { get; set; }
         public SoundEffect soundLose { get; set; }
         public SoundEffect soundDrop { get; set; }
+        public SoundEffect soundTetris { get; set; }
 
         Timer GameOverTimer = null;
+        bool CanResetGameOver = false;
 
         public void Update(GameTime gameTime)
         {
@@ -251,7 +260,26 @@ namespace Liztris
                 if (GameOverTimer.UpdateAndCheck(gameTime))
                 {
                     GameOverTimer = null;
-                    NewGame();
+                    CanResetGameOver = true;
+                }
+
+                return;
+            }
+
+            if (CanResetGameOver)
+            {
+                foreach (var player in Players)
+                {
+                    player.inputManager.Update(player.playerIndex);
+
+                    if (player.inputManager.IsActionTriggered(Player.Actions.Rotate) ||
+                        player.inputManager.IsActionTriggered(Player.Actions.RotateCounter) ||
+                        player.inputManager.IsActionTriggered(Player.Actions.Drop))
+                    {
+                        NewGame();
+                        CanResetGameOver = false;
+                        break;
+                    }
                 }
 
                 return;
@@ -310,25 +338,61 @@ namespace Liztris
                         AddPieceToGrid(player.CurrentPiece,
                             player.piece_x, player.piece_y);
                         player.CurrentPiece = null;
+                        player.repeatTimer = null;
+
                         var lines = ClearFilledLines();
                         if (lines > 0)
                         {
                             LineCount += lines;
-                            player.Score += (lines * 50);
-
                             ss = SoundState.ClearedLines;
 
-                            if ((LineCount > 0 ) && (LineCount % 5 == 0))
+                            int ix;
+                            for (ix = 0; ix < LevelLines.Length; ix++)
                             {
-                                Level++;
-                                if (Level < LevelSpeeds.Length)
-                                    GridDropTime.SetDelay(LevelSpeeds[Level]);
-
-                                ss = SoundState.NextLevel;
+                                if ((LevelLines[ix] >= LineCount) || (ix == LevelLines.Length - 1))
+                                {
+                                    if (Level < ix)
+                                    {
+                                        Level = ix;
+                                        GridDropTime.SetDelay(LevelSpeeds[Level]);
+                                        ss = SoundState.NextLevel;
+                                    }
+                                    break;
+                                }
                             }
+
+                            if (LineCount == ScoreMultiplier.Length)
+                                ss = SoundState.Tetris;
+
+                            if (lines >= ScoreMultiplier.Length)
+                            {
+                                lines = ScoreMultiplier.Length - 1;
+                                Score += ScoreMultiplier[lines];
+
+                                Toasts.AddToast(
+                                    this.ScreenRect.X + (player.piece_x * 32),
+                                    this.ScreenRect.Y + (player.piece_y * 32),
+                                    1500,
+                                    ScoreMultiplier[lines].ToString(),
+                                    Color.LightGreen, 2.0f);
+                            }
+                            else
+                            {
+                                Score += ScoreMultiplier[lines];
+
+                                Toasts.AddToast(
+                                    this.ScreenRect.X + (player.piece_x * 32),
+                                    this.ScreenRect.Y + (player.piece_y * 32),
+                                    1000,
+                                    ScoreMultiplier[lines].ToString(),
+                                    Color.LightBlue);
+                            }
+                            
 
                             if (LineCount > BestLineCount)
                                 BestLineCount = LineCount;
+                            if (Score > BestScore)
+                                BestScore = Score;
                         }
                     }
 
@@ -344,6 +408,10 @@ namespace Liztris
 
                         case SoundState.NextLevel:
                             soundLevel.Play();
+                            break;
+
+                        case SoundState.Tetris:
+                            soundTetris.Play();
                             break;
                     }
                 }
