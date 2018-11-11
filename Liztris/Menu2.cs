@@ -147,7 +147,7 @@ namespace Liztris
         public bool IsMenuActive => _Menus.Count != 0;
 
         private Stack<SubMenu> _Menus = new Stack<SubMenu>();
-        public Dictionary<string, object> Options { get; } = new Dictionary<string, object>();
+        public SerializableDictionary<string, object> Options { get; } = new SerializableDictionary<string, object>();
         InputManager<MenuCommands> inputManager = new InputManager<MenuCommands>();
         float _scale = 1;
         bool _scaleReverse = false;
@@ -342,22 +342,21 @@ namespace Liztris
 
             Vector2 size = spriteFont.MeasureString(CurrentItem.Text);
 
+            var c = Color.White;
+            if (IsSelected)
+                c = Color.LightGreen;
+
             spriteBatch.DrawString(spriteFont, CurrentItem.Text, ItemRect,
-                ExtendedSpriteBatch.Alignment.Left, Color.White, 1.0f);
+                ExtendedSpriteBatch.Alignment.Left, c, 1.0f);
 
             int x = ItemRect.Left + (int)size.X + PixelsBetweenChoices;
 
             foreach (var choice in Choices)
             {
-                var c = Color.White;
+                c = Color.White;
 
                 if (choice == SelectedChoice)
-                {
-                    if (IsSelected)
-                        c = Color.LightGreen;
-                    else
-                        c = Color.LightBlue;
-                }
+                    c = Color.LightBlue;
 
                 spriteBatch.DrawString(spriteFont, choice.Text, new Vector2(x, ItemRect.Y), c);
 
@@ -503,7 +502,21 @@ namespace Liztris
             new OpenMenu("New Game") { SubMenu = new Menu2(new MenuItem[]
             {
                 new MenuItem("1 Player") { SetProperty = "Players", Value = 1, DoAction = 50 },
-                new OpenMenu("2 Player") { SetProperty = "Players", Value = 2,
+                new OpenMenu("2 Players") { SetProperty = "Players", Value = 2,
+                    SubMenu = new Menu2(new  MenuItem[]
+                    {
+                        new MenuItem("Grid Per Player") { SetProperty = "SharedGrid", Value = false, DoAction = 50 },
+                        new MenuItem("Shared Grid") { SetProperty = "SharedGrid", Value = true, DoAction = 50 },
+                        new CloseMenu("Back"),
+                    }) },
+                new OpenMenu("3 Players") { SetProperty = "Players", Value = 3,
+                    SubMenu = new Menu2(new  MenuItem[]
+                    {
+                        new MenuItem("Grid Per Player") { SetProperty = "SharedGrid", Value = false, DoAction = 50 },
+                        new MenuItem("Shared Grid") { SetProperty = "SharedGrid", Value = true, DoAction = 50 },
+                        new CloseMenu("Back"),
+                    }) },
+                new OpenMenu("4 Players") { SetProperty = "Players", Value = 4,
                     SubMenu = new Menu2(new  MenuItem[]
                     {
                         new MenuItem("Grid Per Player") { SetProperty = "SharedGrid", Value = false, DoAction = 50 },
@@ -514,17 +527,36 @@ namespace Liztris
             }) },
             new OpenMenu("Options") { SubMenu = new Menu2(new MenuItem[]
             {
-                new Choice("Fullscreen:", new MenuItem[]
+                new OpenMenu("Video") { SubMenu = new Menu2(new MenuItem[]
                 {
-                    new MenuItem("No") { SetProperty = "Fullscreen", Value = false },
-                    new MenuItem("Yes") { SetProperty = "Fullscreen", Value = true },
-                }),
-                new Choice("VSync:", new MenuItem[]
+                    new Choice("Fullscreen:", new MenuItem[]
+                    {
+                        new MenuItem("No") { SetProperty = "Fullscreen", Value = false },
+                        new MenuItem("Yes") { SetProperty = "Fullscreen", Value = true },
+                    }),
+                    new Choice("VSync:", new MenuItem[]
+                    {
+                        new MenuItem("No") { SetProperty = "VSync", Value = false },
+                        new MenuItem("Yes") { SetProperty = "VSync", Value = true },
+                    }),
+                    new MenuItem("Apply") { DoAction = 99 },
+                    new CloseMenu("Back"),
+                }) },
+                new OpenMenu("Audio") { SubMenu = new Menu2(new MenuItem[]
                 {
-                    new MenuItem("No") { SetProperty = "VSync", Value = false },
-                    new MenuItem("Yes") { SetProperty = "VSync", Value = true },
-                }),
-                new MenuItem("Apply") { DoAction = 99 },
+                    new Choice("Sound:", new MenuItem[]
+                    {
+                        new MenuItem("Off") { SetProperty = "Sound", Value = false },
+                        new MenuItem("On") { SetProperty = "Sound", Value = true },
+                    }),
+                    new Choice("Music:", new MenuItem[]
+                    {
+                        new MenuItem("Off") { SetProperty = "Music", Value = false },
+                        new MenuItem("On") { SetProperty = "Music", Value = true },
+                    }),
+                    new CloseMenu("Back"),
+                }) },
+                new MenuItem("Controls"),
                 new CloseMenu("Back"),
             }) },
             new OpenMenu("Quit") { SubMenu = new Menu2(new MenuItem[]

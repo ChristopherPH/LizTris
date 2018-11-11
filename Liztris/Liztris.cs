@@ -111,8 +111,11 @@ namespace Liztris
             musicDefaultInstance.IsLooped = true;
             musicDefaultInstance.Play();
 
-            //this.IsFixedTimeStep = false;
-            TargetElapsedTime = TimeSpan.FromMilliseconds(1000.0f / 120);
+            //var targetFPS = 120;
+
+            //this.IsFixedTimeStep = false; //default is true
+            //TargetElapsedTime = TimeSpan.FromTicks(10000000 / targetFPS);
+
             //graphics.SynchronizeWithVerticalRetrace = false;
             //graphics.ApplyChanges();
 
@@ -279,6 +282,9 @@ namespace Liztris
 
             base.Update(gameTime);
 
+            if (logicTimer.UpdateAndCheck(gameTime))
+                logic = 1 / gameTime.ElapsedGameTime.TotalSeconds;
+
             mousePos = TranslateLocation(Mouse.GetState().Position.ToVector2());
 
             if (CurrentMenu != null)
@@ -382,8 +388,10 @@ namespace Liztris
             Toasts.Update(gameTime);
         }
 
-        Timer fpsTimer = new Timer(250);
+        Timer fpsTimer = new Timer(100);
         double framerate = 0;
+        Timer logicTimer = new Timer(100);
+        double logic = 0;
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -428,8 +436,9 @@ namespace Liztris
 
                 spriteBatch.DrawString(fontMenu, "FPS: " +
                     framerate.ToString("N2"), new Vector2(0, 60), Color.White);
+                spriteBatch.DrawString(fontMenu, "LPS: " +
+                    logic.ToString("N2"), new Vector2(0, 120), Color.White);
 
-                
 
                 spriteBatch.End();
                 return;

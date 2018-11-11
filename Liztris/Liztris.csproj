@@ -42,6 +42,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Common\ExtendedSpriteBatch.cs" />
+    <Compile Include="Common\External\SerializableDictionary.cs" />
+    <Compile Include="Common\External\XMLHelper.cs" />
     <Compile Include="Common\GameResolution.cs" />
     <Compile Include="Common\External\Resolution.cs" />
     <Compile Include="Common\External\Controls.cs" />
