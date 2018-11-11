@@ -86,5 +86,21 @@ namespace Common
             IndependentResolutionRendering.Resolution.BeginDraw();
 #endif
         }
+
+        protected Vector2 TranslateLocation(Vector2 Location)
+        {
+#if USE_INDEPENDANT_RESOLUTION
+            var vp = new Vector2(
+                IndependentResolutionRendering.Resolution.ViewportX, 
+                IndependentResolutionRendering.Resolution.ViewportY);
+
+            var invert = Matrix.Invert(
+                IndependentResolutionRendering.Resolution.getTransformationMatrix());
+
+            return Vector2.Transform(Location - vp, invert);
+#else
+            return Location;
+#endif
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Common;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -178,64 +179,66 @@ namespace Liztris
 
             inputManager.Update(PlayerIndex.One);
 
-            if (inputManager.IsActionTriggered(MenuCommands.MenuSelect))
-            {
-                if (HandleSelectItem(CurrentMenu.SelectedItem))
-                {
-                    //play sound
-                }
-                return IsMenuActive;
-            }
+            //handle choices
+            var choiceMenu = CurrentMenu.SelectedItem as Choice;
 
-            if (inputManager.IsActionTriggered(MenuCommands.MenuBack))
+            if ((choiceMenu != null) &&
+                inputManager.IsActionTriggered(MenuCommands.MenuSelect) &&
+                HandleSelectItem(choiceMenu.SelectedItem))
             {
-                if (CloseMenu())
-                {
-                    //play sound
-                }
-                return IsMenuActive;
+                //play sound
             }
-
-            if (inputManager.IsActionTriggered(MenuCommands.MenuUp))
+            else if ((choiceMenu != null) &&
+                inputManager.IsActionTriggered(MenuCommands.MenuLeft) &&
+                choiceMenu.PreviousItem() &&
+                HandleSetProperty(choiceMenu.SelectedItem))
             {
-                if (CurrentMenu.PreviousItem())
-                {
-                    //play sound
-                }
+                //play sound
             }
-            else if (inputManager.IsActionTriggered(MenuCommands.MenuDown))
+            else if ((choiceMenu != null) &&
+                inputManager.IsActionTriggered(MenuCommands.MenuRight) &&
+                choiceMenu.NextItem() &&
+                HandleSetProperty(choiceMenu.SelectedItem))
             {
-                if (CurrentMenu.NextItem())
-                {
-                    //play sound
-                }
+                //play sound
             }
-            else if (inputManager.IsActionTriggered(MenuCommands.MenuLeft))
+            else if (inputManager.IsActionTriggered(MenuCommands.MenuSelect) && 
+                HandleSelectItem(CurrentMenu.SelectedItem))
             {
-                var choiceMenu = CurrentMenu.SelectedItem as Choice;
-                if (choiceMenu != null)
-                {
-                    if (choiceMenu.PreviousItem())
-                        if (HandleSelectItem(choiceMenu.SelectedItem))
-                        {
-                            //play sound
-                        }
-                }
+                //play sound
             }
-            else if (inputManager.IsActionTriggered(MenuCommands.MenuRight))
+            else if (inputManager.IsActionTriggered(MenuCommands.MenuBack) &&
+                CloseMenu())
             {
-                var choiceMenu = CurrentMenu.SelectedItem as Choice;
-                if (choiceMenu != null)
-                {
-                    if (choiceMenu.NextItem())
-                        if (HandleSelectItem(choiceMenu.SelectedItem))
-                        {
-                            //play sound
-                        }
-                }
+                //play sound
             }
-
+            else if (inputManager.IsActionTriggered(MenuCommands.MenuUp) &&
+                CurrentMenu.PreviousItem())
+            {
+                //play sound
+            }
+            else if (inputManager.IsActionTriggered(MenuCommands.MenuDown) &&
+                CurrentMenu.NextItem())
+            {
+                //play sound
+            }
+            
             return IsMenuActive;
+        }
+
+
+        public bool HandleSetProperty(MenuItem Selection)
+        {
+            if (!string.IsNullOrWhiteSpace(Selection.SetProperty))
+            {
+                Options[Selection.SetProperty] = Selection.Value;
+                System.Diagnostics.Debug.Print("Set {0} to {1}",
+                    Selection.SetProperty, Selection.Value);
+
+                return true;
+            }
+
+            return false;
         }
 
 
@@ -246,11 +249,8 @@ namespace Liztris
 
             bool rc = false;
 
-            if (!string.IsNullOrWhiteSpace(Selection.SetProperty))
+            if (HandleSetProperty(Selection))
             {
-                Options[Selection.SetProperty] = Selection.Value;
-                System.Diagnostics.Debug.Print("Set {0} to {1}",
-                    Selection.SetProperty, Selection.Value);
                 rc = true;
             }
 
@@ -311,59 +311,89 @@ namespace Liztris
             Draw(_Menus.Peek(), spriteBatch, spriteFont, MenuRect, _scale, Color.LightGreen);
         }
 
-        private static void Draw(SubMenu CurrentMenu, Common.ExtendedSpriteBatch spriteBatch, 
+        private void DrawBackground(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect)
+        {
+            spriteBatch.DrawRectangle(MenuRect, Color.Teal, 3, false);
+
+            //spriteBatch.Draw(transparentDarkTexture, MenuRect, Color.White* 0.5f);
+        }
+
+        private void DrawItem(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect, 
+            MenuItem CurrentItem, Rectangle ItemRect, bool IsSelected)
+        {
+            var c = Color.White;
+            var scale = 1.0f;
+
+            if (IsSelected)
+            {
+                c = Color.LightGreen;
+                scale = _scale;
+            }
+
+            spriteBatch.DrawString(spriteFont, CurrentItem.Text, ItemRect, 
+                ExtendedSpriteBatch.Alignment.Center, c, scale);
+        }
+
+        private void DrawChoice(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect,
+            Choice CurrentItem, Rectangle ItemRect, bool IsSelected, MenuItem[] Choices, MenuItem SelectedChoice)
+        {
+            int PixelsBetweenChoices = 10;
+
+            Vector2 size = spriteFont.MeasureString(CurrentItem.Text);
+
+            spriteBatch.DrawString(spriteFont, CurrentItem.Text, ItemRect,
+                ExtendedSpriteBatch.Alignment.Left, Color.White, 1.0f);
+
+            int x = ItemRect.Left + (int)size.X + PixelsBetweenChoices;
+
+            foreach (var choice in Choices)
+            {
+                var c = Color.White;
+
+                if (choice == SelectedChoice)
+                {
+                    if (IsSelected)
+                        c = Color.LightGreen;
+                    else
+                        c = Color.LightBlue;
+                }
+
+                spriteBatch.DrawString(spriteFont, choice.Text, new Vector2(x, ItemRect.Y), c);
+
+                x += (int)spriteFont.MeasureString(choice.Text).X + PixelsBetweenChoices;
+            }
+        }
+
+        private void Draw(SubMenu CurrentMenu, ExtendedSpriteBatch spriteBatch, 
             SpriteFont spriteFont, Rectangle MenuRect, float SelectedItemScale, Color SelectedItemColor)
         {
             var LetterSize = spriteFont.MeasureString("W");
             int PixelsBetweenLines = 10;
 
             int ItemCount = CurrentMenu.MenuItems.Length;
-
             var TotalLetterHeight = ((int)LetterSize.Y * ItemCount) + (PixelsBetweenLines * (ItemCount - 1));
-
             int YOffset = (MenuRect.Y) + (MenuRect.Height / 2) - (TotalLetterHeight / 2);
 
-            YOffset += (int)(LetterSize.Y / 2); //offset start as we scale the font
 
-
-            for (int i = 0; i < ItemCount; i++)
+            foreach (var CurrentItem in CurrentMenu.MenuItems)
             {
-                var CurrentItem = CurrentMenu.MenuItems[i];
+                var ItemRect = new Rectangle(MenuRect.X, YOffset, 
+                    MenuRect.Width, (int)LetterSize.Y);
 
-                LetterSize = spriteFont.MeasureString(CurrentItem.Text);
-                var c = Color.White;
-                var scale = 1.0f;
+                var ItemSize = spriteFont.MeasureString(CurrentItem.Text);
 
                 var choice = CurrentItem as Choice;
                 if (choice != null)
                 {
-                    spriteBatch.DrawString(spriteFont, choice.Text,
-                        new Vector2(MenuRect.X + (MenuRect.Width / 2) - ((LetterSize.X * scale) / 2),
-                        YOffset - (LetterSize.Y / 2 * scale)), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
-
-                    int x = 200;
-                    for (int j = 0; j < choice.MenuItems.Length; j++)
-                    {
-
-                        spriteBatch.DrawString(spriteFont, choice.MenuItems[j].Text,
-                            new Vector2(MenuRect.X + (MenuRect.Width / 2) - ((LetterSize.X * scale) / 2) + x,
-                            YOffset - (LetterSize.Y / 2 * scale)), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
-
-                        x += 50;
-                    }
+                    DrawChoice(spriteBatch, spriteFont, MenuRect, choice, ItemRect,
+                        CurrentItem == CurrentMenu.SelectedItem, choice.MenuItems, choice.SelectedItem);
                 }
                 else
                 {
-                    if (CurrentItem == CurrentMenu.SelectedItem)
-                    {
-                        c = SelectedItemColor;
-                        scale = SelectedItemScale;
-                    }
-
-                    spriteBatch.DrawString(spriteFont, CurrentItem.Text,
-                            new Vector2(MenuRect.X + (MenuRect.Width / 2) - ((LetterSize.X * scale) / 2),
-                            YOffset - (LetterSize.Y / 2 * scale)), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
+                    DrawItem(spriteBatch, spriteFont, MenuRect, CurrentItem, ItemRect, 
+                        CurrentItem == CurrentMenu.SelectedItem);
                 }
+
                 YOffset += (int)LetterSize.Y;
                 YOffset += PixelsBetweenLines;
             }
@@ -483,10 +513,15 @@ namespace Liztris
             }) },
             new OpenMenu("Options") { SubMenu = new Menu2(new MenuItem[]
             {
-                new Choice("Fullscreen", new MenuItem[]
+                new Choice("Fullscreen:", new MenuItem[]
                 {
                     new MenuItem("No") { SetProperty = "Fullscreen", Value = false },
                     new MenuItem("Yes") { SetProperty = "Fullscreen", Value = true },
+                }),
+                new Choice("VSync:", new MenuItem[]
+                {
+                    new MenuItem("No") { SetProperty = "VSync", Value = false },
+                    new MenuItem("Yes") { SetProperty = "VSync", Value = true },
                 }),
                 new MenuItem("Apply") { DoAction = 99 },
                 new CloseMenu("Back"),

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Common;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,10 +13,10 @@ namespace Liztris
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Liztris : Common.GameResolution
+    public class Liztris : GameResolution
     {
         GraphicsDeviceManager graphics;
-        Common.ExtendedSpriteBatch spriteBatch;
+        ExtendedSpriteBatch spriteBatch;
         Texture2D transparentDarkTexture;
         Texture2D[] Background;
         SpriteSheet Blocks;
