@@ -85,7 +85,7 @@ namespace Liztris
 
         public bool Update(GameTime gameTime, out T? Selection)
         {
-            if (AnimationTimer.UpdateAndCheck(gameTime))
+            AnimationTimer.UpdateAndCheck(gameTime, () =>
             {
                 if (!_scaleReverse)
                 {
@@ -99,7 +99,7 @@ namespace Liztris
                     if (_scale <= 1)
                         _scaleReverse = false;
                 }
-            }
+            });
 
             inputManager.Update(PlayerIndex.One);
 

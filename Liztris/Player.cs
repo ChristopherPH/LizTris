@@ -199,7 +199,7 @@ namespace Liztris
                     repeatTimer = null;
 
                 if (repeatTimer != null)
-                    if (repeatTimer.UpdateAndCheck(gameTime))
+                    repeatTimer.UpdateAndCheck(gameTime, () =>
                     {
                         if (left)
                             MovePieceLeft();
@@ -207,7 +207,7 @@ namespace Liztris
                             MovePieceRight();
                         else if (drop)
                             MovePieceDown();
-                    }
+                    });
             }
         }
 

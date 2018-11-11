@@ -111,6 +111,11 @@ namespace Liztris
             musicDefaultInstance.IsLooped = true;
             musicDefaultInstance.Play();
 
+            //this.IsFixedTimeStep = false;
+            TargetElapsedTime = TimeSpan.FromMilliseconds(1000.0f / 120);
+            //graphics.SynchronizeWithVerticalRetrace = false;
+            //graphics.ApplyChanges();
+
             CurrentGameMenu = StartMenu;
             CurrentMenu = CurrentGameMenu;
         }
@@ -122,7 +127,7 @@ namespace Liztris
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new Common.ExtendedSpriteBatch(GraphicsDevice);
+            spriteBatch = new ExtendedSpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
             transparentDarkTexture = new Texture2D(GraphicsDevice, 1, 1);
@@ -261,6 +266,8 @@ namespace Liztris
 
         private int mnuPlayers = 0;
 
+        Vector2 mousePos;
+
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -271,6 +278,8 @@ namespace Liztris
             // TODO: Add your update logic here
 
             base.Update(gameTime);
+
+            mousePos = TranslateLocation(Mouse.GetState().Position.ToVector2());
 
             if (CurrentMenu != null)
             {
@@ -373,8 +382,8 @@ namespace Liztris
             Toasts.Update(gameTime);
         }
 
-       
-
+        Timer fpsTimer = new Timer(250);
+        double framerate = 0;
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -411,6 +420,17 @@ namespace Liztris
                 spriteBatch.Draw(transparentDarkTexture, MenuRect, Color.White * 0.5f);
 
                 CurrentMenu.Draw(spriteBatch, MenuRect);
+                spriteBatch.DrawString(fontMenu, "Mouse: " + 
+                    (int)mousePos.X + " " + (int)mousePos.Y, new Vector2(), Color.White);
+
+                if (fpsTimer.UpdateAndCheck(gameTime))
+                    framerate = 1 / gameTime.ElapsedGameTime.TotalSeconds;
+
+                spriteBatch.DrawString(fontMenu, "FPS: " +
+                    framerate.ToString("N2"), new Vector2(0, 60), Color.White);
+
+                
+
                 spriteBatch.End();
                 return;
             }

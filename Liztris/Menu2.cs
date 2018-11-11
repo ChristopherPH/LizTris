@@ -151,7 +151,7 @@ namespace Liztris
         InputManager<MenuCommands> inputManager = new InputManager<MenuCommands>();
         float _scale = 1;
         bool _scaleReverse = false;
-        Timer AnimationTimer = new Timer(10);
+        Timer AnimationTimer = new Timer(20);
 
         public bool Update(GameTime gameTime)
         {
@@ -161,7 +161,7 @@ namespace Liztris
 
             var CurrentMenu = _Menus.Peek();
 
-            if (AnimationTimer.UpdateAndCheck(gameTime))
+            AnimationTimer.UpdateAndCheck(gameTime, () =>
             {
                 if (!_scaleReverse)
                 {
@@ -175,7 +175,8 @@ namespace Liztris
                     if (_scale <= 1)
                         _scaleReverse = false;
                 }
-            }
+                System.Diagnostics.Debug.Print("{0}", gameTime.TotalGameTime.TotalMilliseconds);
+            });
 
             inputManager.Update(PlayerIndex.One);
 

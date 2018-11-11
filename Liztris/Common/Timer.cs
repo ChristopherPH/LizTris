@@ -36,7 +36,29 @@ namespace Common
                 return false;
 
             value -= delay;
+
             return true;
+        }
+
+        public void UpdateAndCheck(GameTime gameTime, 
+            Action action, int MaximumUpdates = 5)
+        {
+            if (delay <= 0)
+                return;
+
+            value += gameTime.ElapsedGameTime.TotalMilliseconds;
+
+            int counter = 0;
+
+            while ((value > delay) && 
+                (MaximumUpdates > 0) && (counter < MaximumUpdates))
+            {
+                value -= delay;
+
+                if (action != null)
+                    action();
+                counter++;
+            }
         }
 
         public void Reset()

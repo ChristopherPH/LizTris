@@ -41,24 +41,22 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Common\EnumHelper.cs" />
     <Compile Include="Common\ExtendedSpriteBatch.cs" />
     <Compile Include="Common\GameResolution.cs" />
-    <Compile Include="Common\Resolution.cs" />
-    <Compile Include="Common\Menu.cs" />
-    <Compile Include="Common\XMLHelper.cs" />
-    <Compile Include="Controls.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Common\External\Resolution.cs" />
+    <Compile Include="Common\External\Controls.cs" />
+    <Compile Include="Common\Extensions.cs" />
+    <Compile Include="Common\SpriteSheet.cs" />
     <Compile Include="Liztris.cs" />
     <Compile Include="Menu.cs" />
+    <Compile Include="Menu2.cs" />
     <Compile Include="Piece.cs" />
     <Compile Include="Grid.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SpriteSheet.cs" />
-    <Compile Include="Timer.cs" />
-    <Compile Include="Toasts.cs" />
+    <Compile Include="Common\Timer.cs" />
+    <Compile Include="Common\Toasts.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
