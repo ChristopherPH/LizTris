@@ -29,44 +29,35 @@ namespace Liztris
 
             inputManager = new InputManager<Actions>();
 
+            inputManager.AddAction(Actions.Left, InputManager<Actions>.GamePadButtons.Left);
+            inputManager.AddAction(Actions.Right, InputManager<Actions>.GamePadButtons.Right);
+            inputManager.AddAction(Actions.Drop, InputManager<Actions>.GamePadButtons.Down);
+            inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.A);
+            inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.X);
+            inputManager.AddAction(Actions.RotateCounter, InputManager<Actions>.GamePadButtons.B);
+            inputManager.AddAction(Actions.RotateCounter, InputManager<Actions>.GamePadButtons.Y);
+
             switch (Player)
             {
-                case PlayerIndex.Two:
-                    inputManager.AddAction(Actions.Left, Keys.Left);
-                    inputManager.AddAction(Actions.Left, InputManager<Actions>.GamePadButtons.Left);
-
-                    inputManager.AddAction(Actions.Right, Keys.Right);
-                    inputManager.AddAction(Actions.Right, InputManager<Actions>.GamePadButtons.Right);
-
-                    inputManager.AddAction(Actions.Drop, Keys.Down);
-                    inputManager.AddAction(Actions.Drop, InputManager<Actions>.GamePadButtons.Down);
-
-                    inputManager.AddAction(Actions.Rotate, Keys.Up);
-                    inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.A);
-                    inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.X);
-
-                    inputManager.AddAction(Actions.RotateCounter, InputManager<Actions>.GamePadButtons.B);
-                    inputManager.AddAction(Actions.RotateCounter, InputManager<Actions>.GamePadButtons.Y);
-                    //inputManager.AddAction(Actions.RotateCounter, Keys.Space);
-                    break;
-
                 case PlayerIndex.One:
                     inputManager.AddAction(Actions.Left, Keys.A);
-                    inputManager.AddAction(Actions.Left, InputManager<Actions>.GamePadButtons.Left);
-
                     inputManager.AddAction(Actions.Right, Keys.D);
-                    inputManager.AddAction(Actions.Right, InputManager<Actions>.GamePadButtons.Right);
-
                     inputManager.AddAction(Actions.Drop, Keys.S);
-                    inputManager.AddAction(Actions.Drop, InputManager<Actions>.GamePadButtons.Down);
-
                     inputManager.AddAction(Actions.Rotate, Keys.W);
-                    inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.A);
-                    inputManager.AddAction(Actions.Rotate, InputManager<Actions>.GamePadButtons.X);
+                    break;
 
-                    inputManager.AddAction(Actions.RotateCounter, InputManager<Actions>.GamePadButtons.B);
-                    inputManager.AddAction(Actions.RotateCounter, InputManager<Actions>.GamePadButtons.Y);
-                    //inputManager.AddAction(Actions.RotateCounter, Keys.Space);
+                case PlayerIndex.Two:
+                    inputManager.AddAction(Actions.Left, Keys.Left);
+                    inputManager.AddAction(Actions.Right, Keys.Right);
+                    inputManager.AddAction(Actions.Drop, Keys.Up);
+                    inputManager.AddAction(Actions.Rotate, Keys.Down);
+                    break;
+
+                case PlayerIndex.Three:
+                    inputManager.AddAction(Actions.Left, Keys.J);
+                    inputManager.AddAction(Actions.Right, Keys.L);
+                    inputManager.AddAction(Actions.Drop, Keys.K);
+                    inputManager.AddAction(Actions.Rotate, Keys.I);
                     break;
             }
 

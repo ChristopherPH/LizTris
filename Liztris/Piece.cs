@@ -15,8 +15,10 @@ namespace Liztris
         private static int[][,] AvailablePieces = new int[][,]
         {
             new int[,] {
-                {14,14},
-                {14,14},
+                {0,0,0,0},
+                {0,14,14,0},
+                {0,14,14,0},
+                {0,0,0,0},
             },
             new int[,] {
                 {0,3,0,0},

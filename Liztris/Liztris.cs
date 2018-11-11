@@ -20,7 +20,7 @@ namespace Liztris
         Texture2D tmpTexture;
         Texture2D Background;
         SpriteSheet Blocks;
-        SpriteFont fontScore, fontTitle;
+        SpriteFont fontScore, fontTitle, fontMenu;
         SoundEffect soundLine, soundLevel, soundLose, soundMusic, soundDrop;
         SoundEffectInstance soundMusicInstance;
 
@@ -60,7 +60,7 @@ namespace Liztris
         List<Grid> Grids = new List<Grid>();
 
         const int GridXPerPlayer = 8;
-        const int GridY = 18;
+        const int GridY = 17;
         const int BlockPixelSize = 32;
         const int BlocksBetweenGrids = 4;
         const int BlocksAboveBottom = 1;
@@ -74,7 +74,6 @@ namespace Liztris
         protected override int WindowWidth => 1600;
         protected override int WindowHeight => 900;
         protected override bool WindowFullScreen => false;
-
 
         public Liztris()
         {
@@ -134,6 +133,7 @@ namespace Liztris
 
             fontScore = Content.Load<SpriteFont>("Score");
             fontTitle = Content.Load<SpriteFont>("Title");
+            fontMenu = Content.Load<SpriteFont>("Menu");
 
             soundLine = Content.Load<SoundEffect>("Line");
             soundLevel = Content.Load<SoundEffect>("Level");
@@ -148,27 +148,27 @@ namespace Liztris
                 new Menu<GlobalMenuItems>.MenuItem("New Game", GlobalMenuItems.NewGame),
                 new Menu<GlobalMenuItems>.MenuItem("Options", GlobalMenuItems.Options),
                 new Menu<GlobalMenuItems>.MenuItem("Quit", GlobalMenuItems.Quit),
-            }, fontScore);
+            }, fontMenu);
 
             GameMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
                 new Menu<GlobalMenuItems>.MenuItem("Resume", GlobalMenuItems.Resume),
                 new Menu<GlobalMenuItems>.MenuItem("New Game", GlobalMenuItems.NewGame),
                 new Menu<GlobalMenuItems>.MenuItem("Options", GlobalMenuItems.Options),
                 new Menu<GlobalMenuItems>.MenuItem("Quit", GlobalMenuItems.Quit),
-            }, fontScore, 0, GlobalMenuItems.Resume);
+            }, fontMenu, 0, GlobalMenuItems.Resume);
 
             PlayerCountMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
                 new Menu<GlobalMenuItems>.MenuItem("One Player", GlobalMenuItems.OnePlayer),
                 new Menu<GlobalMenuItems>.MenuItem("Two Players", GlobalMenuItems.TwoPlayer),
                 new Menu<GlobalMenuItems>.MenuItem("Three Players", GlobalMenuItems.ThreePlayer),
                 new Menu<GlobalMenuItems>.MenuItem("Back", GlobalMenuItems.BackToGameMenu),
-            }, fontScore, 0, GlobalMenuItems.BackToGameMenu);
+            }, fontMenu, 0, GlobalMenuItems.BackToGameMenu);
 
             SharedGrid = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
                 new Menu<GlobalMenuItems>.MenuItem("Grid Per Player", GlobalMenuItems.GridPerPlayer),
                 new Menu<GlobalMenuItems>.MenuItem("Shared Grid", GlobalMenuItems.SharedGrid),
                 new Menu<GlobalMenuItems>.MenuItem("Back", GlobalMenuItems.BackToPlayerCountMenu),
-            }, fontScore, 0, GlobalMenuItems.BackToPlayerCountMenu);
+            }, fontMenu, 0, GlobalMenuItems.BackToPlayerCountMenu);
         }
 
         /// <summary>

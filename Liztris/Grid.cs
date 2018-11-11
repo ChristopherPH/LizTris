@@ -367,12 +367,13 @@ namespace Liztris
             }
 
             var XOffset = 5;
+            var YOffset = 4;
 
             foreach (var piece in NextPieces)
             {
                 piece.Draw(spriteBatch, Blocks, BlockPixelSize,
                     ScreenRect.X + (XOffset * BlockPixelSize),
-                    ScreenRect.Y - (5 * BlockPixelSize)
+                    ScreenRect.Y - (YOffset * BlockPixelSize)
                     );
 
                 XOffset += piece.Width + 1;

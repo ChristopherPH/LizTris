@@ -85,6 +85,13 @@
 /processorParam:Quality=Best
 /build:Lose.wav
 
+#begin Menu.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Menu.spritefont
+
 #begin music.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
