@@ -180,23 +180,35 @@ namespace Liztris
 
             if (inputManager.IsActionTriggered(MenuCommands.MenuSelect))
             {
-                HandleSelectItem(CurrentMenu.SelectedItem);
+                if (HandleSelectItem(CurrentMenu.SelectedItem))
+                {
+                    //play sound
+                }
                 return IsMenuActive;
             }
 
             if (inputManager.IsActionTriggered(MenuCommands.MenuBack))
             {
-                CloseMenu();
+                if (CloseMenu())
+                {
+                    //play sound
+                }
                 return IsMenuActive;
             }
 
             if (inputManager.IsActionTriggered(MenuCommands.MenuUp))
             {
-                CurrentMenu.PreviousItem();
+                if (CurrentMenu.PreviousItem())
+                {
+                    //play sound
+                }
             }
             else if (inputManager.IsActionTriggered(MenuCommands.MenuDown))
             {
-                CurrentMenu.NextItem();
+                if (CurrentMenu.NextItem())
+                {
+                    //play sound
+                }
             }
             else if (inputManager.IsActionTriggered(MenuCommands.MenuLeft))
             {
@@ -204,7 +216,10 @@ namespace Liztris
                 if (choiceMenu != null)
                 {
                     if (choiceMenu.PreviousItem())
-                        HandleSelectItem(choiceMenu.SelectedItem);
+                        if (HandleSelectItem(choiceMenu.SelectedItem))
+                        {
+                            //play sound
+                        }
                 }
             }
             else if (inputManager.IsActionTriggered(MenuCommands.MenuRight))
@@ -213,7 +228,10 @@ namespace Liztris
                 if (choiceMenu != null)
                 {
                     if (choiceMenu.NextItem())
-                        HandleSelectItem(choiceMenu.SelectedItem);
+                        if (HandleSelectItem(choiceMenu.SelectedItem))
+                        {
+                            //play sound
+                        }
                 }
             }
 
@@ -221,16 +239,19 @@ namespace Liztris
         }
 
 
-        public void HandleSelectItem(MenuItem Selection)
+        public bool HandleSelectItem(MenuItem Selection)
         {
             if (Selection == null)
-                return;
+                return false;
+
+            bool rc = false;
 
             if (!string.IsNullOrWhiteSpace(Selection.SetProperty))
             {
                 Options[Selection.SetProperty] = Selection.Value;
                 System.Diagnostics.Debug.Print("Set {0} to {1}",
                     Selection.SetProperty, Selection.Value);
+                rc = true;
             }
 
             if (Selection.DoAction != null)
@@ -238,32 +259,46 @@ namespace Liztris
                 //do something for action
                 System.Diagnostics.Debug.Print("Do Action {0}",
                     Selection.DoAction);
+                rc = true;
             }
 
             var openMenu = Selection as OpenMenu;
             if (openMenu != null)
             {
                 OpenMenu(openMenu.SubMenu);
+                rc = true;
             }
 
             var closeMenu = Selection as CloseMenu;
             if (closeMenu != null)
             {
                 CloseMenu();
+                rc = true;
             }
+
+            return rc;
         }
 
-        private void CloseMenu()
+        private bool CloseMenu()
         {
+            if (_Menus.Count == 0)
+                return false;
+
             _Menus.Pop();
             if (_Menus.Count > 0)
                 _Menus.Peek().SetDefaultItem();
+
+            return true;
         }
 
-        private void OpenMenu(SubMenu menu)
+        private bool OpenMenu(SubMenu menu)
         {
+            if ((menu == null) || (menu.MenuItems == null) || (menu.MenuItems.Length == 0))
+                return false;
+
             _Menus.Push(menu);
             menu.SetDefaultItem();
+            return true;
         }
 
         public void Draw(Common.ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect)
@@ -273,58 +308,64 @@ namespace Liztris
 
             var CurrentMenu = _Menus.Peek();
 
-            var sz = spriteFont.MeasureString("W");
-            int linepad = 10;
+            Draw(_Menus.Peek(), spriteBatch, spriteFont, MenuRect, _scale, Color.LightGreen);
+        }
 
-            var height = ((int)sz.Y * CurrentMenu.MenuItems.Length) + (linepad * (CurrentMenu.MenuItems.Length - 1));
-            //spriteBatch.FillRectangle(new Rectangle(MenuRect.X, MenuRect.Y, 100, height), Color.Purple);
+        private static void Draw(SubMenu CurrentMenu, Common.ExtendedSpriteBatch spriteBatch, 
+            SpriteFont spriteFont, Rectangle MenuRect, float SelectedItemScale, Color SelectedItemColor)
+        {
+            var LetterSize = spriteFont.MeasureString("W");
+            int PixelsBetweenLines = 10;
 
-            int offset = (MenuRect.Y) + (MenuRect.Height / 2) - (height / 2);
-            //spriteBatch.DrawRectangle(new Rectangle(MenuRect.X + 100, offset, 100, height), Color.Purple);
+            int ItemCount = CurrentMenu.MenuItems.Length;
 
-            offset += (int)(sz.Y / 2); //offset start as we scale the font
+            var TotalLetterHeight = ((int)LetterSize.Y * ItemCount) + (PixelsBetweenLines * (ItemCount - 1));
+
+            int YOffset = (MenuRect.Y) + (MenuRect.Height / 2) - (TotalLetterHeight / 2);
+
+            YOffset += (int)(LetterSize.Y / 2); //offset start as we scale the font
 
 
-            for (int i = 0; i < CurrentMenu.MenuItems.Length; i++)
+            for (int i = 0; i < ItemCount; i++)
             {
-                sz = spriteFont.MeasureString(CurrentMenu.MenuItems[i].Text);
+                var CurrentItem = CurrentMenu.MenuItems[i];
+
+                LetterSize = spriteFont.MeasureString(CurrentItem.Text);
                 var c = Color.White;
                 var scale = 1.0f;
 
-                var choice = CurrentMenu.MenuItems[i] as Choice;
+                var choice = CurrentItem as Choice;
                 if (choice != null)
                 {
                     spriteBatch.DrawString(spriteFont, choice.Text,
-                        new Vector2(MenuRect.X + (MenuRect.Width / 2) - ((sz.X * scale) / 2),
-                        offset - (sz.Y / 2 * scale)), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
+                        new Vector2(MenuRect.X + (MenuRect.Width / 2) - ((LetterSize.X * scale) / 2),
+                        YOffset - (LetterSize.Y / 2 * scale)), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
 
                     int x = 200;
                     for (int j = 0; j < choice.MenuItems.Length; j++)
                     {
 
                         spriteBatch.DrawString(spriteFont, choice.MenuItems[j].Text,
-                            new Vector2(MenuRect.X + (MenuRect.Width / 2) - ((sz.X * scale) / 2) + x,
-                            offset - (sz.Y / 2 * scale)), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
+                            new Vector2(MenuRect.X + (MenuRect.Width / 2) - ((LetterSize.X * scale) / 2) + x,
+                            YOffset - (LetterSize.Y / 2 * scale)), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
 
                         x += 50;
                     }
-
-
                 }
                 else
                 {
-                    if (CurrentMenu.MenuItems[i] == CurrentMenu.SelectedItem)
+                    if (CurrentItem == CurrentMenu.SelectedItem)
                     {
-                        c = Color.LightGreen;
-                        scale = _scale;
+                        c = SelectedItemColor;
+                        scale = SelectedItemScale;
                     }
 
-                    spriteBatch.DrawString(spriteFont, CurrentMenu.MenuItems[i].Text,
-                            new Vector2(MenuRect.X + (MenuRect.Width / 2) - ((sz.X * scale) / 2),
-                            offset - (sz.Y / 2 * scale)), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
+                    spriteBatch.DrawString(spriteFont, CurrentItem.Text,
+                            new Vector2(MenuRect.X + (MenuRect.Width / 2) - ((LetterSize.X * scale) / 2),
+                            YOffset - (LetterSize.Y / 2 * scale)), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
                 }
-                offset += (int)sz.Y;
-                offset += linepad;
+                YOffset += (int)LetterSize.Y;
+                YOffset += PixelsBetweenLines;
             }
         }
     }
