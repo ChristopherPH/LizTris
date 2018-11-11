@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -12,9 +12,9 @@ using Microsoft.Xna.Framework.Media;
 namespace Liztris
 {
     /// <summary>
-    /// This is the main type for your game
+    /// This is the main type for your game.
     /// </summary>
-    public class Liztris : Microsoft.Xna.Framework.Game
+    public class Liztris : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -28,6 +28,7 @@ namespace Liztris
         public Liztris()
         {
             graphics = new GraphicsDeviceManager(this);
+
             Content.RootDirectory = "Content";
         }
 
@@ -121,7 +122,7 @@ namespace Liztris
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
-        /// all content.
+        /// game-specific content.
         /// </summary>
         protected override void UnloadContent()
         {
@@ -136,9 +137,8 @@ namespace Liztris
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                this.Exit();
+                Exit();
 
             // TODO: Add your update logic here
 
@@ -384,13 +384,15 @@ namespace Liztris
             spriteBatch.Begin();
 
             //draw game grid
-            int offsetx = ((GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / 2) - ( (blocksize * gridx) / 2)) / 2;
+            
+            int offsetx = ((GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - ( (blocksize * gridx) / 2)) ;
             int offsety = 15;
             int border = 4;
             spriteBatch.Draw(Background, new Rectangle(offsetx - border, offsety - border, blocksize * gridx + border*2, blocksize * gridy + border*2), Color.LightGray);
             spriteBatch.Draw(Background, new Rectangle(offsetx, offsety, blocksize * gridx, blocksize * gridy), Color.DarkSlateGray);
 
             spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 10), Color.Black);
+            spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 8), Color.Red);
             spriteBatch.DrawString(fontScore, "Level: " + Level.ToString(), new Vector2(offsetx + blocksize * gridx + 60, 15), Color.Black);
             spriteBatch.DrawString(fontScore, "Lines: " + LineCount.ToString(), new Vector2(offsetx + blocksize * gridx + 60, 50), Color.Black);
 

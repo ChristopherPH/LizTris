@@ -1,9 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Liztris", "Liztris\Liztris\Liztris.csproj", "{CF9E0297-2F2E-44BE-90C2-635333A6F042}"
-EndProject
-Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "LiztrisContent", "Liztris\LiztrisContent\LiztrisContent.contentproj", "{1685B3C0-A303-4FB0-A1A4-2F25DA981BE5}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Liztris", "Liztris\Liztris.csproj", "{27649F31-680C-4FCA-ACDA-EFC35C324719}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,12 +11,10 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CF9E0297-2F2E-44BE-90C2-635333A6F042}.Debug|x86.ActiveCfg = Debug|x86
-		{CF9E0297-2F2E-44BE-90C2-635333A6F042}.Debug|x86.Build.0 = Debug|x86
-		{CF9E0297-2F2E-44BE-90C2-635333A6F042}.Release|x86.ActiveCfg = Release|x86
-		{CF9E0297-2F2E-44BE-90C2-635333A6F042}.Release|x86.Build.0 = Release|x86
-		{1685B3C0-A303-4FB0-A1A4-2F25DA981BE5}.Debug|x86.ActiveCfg = Debug|x86
-		{1685B3C0-A303-4FB0-A1A4-2F25DA981BE5}.Release|x86.ActiveCfg = Release|x86
+		{27649F31-680C-4FCA-ACDA-EFC35C324719}.Debug|x86.ActiveCfg = Debug|x86
+		{27649F31-680C-4FCA-ACDA-EFC35C324719}.Debug|x86.Build.0 = Debug|x86
+		{27649F31-680C-4FCA-ACDA-EFC35C324719}.Release|x86.ActiveCfg = Release|x86
+		{27649F31-680C-4FCA-ACDA-EFC35C324719}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
