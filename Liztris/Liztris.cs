@@ -109,7 +109,7 @@ namespace Liztris
 
             musicDefaultInstance.Volume = 0.20f;
             musicDefaultInstance.IsLooped = true;
-            //musicDefaultInstance.Play();
+            musicDefaultInstance.Play();
 
             //var targetFPS = 120;
 
