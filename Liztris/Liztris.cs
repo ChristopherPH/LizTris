@@ -1,4 +1,5 @@
 ﻿//#define NEWMENUTEST
+//#define SHOWSTUFF
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -122,13 +123,48 @@ namespace Liztris
             musicDefaultInstance.IsLooped = true;
             musicDefaultInstance.Play();
 
-            //var targetFPS = 120;
+#if SHOWSTUFF
 
-            //this.IsFixedTimeStep = false; //default is true
-            //TargetElapsedTime = TimeSpan.FromTicks(10000000 / targetFPS);
 
-            //graphics.SynchronizeWithVerticalRetrace = false;
-            //graphics.ApplyChanges();
+#if FREE_FPS_LPS //fps and lps are in sync, as fast as possible, no vsync
+            this.IsFixedTimeStep = false; //default is true
+            graphics.SynchronizeWithVerticalRetrace = false;
+            graphics.ApplyChanges();
+#endif
+
+#if MONITOR_FPS_LPS //fps and lps are in sync, hovers around monitor refresh rate
+            this.IsFixedTimeStep = false; //default is true
+#endif
+
+#if FIXED_LPS_LIMITED_TO_MONIOR_FPS //120 lps, 60 fps
+            var targetFPS = 120;
+            TargetElapsedTime = TimeSpan.FromTicks(10000000 / targetFPS);
+#endif
+
+#if FIXED_LPS_FPS //30 fps, 30 lps
+            var targetFPS = 30;
+            TargetElapsedTime = TimeSpan.FromTicks(10000000 / targetFPS);
+#endif
+
+#if FIXED_LPS_FIXED_FPS //120 lps, 120 fps, no vsync
+            var targetFPS = 120;
+            TargetElapsedTime = TimeSpan.FromTicks(10000000 / targetFPS);
+            graphics.SynchronizeWithVerticalRetrace = false;
+            graphics.ApplyChanges();
+#endif
+
+#if FIXED_LPS_FPS //30 fps, 30 lps, no vsync
+            var targetFPS = 30;
+            TargetElapsedTime = TimeSpan.FromTicks(10000000 / targetFPS);
+            graphics.SynchronizeWithVerticalRetrace = false;
+            graphics.ApplyChanges();
+#endif
+
+#if DEFAULT //60 fps, 60 lps, vsync
+
+#endif
+
+#endif
 
             CurrentGameMenu = StartMenu;
             CurrentMenu = CurrentGameMenu;
@@ -300,6 +336,13 @@ namespace Liztris
 
             base.Update(gameTime);
 
+#if SHOWSTUFF
+            if (logicTimer.UpdateAndCheck(gameTime))
+                logic = 1 / gameTime.ElapsedGameTime.TotalSeconds;
+
+            mousePos = TranslateLocation(Mouse.GetState().Position.ToVector2());
+#endif
+
             if (!toggle)
             {
                 if (toggleTimer.UpdateAndCheck(gameTime))
@@ -443,6 +486,15 @@ namespace Liztris
         Timer toggle2Timer = new Timer(1000);
         bool toggle = false;
 
+#if SHOWSTUFF
+        Timer fpsTimer = new Timer(100);
+        double framerate = 0;
+        Timer logicTimer = new Timer(100);
+        double logic = 0;
+
+        Vector2 mousePos;
+#endif
+
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -489,6 +541,20 @@ namespace Liztris
                 spriteBatch.Draw(transparentDarkTexture, MenuRect, Color.White * 0.5f);
 
                 CurrentMenu.Draw(spriteBatch, MenuRect);
+
+#if SHOWSTUFF
+                spriteBatch.DrawString(fontMenu, "Mouse: " + 
+                    (int)mousePos.X + " " + (int)mousePos.Y, new Vector2(), Color.White);
+
+                if (fpsTimer.UpdateAndCheck(gameTime))
+                    framerate = 1 / gameTime.ElapsedGameTime.TotalSeconds;
+
+                spriteBatch.DrawString(fontMenu, "FPS: " +
+                    framerate.ToString("N2"), new Vector2(0, 60), Color.White);
+                spriteBatch.DrawString(fontMenu, "LPS: " +
+                    logic.ToString("N2"), new Vector2(0, 120), Color.White);
+#endif
+
                 spriteBatch.End();
                 return;
             }
