@@ -165,27 +165,25 @@ namespace Liztris
             }
         }
 
-        SpriteSheet Bricks;
-
-
-        public void LoadContent(ContentManager Content)
+        public void Draw(SpriteBatch spriteBatch, SpriteSheet Blocks, int BlockPixelSize)
         {
-            Texture2D tex = Content.Load<Texture2D>("Bricks");
-            Bricks = new SpriteSheet(tex, 4, 6);
-        }
+            if (CurrentPiece == null)
+                return;
 
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
-        {
-            int offsetx = 0;
-            int offsety = 15;
+            for (int x = 0; x < CurrentPiece.Width; x++)
+            {
+                for (int y = 0; y < CurrentPiece.Height; y++)
+                {
+                    var BlockIndex = CurrentPiece.BlockMap[y, x] - 1;
+                    if (BlockIndex <= -1)
+                        continue;
 
-            if (CurrentPiece != null)
-                for (int x = 0; x < CurrentPiece.Width; x++)
-                    for (int y = 0; y < CurrentPiece.Height ; y++)
-                        if (CurrentPiece.BlockMap[x, y] > 0)
-                            Bricks.Draw(spriteBatch, 0, CurrentPiece.BlockMap[x, y] - 1, 
-                                new Vector2(offsetx + 32 * (piece_x + x), 
-                                offsety + 32 * (piece_y + y)));
+                    Blocks.Draw(spriteBatch, 0, BlockIndex,
+                        new Vector2(
+                            Grid.ScreenRect.X + (BlockPixelSize * (piece_x + x)),
+                            Grid.ScreenRect.Y + (BlockPixelSize * (piece_y + y))));
+                }
+            }
         }
 
 

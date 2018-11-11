@@ -13,22 +13,18 @@ namespace Liztris
         private static int[][,] AvailablePieces = new int[][,]
         {
             new int[,] {
-                {0,0,0,0},
-                {0,1,1,0},
-                {0,1,1,0},
-                {0,0,0,0},
+                {1,1},
+                {1,1},
             },
             new int[,] {
                 {0,2,0,0},
                 {0,2,0,0},
                 {0,2,2,0},
-                {0,0,0,0},
             },
             new int[,] {
                 {0,0,3,0},
                 {0,0,3,0},
                 {0,3,3,0},
-                {0,0,0,0},
             },
             new int[,] {
                 {0,4,0,0},
@@ -40,13 +36,11 @@ namespace Liztris
                 {0,5,0,0},
                 {0,5,5,0},
                 {0,0,5,0},
-                {0,0,0,0},
             },
             new int[,] {
                 {0,0,6,0},
                 {0,6,6,0},
                 {0,6,0,0},
-                {0,0,0,0},
             },
         };
 
@@ -67,19 +61,6 @@ namespace Liztris
                 index = PieceDefinition.AvailablePieceCount - 1;
 
             return new Piece(AvailablePieces[index]);
-        }
-    }
-
-    public static class IntExtensions
-    {
-        public static int GetHeight(this int[,] intArray)
-        {
-            return intArray.GetLength(0);
-        }
-
-        public static int GetWidth(this int[,] intArray)
-        {
-            return intArray.GetLength(1);
         }
     }
 

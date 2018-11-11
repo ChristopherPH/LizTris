@@ -36,9 +36,9 @@ namespace Liztris
             Rectangle sourceRectangle = new Rectangle(width * TileX, height * TileY, width, height);
             Rectangle destinationRectangle = new Rectangle((int)location.X, (int)location.Y, width, height);
 
-            spriteBatch.Begin();
+            //spriteBatch.Begin();
             spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, Color.White);
-            spriteBatch.End();
+            //spriteBatch.End();
         }
     }
 }

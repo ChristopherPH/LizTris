@@ -16,6 +16,7 @@ namespace Liztris
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Texture2D Background;
+        SpriteSheet Blocks;
         SpriteFont fontScore, fontTitle;
         SoundEffect soundLine, soundLevel, soundLose, soundMusic, soundDrop;
         SoundEffectInstance soundMusicInstance;
@@ -33,9 +34,10 @@ namespace Liztris
         List<Grid> Grids = new List<Grid>();
         List<Player> Players = new List<Player>();
 
-        public const int GridXPerPlayer = 8;
-        public const int GridY = 14;
-        public const int BlockSize = 32;
+        const int GridXPerPlayer = 8;
+        const int GridY = 7;
+        const int BlockPixelSize = 32;
+        const int BlocksBetweenGrids = 4;
 
         public int[] LevelSpeeds = { 1000, 900, 800, 700, 600, 500, 400, 350, 300, 250 };
 
@@ -89,6 +91,9 @@ namespace Liztris
             Background = new Texture2D(GraphicsDevice, 1, 1);
             Background.SetData(new[] { Color.White });
 
+            Texture2D tex = Content.Load<Texture2D>("Bricks");
+            Blocks = new SpriteSheet(tex, 4, 6);
+
             fontScore = Content.Load<SpriteFont>("Score");
             fontTitle = Content.Load<SpriteFont>("Title");
 
@@ -116,7 +121,7 @@ namespace Liztris
         {
             if (SharedGrid)
             {
-                var g = new Grid(GridXPerPlayer * PlayerCount, GridY, BlockSize);
+                var g = new Grid(GridXPerPlayer * PlayerCount, GridY);
                 Grids.Add(g);
 
                 for (int i = 0; i < PlayerCount; i++)
@@ -126,17 +131,35 @@ namespace Liztris
             {
                 for (int i = 0; i < PlayerCount; i++)
                 {
-                    var g = new Grid(GridXPerPlayer, GridY, BlockSize);
+                    var g = new Grid(GridXPerPlayer, GridY);
                     Grids.Add(g);
 
                     Players.Add(new Player(g, (PlayerIndex)i, null));
                 }
             }
 
+            //setup screen and grid locations
+            var GridPad = (BlockPixelSize * BlocksBetweenGrids);
+
+            var TotalGridPixelWidth = Grids.Sum(grid => (BlockPixelSize * grid.WidthInBlocks)) + ((Grids.Count - 1) * GridPad);
+            var StartOffsetX = ((GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - (TotalGridPixelWidth / 2));
+
+            var MaxGridPixelHeight = Grids.Max(grid => (BlockPixelSize * grid.HeightInBlocks)) + (BlockPixelSize * 2);
+            //int StartOffsetY = ((GraphicsDevice.PresentationParameters.BackBufferHeight / 2) - (MaxGridPixelHeight / 2));
+            var StartOffsetY = GraphicsDevice.PresentationParameters.BackBufferHeight - MaxGridPixelHeight;
+
+            var XOffset = StartOffsetX;
+            var YOffset = StartOffsetY;
+
             foreach (var grid in Grids)
-                grid.LoadContent(Content);
-            foreach (var player in Players)
-                player.LoadContent(Content);
+            {
+                //draw grid border
+                grid.ScreenRect = new Rectangle(XOffset, YOffset,
+                    BlockPixelSize * grid.WidthInBlocks,
+                    BlockPixelSize * grid.HeightInBlocks);
+
+                XOffset += BlockPixelSize * (grid.WidthInBlocks + BlocksBetweenGrids);
+            }
 
             NewGame();
         }
@@ -149,11 +172,6 @@ namespace Liztris
 
             foreach (var player in Players)
                 player.NewGame();
-
-            //Level = 1;
-           // LineCount = 0;
-
-            //NewPiece();
         }
 
         enum PieceState
@@ -261,6 +279,8 @@ namespace Liztris
         double timer;
         double GameDelay = 0;
 
+        
+
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -271,39 +291,39 @@ namespace Liztris
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
+            
 
-            //draw game grid
-            int offsetx = ((GraphicsDevice.PresentationParameters.BackBufferWidth / 2) -
-                ((BlockSize * GridXPerPlayer) / 2));
-
-                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 10), Color.Black);
-              spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 8), Color.Red);
-              spriteBatch.DrawString(fontScore, "Level: " + "1", 
-                  new Vector2(offsetx + BlockSize * GridXPerPlayer + 60, 15), Color.Black);
-              spriteBatch.DrawString(fontScore, "Lines: " + "4", 
-                  new Vector2(offsetx + BlockSize * GridXPerPlayer + 60, 50), Color.Black);
-
-            spriteBatch.End();
+            //draw
+            spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 10), Color.Black);
+            spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 8), Color.Red);
 
             foreach (var grid in Grids)
             {
-                spriteBatch.Begin();
-               // int offsetx = ((GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - 
-                //    ((grid.BlockSize * grid.SizeX) / 2));
-                int offsety = 15;
-                int border = 4;
-                spriteBatch.Draw(Background, new Rectangle(offsetx - border, offsety - border, grid.BlockSize * grid.SizeX + border * 2, grid.BlockSize * grid.SizeY + border * 2), Color.LightGray);
-                spriteBatch.Draw(Background, new Rectangle(offsetx, offsety, grid.BlockSize * grid.SizeX, grid.BlockSize * grid.SizeY), Color.DarkSlateGray);
+                //draw grid info on upper left of grid
+                spriteBatch.DrawString(fontScore, "Lines: " + grid.LineCount.ToString(),
+                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 120), Color.Black);
+                spriteBatch.DrawString(fontScore, "Level: " + grid.Level.ToString(),
+                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 80), Color.Black);
 
-                spriteBatch.End();
+                //draw grid border
+                var borderRect = grid.ScreenRect;
 
-                grid.Draw(gameTime, spriteBatch, offsetx, offsety);
+                borderRect.Inflate(BlockPixelSize/2, BlockPixelSize/2);
+                spriteBatch.Draw(Background, borderRect, Color.LightGray);
+                spriteBatch.Draw(Background, grid.ScreenRect, Color.DarkSlateGray);
+
+                //draw grid
+                grid.Draw(spriteBatch, Blocks, BlockPixelSize);
             }
-            
+
             foreach (var player in Players)
-                player.Draw(gameTime, spriteBatch);
+            {
+                player.Draw(spriteBatch, Blocks, BlockPixelSize);
+            }
    
             base.Draw(gameTime);
+
+            spriteBatch.End();
         }
     }
 }

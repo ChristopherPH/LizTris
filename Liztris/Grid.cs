@@ -13,19 +13,20 @@ namespace Liztris
     {
         public int Level { get; private set; } = 1;
         public int LineCount { get; private set; } = 0;
-        public int SizeX { get; private set; }
-        public int SizeY { get; private set; }
-        public int BlockSize { get; private set; }
 
-        int[,] _grid;
+        public int WidthInBlocks { get; private set; }
+        public int HeightInBlocks { get; private set; }
 
-        public Grid(int SizeX, int SizeY, int BlockSize)
+        public int[,] BlockMap { get; private set; }
+
+        public Rectangle ScreenRect { get; set; } = Rectangle.Empty;
+
+        public Grid(int WidthInBlocks, int HeightInBlocks)
         {
-            this.SizeX = SizeX;
-            this.SizeY = SizeY;
-            this.BlockSize = BlockSize;
+            this.WidthInBlocks = WidthInBlocks;
+            this.HeightInBlocks = HeightInBlocks;
 
-            _grid = new int[SizeX, SizeY];
+            BlockMap = new int[HeightInBlocks, WidthInBlocks];
         }
 
         public void NewGame()
@@ -45,9 +46,9 @@ namespace Liztris
 
         private void ClearGrid()
         {
-            for (int x = 0; x < SizeX; x++)
-                for (int y = 0; y < SizeY; y++)
-                    _grid[x, y] = 0;
+            for (int x = 0; x < WidthInBlocks; x++)
+                for (int y = 0; y < HeightInBlocks; y++)
+                    BlockMap[y, x] = 0;
         }
 
         public bool CheckPiece(Piece p, int px, int py)
@@ -59,7 +60,7 @@ namespace Liztris
                 for (int y = 0; y < p.Height; y++)
                 {
                     //piece has no block, ignore
-                    if (p.BlockMap[x, y] == 0)
+                    if (p.BlockMap[y, x] == 0)
                         continue;
 
                     //where is this block?
@@ -67,14 +68,14 @@ namespace Liztris
                     int tmp_y = py + y;
 
                     //block out of bounds
-                    if ((tmp_x < 0) || (tmp_x >= SizeX))
+                    if ((tmp_x < 0) || (tmp_x >= WidthInBlocks))
                         return false;
 
-                    if ((tmp_y < 0) || (tmp_y >= SizeY))
+                    if ((tmp_y < 0) || (tmp_y >= HeightInBlocks))
                         return false;
 
                     //block over grid block
-                    if (_grid[tmp_x, tmp_y] > 0)
+                    if (BlockMap[tmp_y, tmp_x] > 0)
                         return false;
                 }
 
@@ -99,23 +100,23 @@ namespace Liztris
         {
             int clearedLines = 0;
 
-            for (int y = SizeY - 1; y >= 0; y--)
+            for (int y = HeightInBlocks - 1; y >= 0; y--)
             {
                 int x;
-                for (x = 0; x < SizeX; x++)
+                for (x = 0; x < WidthInBlocks; x++)
                 {
-                    if (_grid[x, y] == 0)
+                    if (BlockMap[y, x] == 0)
                         break;
                 }
 
-                if (x == SizeX)
+                if (x == WidthInBlocks)
                 {
                     for (int y2 = y; y2 > 0; y2--)
-                        for (x = 0; x < SizeX; x++)
-                            _grid[x, y2] = _grid[x, y2 - 1];
+                        for (x = 0; x < WidthInBlocks; x++)
+                            BlockMap[y2, x] = BlockMap[y2 - 1, x];
 
-                    for (x = 0; x < SizeX; x++)
-                        _grid[x, 0] = 0;
+                    for (x = 0; x < WidthInBlocks; x++)
+                        BlockMap[0, x] = 0;
 
                     y++;
                     clearedLines++;
@@ -125,24 +126,22 @@ namespace Liztris
             return clearedLines;
         }
 
-        SpriteSheet Bricks;
-
-        public void LoadContent(ContentManager Content)
+        public void Draw(SpriteBatch spriteBatch, SpriteSheet Blocks, int BlockPixelSize)
         {
-            Texture2D tex = Content.Load<Texture2D>("Bricks");
-            Bricks = new SpriteSheet(tex, 4, 6);
-        }
+            for (int x = 0; x < WidthInBlocks; x++)
+            {
+                for (int y = 0; y < HeightInBlocks; y++)
+                {
+                    var BlockIndex = BlockMap[y, x] - 1;
+                    if (BlockIndex <= -1)
+                        continue;
 
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch, int offsetx, int offsety)
-        {
-            if (Bricks == null)
-                return;
-
-            for (int x = 0; x < SizeX; x++)
-                for (int y = 0; y < SizeY; y++)
-                    if (_grid[x, y] > 0)
-                        Bricks.Draw(spriteBatch, 0, _grid[x, y] - 1, 
-                            new Vector2(offsetx + BlockSize * x, offsety + BlockSize * y));
+                    Blocks.Draw(spriteBatch, 0, BlockIndex,
+                        new Vector2(
+                            ScreenRect.X + (BlockPixelSize * x),
+                            ScreenRect.Y + (BlockPixelSize * y)));
+                }
+            }
         }
     }
 }

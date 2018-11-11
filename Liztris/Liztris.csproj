@@ -42,6 +42,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Controls.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Liztris.cs" />
     <Compile Include="Piece.cs" />
     <Compile Include="Grid.cs" />
