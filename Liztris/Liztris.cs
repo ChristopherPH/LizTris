@@ -48,12 +48,18 @@ namespace Liztris
 
             BackToGameMenu,
             BackToPlayerCountMenu,
+            BackToSpeedMenu,
+
+            SpeedSlow,
+            SpeedNormal,
+            SpeedFast,
         }
 
         Menu<GlobalMenuItems> StartMenu = null;
         Menu<GlobalMenuItems> GameMenu = null;
         Menu<GlobalMenuItems> PlayerCountMenu = null;
         Menu<GlobalMenuItems> SharedGrid = null;
+        Menu<GlobalMenuItems> SpeedMenu = null;
 
         Menu<GlobalMenuItems> CurrentGameMenu = null;
         Menu<GlobalMenuItems> CurrentMenu = null;
@@ -70,8 +76,12 @@ namespace Liztris
         const int PlayerCount = 2;
         const bool ShareGrid = true;
 
-        public int[] LevelSpeeds = { 1000, 900, 800, 700, 600, 500, 400, 350, 300, 250, 225, 200, 175, 150, 125 };
-        public int[] LevelLines =  { 0,    10,  20,  30,  40,  50,  60,  70,  80,  90,  100, 125, 150, 175, 200 };
+        public int[][] LevelSpeeds = { //Slow, Normal, Fast
+            new int[] { 1500, 1400, 1300, 1200, 1100, 1000, 900, 800, 750, 700, 650, 600, 550, 500, 500 },
+            new int[] { 1000, 900,  800,  700,  600,  500,  400, 350, 300, 250, 225, 200, 175, 150, 125 },
+            new int[] { 500,  450,  400,  350,  300,  250,  200, 175, 150, 125, 120, 115, 110, 105, 100 } };
+        public int[] LevelLines =  
+                      { 0,    10,   20,   30,   40,   50,   60,  70,  80,  90,  100, 125, 150, 175, 200 };
         public int[] ScoreMultiplier = { 100, 250, 500, 1000 };
 
         protected override int WantedGameResolutionWidth => 1280;
@@ -186,8 +196,15 @@ namespace Liztris
             SharedGrid = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
                 new Menu<GlobalMenuItems>.MenuItem("Grid Per Player", GlobalMenuItems.GridPerPlayer),
                 new Menu<GlobalMenuItems>.MenuItem("Shared Grid", GlobalMenuItems.SharedGrid),
+                new Menu<GlobalMenuItems>.MenuItem("Back", GlobalMenuItems.BackToSpeedMenu),
+            }, fontMenu, 0, GlobalMenuItems.BackToSpeedMenu);
+
+            SpeedMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
+                new Menu<GlobalMenuItems>.MenuItem("Slow", GlobalMenuItems.SpeedSlow),
+                new Menu<GlobalMenuItems>.MenuItem("Normal", GlobalMenuItems.SpeedNormal),
+                new Menu<GlobalMenuItems>.MenuItem("Fast", GlobalMenuItems.SpeedFast),
                 new Menu<GlobalMenuItems>.MenuItem("Back", GlobalMenuItems.BackToPlayerCountMenu),
-            }, fontMenu, 0, GlobalMenuItems.BackToPlayerCountMenu);
+            }, fontMenu, 1, GlobalMenuItems.BackToPlayerCountMenu);
         }
 
         /// <summary>
@@ -202,7 +219,7 @@ namespace Liztris
         }
 
 
-        public void NewGame(int PlayerCount, bool SharedGrid)
+        public void NewGame(int PlayerCount, int SpeedType, bool SharedGrid)
         {
             foreach (var grid in Grids)
                 grid.Players.Clear();
@@ -210,7 +227,7 @@ namespace Liztris
 
             if (SharedGrid)
             {
-                var grid = new Grid(GridXPerPlayer * PlayerCount, GridY, LevelSpeeds, LevelLines, ScoreMultiplier);
+                var grid = new Grid(GridXPerPlayer * PlayerCount, GridY, LevelSpeeds[SpeedType], LevelLines, ScoreMultiplier);
                 Grids.Add(grid);
 
                 for (int i = 0; i < PlayerCount; i++)
@@ -223,7 +240,7 @@ namespace Liztris
             {
                 for (int i = 0; i < PlayerCount; i++)
                 {
-                    var grid = new Grid(GridXPerPlayer, GridY, LevelSpeeds, LevelLines, ScoreMultiplier);
+                    var grid = new Grid(GridXPerPlayer, GridY, LevelSpeeds[SpeedType], LevelLines, ScoreMultiplier);
                     Grids.Add(grid);
 
                     var player = new Player(grid, (PlayerIndex)i, null);
@@ -269,6 +286,7 @@ namespace Liztris
         }
 
         private int mnuPlayers = 0;
+        private int mnuSpeed = 1;
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -312,36 +330,60 @@ namespace Liztris
 
                             case GlobalMenuItems.OnePlayer:
                                 mnuPlayers = 1;
-                                CurrentMenu = SharedGrid;
+                                CurrentMenu = SpeedMenu;
                                 CurrentMenu.ResetMenu();
                                 break;
 
                             case GlobalMenuItems.TwoPlayer:
                                 mnuPlayers = 2;
-                                CurrentMenu = SharedGrid;
+                                CurrentMenu = SpeedMenu;
                                 CurrentMenu.ResetMenu();
                                 break;
 
                             case GlobalMenuItems.ThreePlayer:
                                 mnuPlayers = 3;
-                                CurrentMenu = SharedGrid;
+                                CurrentMenu = SpeedMenu;
                                 CurrentMenu.ResetMenu();
                                 break;
 
                             case GlobalMenuItems.FourPlayer:
                                 mnuPlayers = 4;
+                                CurrentMenu = SpeedMenu;
+                                CurrentMenu.ResetMenu();
+                                break;
+
+                            case GlobalMenuItems.SpeedSlow:
+                                mnuSpeed = 0;
+                                CurrentMenu = SharedGrid;
+                                CurrentMenu.ResetMenu();
+                                break;
+
+                            case GlobalMenuItems.SpeedNormal:
+                                mnuSpeed = 1;
+                                CurrentMenu = SharedGrid;
+                                CurrentMenu.ResetMenu();
+                                break;
+
+                            case GlobalMenuItems.SpeedFast:
+                                mnuSpeed = 2;
                                 CurrentMenu = SharedGrid;
                                 CurrentMenu.ResetMenu();
                                 break;
 
                             case GlobalMenuItems.GridPerPlayer:
-                                NewGame(mnuPlayers, false);
+                                NewGame(mnuPlayers, mnuSpeed, false);
                                 CurrentMenu = null;
                                 break;
 
                             case GlobalMenuItems.SharedGrid:
-                                NewGame(mnuPlayers, true);
+                                NewGame(mnuPlayers, mnuSpeed, true);
                                 CurrentMenu = null;
+                                break;
+
+                            case GlobalMenuItems.BackToSpeedMenu:
+                                CurrentMenu = SpeedMenu;
+                                CurrentMenu.ResetMenu();
+                                mnuSpeed = 1;
                                 break;
 
                             case GlobalMenuItems.BackToGameMenu:
