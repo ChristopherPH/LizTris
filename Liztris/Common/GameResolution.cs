@@ -44,6 +44,8 @@ namespace Common
         protected int MonitorPixelWidth => GraphicsDevice.DisplayMode.Width;
         protected int MonitorPixelHeight => GraphicsDevice.DisplayMode.Height;
 
+        protected Rectangle GameRectangle => new Rectangle(0, 0, GamePixelWidth, GamePixelHeight);
+
         protected abstract int WantedGameResolutionWidth { get; }
         protected abstract int WantedGameResolutionHeight { get; }
 
