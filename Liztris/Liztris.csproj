@@ -41,6 +41,8 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Common\ExtendedSpriteBatch.cs" />
+    <Compile Include="Common\Resolution.cs" />
     <Compile Include="Controls.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Liztris.cs" />

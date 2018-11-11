@@ -63,6 +63,50 @@ namespace Liztris
 
         public bool CheckPiece(Piece p, int px, int py)
         {
+            if (!CheckPieceInGrid(p, px, py))
+                return false;
+
+            //get rectagle location on the grid
+            var r = new Rectangle(px, py, p.Width, p.Height);
+
+            foreach (var player in Players)
+            {
+                if (player.CurrentPiece == null)
+                    continue;
+                if (player.CurrentPiece == p)
+                    continue;
+
+                var r2 = new Rectangle(player.piece_x, player.piece_y, 
+                    player.CurrentPiece.Width, player.CurrentPiece.Height);
+
+                if (!r.Intersects(r2))
+                    continue;
+
+                //rectangles overlap, check where
+                var inter = Rectangle.Intersect(r, r2);
+
+                for (int x = inter.Left; x < inter.Right; x++)
+                { 
+                    for (int y = inter.Top; y < inter.Bottom; y++)
+                    {
+                        var x1 = x - px;
+                        var y1 = y - py;
+
+                        var x2 = x - player.piece_x;
+                        var y2 = y - player.piece_y;
+
+                        if ((p.BlockMap[y1, x1] > 0) &&
+                            (player.CurrentPiece.BlockMap[y2, x2] > 0))
+                            return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private bool CheckPieceInGrid(Piece p, int px, int py)
+        {
             if (p == null)
                 return false;
 
@@ -217,7 +261,7 @@ namespace Liztris
                     if (player.CurrentPiece == null)
                         continue;
 
-                    if (player.Grid.CheckPiece(player.CurrentPiece,
+                    if (CheckPieceInGrid(player.CurrentPiece,
                         player.piece_x, player.piece_y + 1))
                     {
                         player.piece_y++;
@@ -227,7 +271,7 @@ namespace Liztris
                     {
                         ss = SoundState.AddToGrid;
 
-                        player.Grid.AddPieceToGrid(player.CurrentPiece,
+                        AddPieceToGrid(player.CurrentPiece,
                             player.piece_x, player.piece_y);
                         player.CurrentPiece = null;
                         var lines = ClearFilledLines();
@@ -277,26 +321,26 @@ namespace Liztris
                     if (BlockIndex <= -1)
                         continue;
 
-                    if (BlockIndex > Blocks.Rows - 1)
-                        BlockIndex = Blocks.Rows - 1;
+                    //if (BlockIndex > Blocks. - 1)
+                    //    BlockIndex = Blocks.Rows - 1;
 
-                    Blocks.Draw(spriteBatch, 0, BlockIndex,
+                    Blocks.Draw(spriteBatch, /*0,*/ BlockIndex,
                         new Vector2(
                             ScreenRect.X + (BlockPixelSize * x),
                             ScreenRect.Y + (BlockPixelSize * y)));
                 }
             }
 
-            var YOffset = 0;
+            var XOffset = 5;
 
             foreach (var piece in NextPieces)
             {
                 piece.Draw(spriteBatch, Blocks, BlockPixelSize,
-                    ScreenRect.Right + BlockPixelSize,
-                    ScreenRect.Y + (YOffset * BlockPixelSize)
+                    ScreenRect.X + (XOffset * BlockPixelSize),
+                    ScreenRect.Y - (5 * BlockPixelSize)
                     );
 
-                YOffset += piece.Height + 1;
+                XOffset += piece.Width + 1;
             }
 
             foreach (var player in Players)

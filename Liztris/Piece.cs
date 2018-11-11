@@ -124,10 +124,10 @@ namespace Liztris
                     if (BlockIndex <= -1)
                         continue;
 
-                    if (BlockIndex > Blocks.Rows - 1)
-                        BlockIndex = Blocks.Rows - 1;
+                    //if (BlockIndex > Blocks.Rows - 1)
+                    //    BlockIndex = Blocks.Rows - 1;
 
-                    Blocks.Draw(spriteBatch, 0, BlockIndex,
+                    Blocks.Draw(spriteBatch, BlockIndex,
                         new Vector2(
                             XOffset + (BlockPixelSize * x),
                             YOffset + (BlockPixelSize * y)));

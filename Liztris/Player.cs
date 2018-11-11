@@ -161,6 +161,9 @@ namespace Liztris
                 CurrentPiece.RotateCounterClockwise();
         }
 
+        Timer repeatTimer = null;
+        const int moveRepeatTime = 150;
+        const int dropRepeatTime = 100;
 
         public void Update(GameTime gameTime)
         {
@@ -169,14 +172,17 @@ namespace Liztris
             if (inputManager.IsActionTriggered(Actions.Left))
             {
                 MovePieceLeft();
+                repeatTimer = new Timer(moveRepeatTime);
             }
             else if (inputManager.IsActionTriggered(Actions.Right))
             {
                 MovePieceRight();
+                repeatTimer = new Timer(moveRepeatTime);
             }
             else if (inputManager.IsActionTriggered(Actions.Drop))
             {
                 MovePieceDown();
+                repeatTimer = new Timer(dropRepeatTime);
             }
             else if (inputManager.IsActionTriggered(Actions.Rotate))
             {
@@ -185,6 +191,26 @@ namespace Liztris
             else if (inputManager.IsActionTriggered(Actions.RotateCounter))
             {
                 RotatePieceCounterClockwise();
+            }
+            else
+            {
+                var left = inputManager.IsActionPressed(Actions.Left);
+                var right = inputManager.IsActionPressed(Actions.Right);
+                var drop = inputManager.IsActionPressed(Actions.Drop);
+
+                if (!right && !left && !drop)
+                    repeatTimer = null;
+
+                if (repeatTimer != null)
+                    if (repeatTimer.UpdateAndCheck(gameTime))
+                    {
+                        if (left)
+                            MovePieceLeft();
+                        else if (right)
+                            MovePieceRight();
+                        else if (drop)
+                            MovePieceDown();
+                    }
             }
         }
 

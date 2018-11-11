@@ -14,7 +14,7 @@ namespace Liztris
     public class Liztris : Game
     {
         GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        Common.ExtendedSpriteBatch spriteBatch;
         Texture2D Background;
         SpriteSheet Blocks;
         SpriteFont fontScore, fontTitle;
@@ -34,10 +34,12 @@ namespace Liztris
         List<Grid> Grids = new List<Grid>();
 
         const int GridXPerPlayer = 8;
-        const int GridY = 13;
+        const int GridY = 18;
         const int BlockPixelSize = 32;
         const int BlocksBetweenGrids = 4;
         const int BlocksAboveBottom = 1;
+        const int PlayerCount = 2;
+        const bool ShareGrid = true;
 
         public int[] LevelSpeeds = { 1000, 900, 800, 700, 600, 500, 400, 350, 300, 250 };
 
@@ -45,6 +47,27 @@ namespace Liztris
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            IndependentResolutionRendering.Resolution.Init(ref graphics);
+
+
+            //VirtualResolution must be less than window resolution
+            //VirtualResolution doesn't need to be a valid resolution
+
+            //IndependentResolutionRendering.Resolution.SetVirtualResolution(800, 600);
+            //IndependentResolutionRendering.Resolution.SetVirtualResolution(1920, 1080); //game resolution
+            //IndependentResolutionRendering.Resolution.SetVirtualResolution(1024, 768); //game resolution
+            IndependentResolutionRendering.Resolution.SetVirtualResolution(1800, 800);
+
+            bool fullscreen = false;
+            IndependentResolutionRendering.Resolution.SetResolution(1920, 1080, fullscreen); //window resolution
+            //IndependentResolutionRendering.Resolution.SetResolution(1680, 1050, fullscreen);
+            //IndependentResolutionRendering.Resolution.SetResolution(1600, 900, fullscreen);
+            //IndependentResolutionRendering.Resolution.SetResolution(1440, 900, fullscreen);
+            //    IndependentResolutionRendering.Resolution.SetResolution(1360, 768, fullscreen);
+            //IndependentResolutionRendering.Resolution.SetResolution(1280, 1024, fullscreen);
+            //IndependentResolutionRendering.Resolution.SetResolution(1024, 768, fullscreen);
+            //IndependentResolutionRendering.Resolution.SetResolution(800, 600, fullscreen);
         }
 
         /// <summary>
@@ -74,8 +97,8 @@ namespace Liztris
 
             soundMusicInstance.Volume = 0.20f;
             soundMusicInstance.IsLooped = true;
-            soundMusicInstance.Play();
-            SetupGame(2, true);
+            //soundMusicInstance.Play();
+            SetupGame(PlayerCount, ShareGrid);
         }
 
         /// <summary>
@@ -85,14 +108,17 @@ namespace Liztris
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            spriteBatch = new Common.ExtendedSpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
             Background = new Texture2D(GraphicsDevice, 1, 1);
             Background.SetData(new[] { Color.White });
 
-            Texture2D tex = Content.Load<Texture2D>("Bricks");
-            Blocks = new SpriteSheet(tex, 4, 6);
+            //Texture2D tex = Content.Load<Texture2D>("Bricks");
+            //Blocks = new SpriteSheet(tex, 4, 6);
+
+            Texture2D tex = Content.Load<Texture2D>("Bricks4-32");
+            Blocks = new SpriteSheet(tex, 5, 4);
 
             fontScore = Content.Load<SpriteFont>("Score");
             fontTitle = Content.Load<SpriteFont>("Title");
@@ -146,18 +172,22 @@ namespace Liztris
             var GridPad = (BlockPixelSize * BlocksBetweenGrids);
             var HeightPad = (BlockPixelSize * BlocksAboveBottom);
 
+            //var ScreenPixelWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
+            //var ScreenPixelHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
+            var ScreenPixelWidth = IndependentResolutionRendering.Resolution.VirtualWidth;
+            var ScreenPixelHeight = IndependentResolutionRendering.Resolution.VirtualHeight;
+
             var TotalGridPixelWidth = Grids.Sum(grid => (BlockPixelSize * grid.WidthInBlocks)) + ((Grids.Count - 1) * GridPad);
-            var StartOffsetX = ((GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - (TotalGridPixelWidth / 2));
+            var StartOffsetX = ((ScreenPixelWidth / 2) - (TotalGridPixelWidth / 2));
 
             var MaxGridPixelHeight = Grids.Max(grid => (BlockPixelSize * grid.HeightInBlocks)) + HeightPad;
-            var StartOffsetY = GraphicsDevice.PresentationParameters.BackBufferHeight - MaxGridPixelHeight;
+            var StartOffsetY = ScreenPixelHeight - MaxGridPixelHeight;
 
             var XOffset = StartOffsetX;
             var YOffset = StartOffsetY;
 
             foreach (var grid in Grids)
             {
-                //draw grid border
                 grid.ScreenRect = new Rectangle(XOffset, YOffset,
                     BlockPixelSize * grid.WidthInBlocks,
                     BlockPixelSize * grid.HeightInBlocks);
@@ -202,11 +232,18 @@ namespace Liztris
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            IndependentResolutionRendering.Resolution.BeginDraw();
+
+            //GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-            spriteBatch.Begin();
-            
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, 
+                null, null, null, null,
+                IndependentResolutionRendering.Resolution.getTransformationMatrix());
+
+            spriteBatch.FillRectangle(new Rectangle(0, 0, graphics.PreferredBackBufferWidth,
+                graphics.PreferredBackBufferHeight), Color.CornflowerBlue);
+
             //draw
             spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 10), Color.Black);
             spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 8), Color.Red);
@@ -222,9 +259,31 @@ namespace Liztris
                 //draw grid border
                 var borderRect = grid.ScreenRect;
 
-                borderRect.Inflate(BlockPixelSize/2, BlockPixelSize/2);
+                borderRect.Inflate(8, 8);
                 spriteBatch.Draw(Background, borderRect, Color.LightGray);
+
+                borderRect.Inflate(-2, -2);
+                spriteBatch.Draw(Background, borderRect, Color.Gray);
+
+                borderRect.Inflate(-4, -4);
+                spriteBatch.Draw(Background, borderRect, Color.LightGray);
+
                 spriteBatch.Draw(Background, grid.ScreenRect, Color.DarkSlateGray);
+                /*
+                for (int x = 0; x < grid.WidthInBlocks; x++)
+                {
+                    for (int y = 0; y < grid.HeightInBlocks; y++)
+                    {
+                        var r = new Rectangle(
+                            grid.ScreenRect.X + x * BlockPixelSize,
+                            grid.ScreenRect.Y + y * BlockPixelSize,
+                            BlockPixelSize, BlockPixelSize);
+                        r.Inflate(-1, -1);
+                        spriteBatch.DrawRectangle(r, Color.Black);
+
+                    }
+                }
+                */
 
                 //draw grid
                 grid.Draw(spriteBatch, Blocks, BlockPixelSize);
