@@ -116,8 +116,6 @@ namespace Liztris
         public Menu2(MenuItem[] MenuItems) :
             base(string.Empty, MenuItems)
         {
-            _Menus.Push(this);
-
             inputManager.AddAction(MenuCommands.MenuSelect, Keys.Enter);
             inputManager.AddAction(MenuCommands.MenuSelect, InputManager<MenuCommands>.GamePadButtons.A);
 
@@ -136,7 +134,16 @@ namespace Liztris
             inputManager.AddAction(MenuCommands.MenuRight, Keys.Right);
             inputManager.AddAction(MenuCommands.MenuRight, InputManager<MenuCommands>.GamePadButtons.Right);
 
+            Reset();
         }
+
+        public void Reset()
+        {
+            _Menus.Clear();
+            _Menus.Push(this);
+        }
+
+        public bool IsMenuActive => _Menus.Count != 0;
 
         private Stack<SubMenu> _Menus = new Stack<SubMenu>();
         public Dictionary<string, object> Options { get; } = new Dictionary<string, object>();
@@ -145,10 +152,13 @@ namespace Liztris
         bool _scaleReverse = false;
         Timer AnimationTimer = new Timer(10);
 
-        public void Update(GameTime gameTime)
+        public bool Update(GameTime gameTime)
         {
             if (_Menus.Count == 0)
-                throw new Exception();
+                //throw new Exception();
+                return false;
+
+            var CurrentMenu = _Menus.Peek();
 
             if (AnimationTimer.UpdateAndCheck(gameTime))
             {
@@ -170,51 +180,53 @@ namespace Liztris
 
             if (inputManager.IsActionTriggered(MenuCommands.MenuSelect))
             {
-                HandleSelectItem(SelectedItem);
-                return;
+                HandleSelectItem(CurrentMenu.SelectedItem);
+                return IsMenuActive;
             }
 
             if (inputManager.IsActionTriggered(MenuCommands.MenuBack))
             {
                 CloseMenu();
-                return;
+                return IsMenuActive;
             }
 
             if (inputManager.IsActionTriggered(MenuCommands.MenuUp))
             {
-                PreviousItem();
+                CurrentMenu.PreviousItem();
             }
             else if (inputManager.IsActionTriggered(MenuCommands.MenuDown))
             {
-                NextItem();
+                CurrentMenu.NextItem();
             }
             else if (inputManager.IsActionTriggered(MenuCommands.MenuLeft))
             {
-                var choiceMenu = SelectedItem as Choice;
-                if (choiceMenu != null)
-                {
-                    if (choiceMenu.NextItem())
-                        HandleSelectItem(choiceMenu.SelectedItem);
-                }
-            }
-            else if (inputManager.IsActionTriggered(MenuCommands.MenuRight))
-            {
-                var choiceMenu = SelectedItem as Choice;
+                var choiceMenu = CurrentMenu.SelectedItem as Choice;
                 if (choiceMenu != null)
                 {
                     if (choiceMenu.PreviousItem())
                         HandleSelectItem(choiceMenu.SelectedItem);
                 }
             }
+            else if (inputManager.IsActionTriggered(MenuCommands.MenuRight))
+            {
+                var choiceMenu = CurrentMenu.SelectedItem as Choice;
+                if (choiceMenu != null)
+                {
+                    if (choiceMenu.NextItem())
+                        HandleSelectItem(choiceMenu.SelectedItem);
+                }
+            }
+
+            return IsMenuActive;
         }
 
 
         public void HandleSelectItem(MenuItem Selection)
         {
-            if ((Selection == null) || (Selection is Choice))
+            if (Selection == null)
                 return;
 
-            if (!string.IsNullOrWhiteSpace(SetProperty))
+            if (!string.IsNullOrWhiteSpace(Selection.SetProperty))
             {
                 Options[Selection.SetProperty] = Selection.Value;
                 System.Diagnostics.Debug.Print("Set {0} to {1}",
@@ -244,19 +256,27 @@ namespace Liztris
         private void CloseMenu()
         {
             _Menus.Pop();
+            if (_Menus.Count > 0)
+                _Menus.Peek().SetDefaultItem();
         }
 
         private void OpenMenu(SubMenu menu)
         {
             _Menus.Push(menu);
+            menu.SetDefaultItem();
         }
 
         public void Draw(Common.ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect)
         {
+            if (_Menus.Count == 0)
+                return;
+
+            var CurrentMenu = _Menus.Peek();
+
             var sz = spriteFont.MeasureString("W");
             int linepad = 10;
 
-            var height = ((int)sz.Y * MenuItems.Length) + (linepad * (MenuItems.Length - 1));
+            var height = ((int)sz.Y * CurrentMenu.MenuItems.Length) + (linepad * (CurrentMenu.MenuItems.Length - 1));
             //spriteBatch.FillRectangle(new Rectangle(MenuRect.X, MenuRect.Y, 100, height), Color.Purple);
 
             int offset = (MenuRect.Y) + (MenuRect.Height / 2) - (height / 2);
@@ -265,23 +285,44 @@ namespace Liztris
             offset += (int)(sz.Y / 2); //offset start as we scale the font
 
 
-            for (int i = 0; i < MenuItems.Length; i++)
+            for (int i = 0; i < CurrentMenu.MenuItems.Length; i++)
             {
-                sz = spriteFont.MeasureString(MenuItems[i].Text);
+                sz = spriteFont.MeasureString(CurrentMenu.MenuItems[i].Text);
                 var c = Color.White;
                 var scale = 1.0f;
 
-                if (MenuItems[i] == SelectedItem)
+                var choice = CurrentMenu.MenuItems[i] as Choice;
+                if (choice != null)
                 {
-                    c = Color.LightGreen;
-                    scale = _scale;
-                }
-
-                spriteBatch.DrawString(spriteFont, MenuItems[i].Text,
+                    spriteBatch.DrawString(spriteFont, choice.Text,
                         new Vector2(MenuRect.X + (MenuRect.Width / 2) - ((sz.X * scale) / 2),
                         offset - (sz.Y / 2 * scale)), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
-                //offset ), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
 
+                    int x = 200;
+                    for (int j = 0; j < choice.MenuItems.Length; j++)
+                    {
+
+                        spriteBatch.DrawString(spriteFont, choice.MenuItems[j].Text,
+                            new Vector2(MenuRect.X + (MenuRect.Width / 2) - ((sz.X * scale) / 2) + x,
+                            offset - (sz.Y / 2 * scale)), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
+
+                        x += 50;
+                    }
+
+
+                }
+                else
+                {
+                    if (CurrentMenu.MenuItems[i] == CurrentMenu.SelectedItem)
+                    {
+                        c = Color.LightGreen;
+                        scale = _scale;
+                    }
+
+                    spriteBatch.DrawString(spriteFont, CurrentMenu.MenuItems[i].Text,
+                            new Vector2(MenuRect.X + (MenuRect.Width / 2) - ((sz.X * scale) / 2),
+                            offset - (sz.Y / 2 * scale)), c, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
+                }
                 offset += (int)sz.Y;
                 offset += linepad;
             }
@@ -290,7 +331,10 @@ namespace Liztris
 
     public class MenuItem
     {
-        public MenuItem(string Text) { }
+        public MenuItem(string Text)
+        {
+            this.Text = Text;
+        }
         //public MenuItem2(string Text, string Key, object Value) { }
         //public MenuItem2(string Text, object Action) { }
 
@@ -322,6 +366,16 @@ namespace Liztris
         {
             this.MenuItems = MenuItems;
 
+            SetDefaultItem();
+        }
+
+        public MenuItem[] MenuItems;
+        private int SelectedIndex = 0;
+
+        public int? StartingIndex;
+
+        public void SetDefaultItem()
+        {
             if (StartingIndex != null)
             {
                 SelectedIndex = StartingIndex.Value;
@@ -331,12 +385,11 @@ namespace Liztris
                 if (SelectedIndex > MenuItems.Length - 1)
                     SelectedIndex = MenuItems.Length - 1;
             }
+            else
+            {
+                SelectedIndex = 0;
+            }
         }
-
-        public MenuItem[] MenuItems;
-        private int SelectedIndex = 0;
-
-        public int? StartingIndex;
 
         public bool NextItem()
         {
