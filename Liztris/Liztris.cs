@@ -414,7 +414,7 @@ namespace Liztris
             {
                 spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 250), Color.Black,
                     -0.5f, Vector2.Zero, 2.5f, SpriteEffects.None, 0f);
-                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 248), Color.Red,
+                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 248), Color.Wheat,
                     -0.5f, Vector2.Zero, 2.5f, SpriteEffects.None, 0f);
 
                 var MenuRect = new Rectangle(

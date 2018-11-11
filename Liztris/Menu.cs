@@ -163,7 +163,7 @@ namespace Liztris
 
                 if (i == SelectedIndex)
                 {
-                    c = Color.LightGreen;
+                    c = Color.Aquamarine;
                     scale = _scale;
                 }
 

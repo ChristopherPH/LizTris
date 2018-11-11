@@ -309,7 +309,7 @@ namespace Liztris
 
             var CurrentMenu = _Menus.Peek();
 
-            Draw(_Menus.Peek(), spriteBatch, spriteFont, MenuRect, _scale, Color.LightGreen);
+            Draw(_Menus.Peek(), spriteBatch, spriteFont, MenuRect, _scale, Color.Aquamarine);
         }
 
         private void DrawBackground(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect)
@@ -327,7 +327,7 @@ namespace Liztris
 
             if (IsSelected)
             {
-                c = Color.LightGreen;
+                c = Color.Aquamarine;
                 scale = _scale;
             }
 
@@ -338,13 +338,13 @@ namespace Liztris
         private void DrawChoice(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect,
             Choice CurrentItem, Rectangle ItemRect, bool IsSelected, MenuItem[] Choices, MenuItem SelectedChoice)
         {
-            int PixelsBetweenChoices = 10;
+            int PixelsBetweenChoices = 30;
 
             Vector2 size = spriteFont.MeasureString(CurrentItem.Text);
 
             var c = Color.White;
             if (IsSelected)
-                c = Color.LightGreen;
+                c = Color.Aquamarine;
 
             spriteBatch.DrawString(spriteFont, CurrentItem.Text, ItemRect,
                 ExtendedSpriteBatch.Alignment.Left, c, 1.0f);
@@ -443,7 +443,12 @@ namespace Liztris
         public MenuItem[] MenuItems;
         private int SelectedIndex = 0;
 
-        public int? StartingIndex;
+        public int? StartingIndex
+        {
+            get { return _StartingIndex; }
+            set { _StartingIndex = value; SetDefaultItem(); }
+        }
+        private int? _StartingIndex;
 
         public void SetDefaultItem()
         {
@@ -501,14 +506,30 @@ namespace Liztris
         {
             new OpenMenu("New Game") { SubMenu = new Menu2(new MenuItem[]
             {
-                new MenuItem("1 Player") { SetProperty = "Players", Value = 1, DoAction = 50 },
-                new OpenMenu("2 Players") { SetProperty = "Players", Value = 2,
-                    SubMenu = new Menu2(new  MenuItem[]
+                new MenuItem("Single Player") { SetProperty = "Players", Value = 1, DoAction = 50 },
+
+                new OpenMenu("Multi Player") { SubMenu = new Menu2(new MenuItem[]
+                {
+                    new Choice("Players:", new MenuItem[]
                     {
-                        new MenuItem("Grid Per Player") { SetProperty = "SharedGrid", Value = false, DoAction = 50 },
-                        new MenuItem("Shared Grid") { SetProperty = "SharedGrid", Value = true, DoAction = 50 },
-                        new CloseMenu("Back"),
-                    }) },
+                        new MenuItem("2") { SetProperty = "Players", Value = 2 },
+                        new MenuItem("3") { SetProperty = "Players", Value = 3 },
+                        new MenuItem("4") { SetProperty = "Players", Value = 4 },
+                    }),
+                    new Choice("Speed:", new MenuItem[]
+                    {
+                        new MenuItem("Slow") { SetProperty = "Speed", Value = 0 },
+                        new MenuItem("Normal") { SetProperty = "Speed", Value = 1 },
+                        new MenuItem("Fast") { SetProperty = "Speed", Value = 2 },
+                    }) { StartingIndex = 1 },
+                    new Choice("Grid:", new MenuItem[]
+                    {
+                        new MenuItem("Player") { SetProperty = "SharedGrid", Value = false },
+                        new MenuItem("Shared") { SetProperty = "SharedGrid", Value = true },
+                    }),
+                    new MenuItem("Start Game") { DoAction = -1 },
+                }) },
+
                 new OpenMenu("3 Players") { SetProperty = "Players", Value = 3,
                     SubMenu = new Menu2(new  MenuItem[]
                     {

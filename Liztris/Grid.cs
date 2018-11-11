@@ -375,7 +375,7 @@ namespace Liztris
                                     this.ScreenRect.Y + (player.piece_y * 32),
                                     1500,
                                     ScoreMultiplier[lines].ToString(),
-                                    Color.LightGreen, 2.0f);
+                                    Color.Aquamarine, 2.0f);
                             }
                             else
                             {
