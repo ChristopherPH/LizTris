@@ -11,7 +11,7 @@ namespace Liztris
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Liztris : Game
+    public class Liztris : Common.GameResolution
     {
         GraphicsDeviceManager graphics;
         Common.ExtendedSpriteBatch spriteBatch;
@@ -43,31 +43,17 @@ namespace Liztris
 
         public int[] LevelSpeeds = { 1000, 900, 800, 700, 600, 500, 400, 350, 300, 250 };
 
+        protected override int WantedGameResolutionWidth => 1280;
+        protected override int WantedGameResolutionHeight => 720;
+        protected override int WindowWidth => 1600;
+        protected override int WindowHeight => 900;
+        protected override bool WindowFullScreen => false;
+
+
         public Liztris()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-
-            IndependentResolutionRendering.Resolution.Init(ref graphics);
-
-
-            //VirtualResolution must be less than window resolution
-            //VirtualResolution doesn't need to be a valid resolution
-
-            //IndependentResolutionRendering.Resolution.SetVirtualResolution(800, 600);
-            //IndependentResolutionRendering.Resolution.SetVirtualResolution(1920, 1080); //game resolution
-            //IndependentResolutionRendering.Resolution.SetVirtualResolution(1024, 768); //game resolution
-            IndependentResolutionRendering.Resolution.SetVirtualResolution(1800, 800);
-
-            bool fullscreen = false;
-            IndependentResolutionRendering.Resolution.SetResolution(1920, 1080, fullscreen); //window resolution
-            //IndependentResolutionRendering.Resolution.SetResolution(1680, 1050, fullscreen);
-            //IndependentResolutionRendering.Resolution.SetResolution(1600, 900, fullscreen);
-            //IndependentResolutionRendering.Resolution.SetResolution(1440, 900, fullscreen);
-            //    IndependentResolutionRendering.Resolution.SetResolution(1360, 768, fullscreen);
-            //IndependentResolutionRendering.Resolution.SetResolution(1280, 1024, fullscreen);
-            //IndependentResolutionRendering.Resolution.SetResolution(1024, 768, fullscreen);
-            //IndependentResolutionRendering.Resolution.SetResolution(800, 600, fullscreen);
         }
 
         /// <summary>
@@ -81,6 +67,11 @@ namespace Liztris
             // TODO: Add your initialization logic here
 
             base.Initialize();
+
+            SetupGameResolution(ref graphics);
+            
+            //Window.IsBorderless = true;
+            //Window.Position = new Point(0, 0);
 
             inputManager.AddAction(GlobalCommands.Pause, Keys.Escape);
             inputManager.AddAction(GlobalCommands.Pause, InputManager<GlobalCommands>.GamePadButtons.Start);
@@ -172,16 +163,13 @@ namespace Liztris
             var GridPad = (BlockPixelSize * BlocksBetweenGrids);
             var HeightPad = (BlockPixelSize * BlocksAboveBottom);
 
-            //var ScreenPixelWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
-            //var ScreenPixelHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
-            var ScreenPixelWidth = IndependentResolutionRendering.Resolution.VirtualWidth;
-            var ScreenPixelHeight = IndependentResolutionRendering.Resolution.VirtualHeight;
+
 
             var TotalGridPixelWidth = Grids.Sum(grid => (BlockPixelSize * grid.WidthInBlocks)) + ((Grids.Count - 1) * GridPad);
-            var StartOffsetX = ((ScreenPixelWidth / 2) - (TotalGridPixelWidth / 2));
+            var StartOffsetX = ((GamePixelWidth / 2) - (TotalGridPixelWidth / 2));
 
             var MaxGridPixelHeight = Grids.Max(grid => (BlockPixelSize * grid.HeightInBlocks)) + HeightPad;
-            var StartOffsetY = ScreenPixelHeight - MaxGridPixelHeight;
+            var StartOffsetY = GamePixelHeight - MaxGridPixelHeight;
 
             var XOffset = StartOffsetX;
             var YOffset = StartOffsetY;
@@ -225,6 +213,8 @@ namespace Liztris
                 grid.Update(gameTime);
         }
 
+        bool MainMenu = false;
+
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -232,29 +222,41 @@ namespace Liztris
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            IndependentResolutionRendering.Resolution.BeginDraw();
+            base.Draw(gameTime);
 
-            //GraphicsDevice.Clear(Color.CornflowerBlue);
+            var drawMatrix = GameToMonitorMatrix;
 
-            // TODO: Add your drawing code here
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, 
-                null, null, null, null,
-                IndependentResolutionRendering.Resolution.getTransformationMatrix());
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
+                null, null, null, null, drawMatrix);
 
-            spriteBatch.FillRectangle(new Rectangle(0, 0, graphics.PreferredBackBufferWidth,
-                graphics.PreferredBackBufferHeight), Color.CornflowerBlue);
+            spriteBatch.FillRectangle(new Rectangle(0, 0,
+                GamePixelWidth,
+                GamePixelHeight
+                ), Color.CornflowerBlue);
+
 
             //draw
             spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 10), Color.Black);
             spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 8), Color.Red);
 
+            if (MainMenu)
+            {
+
+                spriteBatch.DrawString(fontScore, "New Game", 
+                    new Vector2(100, 100), Color.Black);
+
+                spriteBatch.End();
+                return;
+            }
+
+
             foreach (var grid in Grids)
             {
                 //draw grid info on upper left of grid
                 spriteBatch.DrawString(fontScore, "Lines: " + grid.LineCount.ToString(),
-                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 120), Color.Black);
+                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Black);
                 spriteBatch.DrawString(fontScore, "Level: " + grid.Level.ToString(),
-                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 80), Color.Black);
+                    new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Black);
 
                 //draw grid border
                 var borderRect = grid.ScreenRect;
@@ -290,8 +292,6 @@ namespace Liztris
             }
 
             spriteBatch.End();
-
-            base.Draw(gameTime);
         }
     }
 }

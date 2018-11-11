@@ -42,6 +42,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Common\ExtendedSpriteBatch.cs" />
+    <Compile Include="Common\GameResolution.cs" />
     <Compile Include="Common\Resolution.cs" />
     <Compile Include="Controls.cs" />
     <Compile Include="Extensions.cs" />
