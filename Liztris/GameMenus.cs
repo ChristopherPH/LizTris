@@ -65,10 +65,10 @@ namespace Liztris
                         new MenuItem("Slow") { SetProperty = "Speed", Value = 0 },
                         new MenuItem("Normal") { SetProperty = "Speed", Value = 1 },
                         new MenuItem("Fast") { SetProperty = "Speed", Value = 2 },
-                    }),
+                    }, 1),
                     new Choice("Grid:", new MenuItem[]
                     {
-                        new MenuItem("Player") { SetProperty = "SharedGrid", Value = false },
+                        new MenuItem("Per Player") { SetProperty = "SharedGrid", Value = false },
                         new MenuItem("Shared") { SetProperty = "SharedGrid", Value = true },
                     }),
                     new MenuItem("Start Game") {
