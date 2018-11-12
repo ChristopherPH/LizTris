@@ -54,27 +54,50 @@ namespace Liztris
                 new OpenMenu("Multi Player") {
                     Menu = new SubMenu(string.Empty, new MenuItem[]
                 {
-                    new Choice("Players:", new MenuItem[]
+                    new OpenMenu("Endless Challenge") {
+                        SetProperty = "SharedGrid", Value = false,
+                        Menu = new SubMenu(string.Empty, new MenuItem[]
                     {
-                        new MenuItem("2") { SetProperty = "Players", Value = 2 },
-                        new MenuItem("3") { SetProperty = "Players", Value = 3 },
-                        new MenuItem("4") { SetProperty = "Players", Value = 4 },
-                    }),
-                    new Choice("Speed:", new MenuItem[]
+                        new Choice("Players:", new MenuItem[]
+                        {
+                            new MenuItem("2") { SetProperty = "Players", Value = 2 },
+                            new MenuItem("3") { SetProperty = "Players", Value = 3 },
+                            new MenuItem("4") { SetProperty = "Players", Value = 4 },
+                        }),
+                        new Choice("Speed:", new MenuItem[]
+                        {
+                            new MenuItem("Slow") { SetProperty = "Speed", Value = 0 },
+                            new MenuItem("Normal") { SetProperty = "Speed", Value = 1 },
+                            new MenuItem("Fast") { SetProperty = "Speed", Value = 2 },
+                        }, 1),
+                        new MenuItem("Start Game") {
+                            DoAction = GameMenuOptions.NewGame },
+                        new CloseMenu("Back"),
+                    })  { DefaultIndex = 2 }},
+
+                    new OpenMenu("Co-Op") {
+                        SetProperty = "SharedGrid", Value = true,
+                        Menu = new SubMenu(string.Empty, new MenuItem[]
                     {
-                        new MenuItem("Slow") { SetProperty = "Speed", Value = 0 },
-                        new MenuItem("Normal") { SetProperty = "Speed", Value = 1 },
-                        new MenuItem("Fast") { SetProperty = "Speed", Value = 2 },
-                    }, 1),
-                    new Choice("Grid:", new MenuItem[]
-                    {
-                        new MenuItem("Per Player") { SetProperty = "SharedGrid", Value = false },
-                        new MenuItem("Shared") { SetProperty = "SharedGrid", Value = true },
-                    }),
-                    new MenuItem("Start Game") {
-                        DoAction = GameMenuOptions.NewGame },
+                        new Choice("Players:", new MenuItem[]
+                        {
+                            new MenuItem("2") { SetProperty = "Players", Value = 2 },
+                            new MenuItem("3") { SetProperty = "Players", Value = 3 },
+                            new MenuItem("4") { SetProperty = "Players", Value = 4 },
+                        }),
+                        new Choice("Speed:", new MenuItem[]
+                        {
+                            new MenuItem("Slow") { SetProperty = "Speed", Value = 0 },
+                            new MenuItem("Normal") { SetProperty = "Speed", Value = 1 },
+                            new MenuItem("Fast") { SetProperty = "Speed", Value = 2 },
+                        }, 1),
+                        new MenuItem("Start Game") {
+                            DoAction = GameMenuOptions.NewGame },
+                        new CloseMenu("Back"),
+                    })  { DefaultIndex = 2 }},
+                    
                     new CloseMenu("Back"),
-                })  { DefaultIndex = 3 }},
+                })  { DefaultIndex = 0 }},
                 new CloseMenu("Back"),
             }) { DefaultIndex = 0 } },
             new OpenMenu("Options") { Menu = new SubMenu("Options", new MenuItem[]
@@ -124,7 +147,7 @@ namespace Liztris
             }) { DefaultIndex = 0 }  },
             new OpenMenu("Quit") { Menu = new SubMenu("Really Quit?", new MenuItem[]
             {
-                new Choice("Quit", new MenuItem[]
+                new Choice("Quit:", new MenuItem[]
                 {
                     new MenuItem("Yes") { DoAction = GameMenuOptions.Exit },
                     new CloseMenu("No"),
