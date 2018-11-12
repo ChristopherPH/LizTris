@@ -85,12 +85,19 @@ namespace Liztris
                     {
                         new MenuItem("No") { SetProperty = "Fullscreen", Value = false },
                         new MenuItem("Yes") { SetProperty = "Fullscreen", Value = true },
-                    }),
-                    /*new Choice("VSync:", new MenuItem[]
+                    }, 0),
+                    new Choice("Res:", new MenuItem[]
+                    {
+                        new MenuItem("1280x720") { SetProperty = "Resolution", Value = "1280x720" },
+                        new MenuItem("1366x768") { SetProperty = "Resolution", Value = "1366x768" },
+                        new MenuItem("1600x900") { SetProperty = "Resolution", Value = "1600x900" },
+                        new MenuItem("1920x1080") { SetProperty = "Resolution", Value = "1920x1080" },
+                    }, 2),
+                    new Choice("VSync:", new MenuItem[]
                     {
                         new MenuItem("No") { SetProperty = "VSync", Value = false },
                         new MenuItem("Yes") { SetProperty = "VSync", Value = true },
-                    }),*/
+                    }, 1),
                     new MenuItem("Apply") { DoAction = GameMenuOptions.ApplyGraphics },
                     new CloseMenu("Back"),
                 }) },
@@ -103,9 +110,13 @@ namespace Liztris
                     }),*/
                     new Choice("Music:", new MenuItem[]
                     {
-                        new MenuItem("Off") { SetProperty = "Music", Value = false, DoAction = GameMenuOptions.ChangeAudio },
-                        new MenuItem("On") { SetProperty = "Music", Value = true, DoAction = GameMenuOptions.ChangeAudio },
-                    }, 1),
+                        new MenuItem("Off") {
+                            SetProperty = "Music", Value = false,
+                            DoAction = GameMenuOptions.ChangeAudio },
+                        new MenuItem("On") {
+                            SetProperty = "Music", Value = true,
+                            DoAction = GameMenuOptions.ChangeAudio },
+                    }, 1) { DoActionOnSelect = true },
                     new CloseMenu("Back"),
                 }) },
                 //new MenuItem("Controls"),

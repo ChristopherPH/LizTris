@@ -36,5 +36,7 @@ namespace Common.MenuSystem
 
         public Choice(string Text, MenuItem[] MenuItems, int SelectedChoice) :
             base(Text, MenuItems, SelectedChoice) { }
+
+        public bool DoActionOnSelect { get; set; } = false;
     }
 }

@@ -148,14 +148,32 @@ namespace Liztris
 
                     case GameMenus.GameMenuOptions.ApplyGraphics:
                         var fullscreen = (bool)GameMenus.MainMenu.Options["Fullscreen"];
-                        //var vsync = (bool)GameMenus.MainMenu.Options["VSync"];
+                        var vsync = (bool)GameMenus.MainMenu.Options["VSync"];
+                        var resolution = (string)GameMenus.MainMenu.Options["Resolution"];
 
-                        if (fullscreen)
-                            IndependentResolutionRendering.Resolution.SetResolution(
-                                1920, 1080, fullscreen);
-                        else
-                            IndependentResolutionRendering.Resolution.SetResolution(
-                                1600, 900, fullscreen);
+                        switch (resolution)
+                        {
+                            case "1280x720":
+                                IndependentResolutionRendering.Resolution.SetResolution(
+                                    1280, 720, fullscreen);
+                                break;
+                            case "1366x768":
+                                IndependentResolutionRendering.Resolution.SetResolution(
+                                    1366, 768, fullscreen);
+                                break;
+                            case "1600x900":
+                                IndependentResolutionRendering.Resolution.SetResolution(
+                                    1600, 900, fullscreen);
+                                break;
+                            case "1920x1080":
+                                IndependentResolutionRendering.Resolution.SetResolution(
+                                    1920, 1080, fullscreen);
+                                break;
+                        }
+
+                        this.IsFixedTimeStep = vsync;
+                        graphics.SynchronizeWithVerticalRetrace = vsync;
+                        graphics.ApplyChanges();
                         break;
 
                     case GameMenus.GameMenuOptions.ChangeAudio:

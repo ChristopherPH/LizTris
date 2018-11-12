@@ -90,8 +90,10 @@ namespace Common.MenuSystem
             if (!choice.PreviousItem())
                 return false;
 
-            HandleProperty(choice.SelectedItem);
-            return true;
+            if (choice.DoActionOnSelect)
+                return HandleSelect(choice.SelectedItem);
+            else
+                return HandleProperty(choice.SelectedItem);
         }
 
         public bool RunMenuCommandRight()
@@ -106,8 +108,10 @@ namespace Common.MenuSystem
             if (!choice.NextItem())
                 return false;
 
-            HandleProperty(choice.SelectedItem);
-            return true;
+            if (choice.DoActionOnSelect)
+                return HandleSelect(choice.SelectedItem);
+            else
+                return HandleProperty(choice.SelectedItem);
         }
 
         public bool RunMenuCommandSelect()
@@ -117,7 +121,12 @@ namespace Common.MenuSystem
 
             var choice = _Menus.Peek().SelectedItem as Choice;
             if (choice != null)
+            {
+                if (choice.DoActionOnSelect)
+                    return false;
+
                 return HandleSelect(choice.SelectedItem);
+            }
 
             return HandleSelect(_Menus.Peek().SelectedItem);
         }
