@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 #endregion
 
-namespace Liztris
+namespace Common
 {
     /// <summary>
     /// This class handles all keyboard and gamepad actions in the game.
