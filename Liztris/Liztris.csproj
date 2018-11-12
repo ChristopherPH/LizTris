@@ -50,8 +50,8 @@
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\SpriteSheet.cs" />
     <Compile Include="Liztris.cs" />
+    <Compile Include="MainMenu.cs" />
     <Compile Include="Menu.cs" />
-    <Compile Include="Menu2.cs" />
     <Compile Include="MenuSystem\MenuBase.cs" />
     <Compile Include="MenuSystem\MenuItem.cs" />
     <Compile Include="MenuSystem\MenuItemCollection.cs" />
@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icon.ico" />
+    <Content Include="TODO.txt" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />

@@ -8,38 +8,54 @@ namespace Common.MenuSystem
 {
     public abstract class MenuItemCollection : MenuItem
     {
-        public MenuItemCollection(string Text, MenuItem[] MenuItems)
+        public MenuItemCollection(string Text, MenuItem[] MenuItems, int SelectedIndex = 0)
             : base(Text)
         {
             this.MenuItems = MenuItems;
+            this.SelectedIndex = SelectedIndex;
 
-            SetDefaultItem();
+            if (this.SelectedIndex < 0)
+                this.SelectedIndex = 0;
+            if (this.SelectedIndex > this.MenuItems.Length - 1)
+                this.SelectedIndex = this.MenuItems.Length - 1;
         }
 
+        /// <summary>
+        /// List of collection items
+        /// </summary>
         public MenuItem[] MenuItems;
+
+        /// <summary>
+        /// Currently selected index in collection
+        /// </summary>
         private int SelectedIndex = 0;
 
-        public int? StartingIndex
-        {
-            get { return _StartingIndex; }
-            set { _StartingIndex = value; SetDefaultItem(); }
-        }
-        private int? _StartingIndex;
+        /// <summary>
+        /// Currently selected item in collection
+        /// </summary>
+        public MenuItem SelectedItem => MenuItems[SelectedIndex];
 
-        public void SetDefaultItem()
+        /// <summary>
+        /// Index to set menu to when opened. If this is not
+        /// set, the last SelectedIndex will be used
+        /// </summary>
+        public int? DefaultIndex
         {
-            if (StartingIndex != null)
+            get { return _DefaultIndex; }
+            set { _DefaultIndex = value; ResetDefaultIndex(); }
+        }
+        private int? _DefaultIndex;
+
+        public void ResetDefaultIndex()
+        {
+            if (DefaultIndex != null)
             {
-                SelectedIndex = StartingIndex.Value;
+                SelectedIndex = DefaultIndex.Value;
 
                 if (SelectedIndex < 0)
                     SelectedIndex = 0;
                 if (SelectedIndex > MenuItems.Length - 1)
                     SelectedIndex = MenuItems.Length - 1;
-            }
-            else
-            {
-                SelectedIndex = 0;
             }
         }
 
@@ -60,7 +76,5 @@ namespace Common.MenuSystem
             SelectedIndex--;
             return true;
         }
-
-        public MenuItem SelectedItem => MenuItems[SelectedIndex];
     }
 }

@@ -103,9 +103,9 @@ using System.Threading.Tasks;
  */
 namespace Liztris
 {
-    public class Menu2 : MenuBase
+    public class MainMenu : MenuBase
     {
-        public Menu2(MenuItem[] MenuItems) : base(MenuItems)
+        public MainMenu(string Title, MenuItem[] MenuItems) : base(Title, MenuItems)
         {
             inputManager.AddAction(MenuCommands.MenuSelect, Keys.Enter);
             inputManager.AddAction(MenuCommands.MenuSelect, InputManager<MenuCommands>.GamePadButtons.A);
@@ -200,6 +200,13 @@ namespace Liztris
             //spriteBatch.Draw(transparentDarkTexture, MenuRect, Color.White* 0.5f);
         }
 
+        protected override void DrawTitle(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont,
+            Rectangle MenuRect, string MenuTitle, Rectangle ItemRect)
+        {
+            spriteBatch.DrawString(spriteFont, MenuTitle, ItemRect,
+                ExtendedSpriteBatch.Alignment.Center, Color.Black, 1.5f);
+        }
+
         protected override void DrawItem(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, Rectangle MenuRect, 
             MenuItem CurrentItem, Rectangle ItemRect, bool IsSelected)
         {
@@ -244,19 +251,18 @@ namespace Liztris
                 x += (int)spriteFont.MeasureString(choice.Text).X + PixelsBetweenChoices;
             }
         }
-
     }
 
 
     public static class TestMenu
     {
-        public static Menu2 MyMenu = new Menu2(new MenuItem[]
+        public static MainMenu MyMenu = new MainMenu("LizTris", new MenuItem[]
         {
-            new OpenMenu("New Game") { SubMenu = new Menu2(new MenuItem[]
+            new OpenMenu("New Game") { Menu = new SubMenu(string.Empty, new MenuItem[]
             {
                 new MenuItem("Single Player") { SetProperty = "Players", Value = 1, DoAction = 50 },
 
-                new OpenMenu("Multi Player") { SubMenu = new Menu2(new MenuItem[]
+                new OpenMenu("Multi Player") { Menu = new SubMenu(string.Empty, new MenuItem[]
                 {
                     new Choice("Players:", new MenuItem[]
                     {
@@ -269,7 +275,7 @@ namespace Liztris
                         new MenuItem("Slow") { SetProperty = "Speed", Value = 0 },
                         new MenuItem("Normal") { SetProperty = "Speed", Value = 1 },
                         new MenuItem("Fast") { SetProperty = "Speed", Value = 2 },
-                    }) { StartingIndex = 1 },
+                    }) { DefaultIndex = 1 },
                     new Choice("Grid:", new MenuItem[]
                     {
                         new MenuItem("Player") { SetProperty = "SharedGrid", Value = false },
@@ -279,14 +285,14 @@ namespace Liztris
                 }) },
 
                 new OpenMenu("3 Players") { SetProperty = "Players", Value = 3,
-                    SubMenu = new Menu2(new  MenuItem[]
+                    Menu = new SubMenu(string.Empty, new MenuItem[]
                     {
                         new MenuItem("Grid Per Player") { SetProperty = "SharedGrid", Value = false, DoAction = 50 },
                         new MenuItem("Shared Grid") { SetProperty = "SharedGrid", Value = true, DoAction = 50 },
                         new CloseMenu("Back"),
                     }) },
                 new OpenMenu("4 Players") { SetProperty = "Players", Value = 4,
-                    SubMenu = new Menu2(new  MenuItem[]
+                    Menu = new SubMenu(string.Empty, new MenuItem[]
                     {
                         new MenuItem("Grid Per Player") { SetProperty = "SharedGrid", Value = false, DoAction = 50 },
                         new MenuItem("Shared Grid") { SetProperty = "SharedGrid", Value = true, DoAction = 50 },
@@ -294,9 +300,9 @@ namespace Liztris
                     }) },
                 new CloseMenu("Back"),
             }) },
-            new OpenMenu("Options") { SubMenu = new Menu2(new MenuItem[]
+            new OpenMenu("Options") { Menu = new SubMenu("Options", new MenuItem[]
             {
-                new OpenMenu("Video") { SubMenu = new Menu2(new MenuItem[]
+                new OpenMenu("Video") { Menu = new SubMenu("Video", new MenuItem[]
                 {
                     new Choice("Fullscreen:", new MenuItem[]
                     {
@@ -311,7 +317,7 @@ namespace Liztris
                     new MenuItem("Apply") { DoAction = 99 },
                     new CloseMenu("Back"),
                 }) },
-                new OpenMenu("Audio") { SubMenu = new Menu2(new MenuItem[]
+                new OpenMenu("Audio") { Menu = new SubMenu("Audio", new MenuItem[]
                 {
                     new Choice("Sound:", new MenuItem[]
                     {
@@ -328,13 +334,13 @@ namespace Liztris
                 new MenuItem("Controls"),
                 new CloseMenu("Back"),
             }) },
-            new OpenMenu("Quit") { SubMenu = new Menu2(new MenuItem[]
+            new OpenMenu("Quit") { Menu = new SubMenu("Really Quit?", new MenuItem[]
             {
                 new Choice("Quit", new MenuItem[]
                 {
                     new MenuItem("Yes") { DoAction = -1 },
                     new CloseMenu("No"),
-                }) { StartingIndex = 1 },
+                }) { DefaultIndex = 1 },
             }) },
         });
     }

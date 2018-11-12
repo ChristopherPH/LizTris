@@ -24,3 +24,6 @@ Saved options
  - vsync
  - sound/music volume
  - controller inputs / keyboard map
+
+ New music
+  - call me maybe

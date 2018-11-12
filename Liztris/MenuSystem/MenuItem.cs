@@ -12,8 +12,6 @@ namespace Common.MenuSystem
         {
             this.Text = Text;
         }
-        //public MenuItem2(string Text, string Key, object Value) { }
-        //public MenuItem2(string Text, object Action) { }
 
         public string Text { get; set; }
         public string SetProperty { get; set; }

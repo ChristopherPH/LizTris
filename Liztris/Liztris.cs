@@ -1,5 +1,6 @@
 ﻿//#define NEWMENUTEST
 //#define SHOWSTUFF
+//#define NOMUSIC
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -120,8 +121,10 @@ namespace Liztris
             inputManager.AddAction(GlobalCommands.Menu, InputManager<GlobalCommands>.GamePadButtons.Back);
 
             musicDefaultInstance.Volume = 0.20f;
+#if !NOMUSIC
             musicDefaultInstance.IsLooped = true;
             musicDefaultInstance.Play();
+#endif
 
 #if SHOWSTUFF
 
@@ -518,7 +521,7 @@ namespace Liztris
                 GamePixelWidth / 4,
                 GamePixelHeight / 2);
 
-            TestMenu.MyMenu.Draw(spriteBatch, fontMenu, r);
+            TestMenu.MyMenu.Draw(spriteBatch, fontMenu, r, true);
             spriteBatch.End();
             return;
 #endif

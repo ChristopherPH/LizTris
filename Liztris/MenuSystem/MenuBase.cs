@@ -20,8 +20,14 @@ namespace Common.MenuSystem
             MenuBack,
         }
 
-        public MenuBase(MenuItem[] MenuItems) :
-            base(string.Empty, MenuItems)
+        public MenuBase(string Title, MenuItem[] MenuItems) :
+            base(Title, MenuItems)
+        {
+            Reset();
+        }
+
+        public MenuBase(string Title, MenuItem[] MenuItems, int SelectedIndex) :
+            base(Title, MenuItems, SelectedIndex)
         {
             Reset();
         }
@@ -152,15 +158,13 @@ namespace Common.MenuSystem
             var openMenu = Selection as OpenMenu;
             if (openMenu != null)
             {
-                OpenMenu(openMenu.SubMenu);
-                rc = true;
+                rc = OpenMenu(openMenu.Menu);
             }
 
             var closeMenu = Selection as CloseMenu;
             if (closeMenu != null)
             {
-                CloseMenu();
-                rc = true;
+                rc = CloseMenu();
             }
 
             return rc;
@@ -191,7 +195,7 @@ namespace Common.MenuSystem
 
         private void SetupMenu(SubMenu menu)
         {
-            menu.SetDefaultItem();
+            menu.ResetDefaultIndex();
 
             foreach (var item in menu.MenuItems)
             {
@@ -207,7 +211,7 @@ namespace Common.MenuSystem
         }
 
         public void Draw(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont, 
-            Rectangle MenuRect, int PixelsBetweenLines = 10)
+            Rectangle MenuRect, bool IncludeMenuTitle, int PixelsBetweenLines = 10)
         {
             if (_Menus.Count == 0)
                 return;
@@ -219,9 +223,24 @@ namespace Common.MenuSystem
             var LetterSize = spriteFont.MeasureString("W");
 
             int ItemCount = CurrentMenu.MenuItems.Length;
+            if (IncludeMenuTitle && !string.IsNullOrWhiteSpace(CurrentMenu.Text))
+                ItemCount++;
+
             var TotalLetterHeight = ((int)LetterSize.Y * ItemCount) + (PixelsBetweenLines * (ItemCount - 1));
             int YOffset = (MenuRect.Y) + (MenuRect.Height / 2) - (TotalLetterHeight / 2);
 
+            if (IncludeMenuTitle && !string.IsNullOrWhiteSpace(CurrentMenu.Text))
+            {
+                var ItemRect = new Rectangle(MenuRect.X, YOffset,
+                    MenuRect.Width, (int)LetterSize.Y);
+
+                var ItemSize = spriteFont.MeasureString(CurrentMenu.Text);
+
+                DrawTitle(spriteBatch, spriteFont, MenuRect, CurrentMenu.Text, ItemRect);
+
+                YOffset += (int)LetterSize.Y;
+                YOffset += PixelsBetweenLines;
+            }
 
             foreach (var CurrentItem in CurrentMenu.MenuItems)
             {
@@ -256,6 +275,10 @@ namespace Common.MenuSystem
             SpriteFont spriteFont, Rectangle MenuRect, SubMenu CurrentMenu) { }
         protected virtual void DrawMenuEnd(ExtendedSpriteBatch spriteBatch,
             SpriteFont spriteFont, Rectangle MenuRect, SubMenu CurrentMenu) { }
+
+        protected abstract void DrawTitle(ExtendedSpriteBatch spriteBatch,
+            SpriteFont spriteFont, Rectangle MenuRect,
+            string MenuTitle, Rectangle ItemRect);
 
         protected abstract void DrawChoice(ExtendedSpriteBatch spriteBatch,
             SpriteFont spriteFont, Rectangle MenuRect,
