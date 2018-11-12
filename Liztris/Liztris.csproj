@@ -50,6 +50,7 @@
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\SpriteSheet.cs" />
     <Compile Include="GameMenus.cs" />
+    <Compile Include="Intro.cs" />
     <Compile Include="Liztris.cs" />
     <Compile Include="MenuSystem\MenuBase.cs" />
     <Compile Include="MenuSystem\MenuItem.cs" />

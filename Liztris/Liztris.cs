@@ -198,6 +198,8 @@ namespace Liztris
                         break;
                 }
             };
+
+            Intro.IsActive = true;
         }
 
         /// <summary>
@@ -344,6 +346,12 @@ namespace Liztris
             else if (toggle2Timer.UpdateAndCheck(gameTime))
                 toggle = !toggle;
 
+            //Gamestate: Intro
+            if (Intro.IsActive)
+            {
+                Intro.Update(gameTime);
+                return;
+            }
 
             //Gamestate: MainMenu
             if (GameMenus.MainMenu.IsMenuActive)
@@ -404,6 +412,15 @@ namespace Liztris
             spriteBatch.FillRectangle(GameRectangle, Color.CornflowerBlue);
 
             spriteBatch.Draw(Background[BackgroundIndex], GameRectangle, Color.White);
+
+            //Gamestate: Intro
+            if (Intro.IsActive)
+            {
+                Intro.Draw(spriteBatch, fontTitleHuge);
+
+                spriteBatch.End();
+                return;
+            }
 
             //Gamestate: MainMenu / PauseMenu
             if (GameMenus.MainMenu.IsMenuActive || GameMenus.PauseMenu.IsMenuActive)

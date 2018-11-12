@@ -10,7 +10,7 @@ namespace Common
     public class Timer
     {
         double value = 0;
-        double delay = 0;
+        public double Delay { get; private set; } = 0;
 
         public Timer() { }
 
@@ -21,21 +21,21 @@ namespace Common
 
         public void SetDelay(double Delay)
         {
-            delay = Delay;
+            this.Delay = Delay;
             Reset();
         }
 
         public bool UpdateAndCheck(GameTime gameTime)
         {
-            if (delay <= 0)
+            if (Delay <= 0)
                 return false;
 
             value += gameTime.ElapsedGameTime.TotalMilliseconds;
 
-            if (value < delay)
+            if (value < Delay)
                 return false;
 
-            value -= delay;
+            value -= Delay;
 
             return true;
         }
@@ -43,17 +43,17 @@ namespace Common
         public void UpdateAndCheck(GameTime gameTime, 
             Action action, int MaximumUpdates = 5)
         {
-            if (delay <= 0)
+            if (Delay <= 0)
                 return;
 
             value += gameTime.ElapsedGameTime.TotalMilliseconds;
 
             int counter = 0;
 
-            while ((value > delay) && 
+            while ((value > Delay) && 
                 (MaximumUpdates > 0) && (counter < MaximumUpdates))
             {
-                value -= delay;
+                value -= Delay;
 
                 if (action != null)
                     action();

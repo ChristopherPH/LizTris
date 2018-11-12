@@ -1,9 +1,9 @@
-﻿Better menu system
-Remap keys?
+﻿Remap keys?
 Wait for players screen, so that pressing a controller becomes that player, or pressing keyboard becomes that one
 Game states (intro screen with animation, etc)
 Per player, per mode, per speed, high scores, saved
 Player names / profiles
+menus should remember location, unless 'back (closemenu)' was selected
 
 Game modes
  - Challenge
@@ -27,6 +27,7 @@ Saved options
 
  New music
   - call me maybe
+
 
 
 

@@ -119,6 +119,13 @@ namespace Common.MenuSystem
         protected override void DrawTitle(ExtendedSpriteBatch spriteBatch, SpriteFont spriteFont,
             Rectangle MenuRect, string MenuTitle, Rectangle ItemRect)
         {
+            ItemRect.Offset(2, 2);
+
+            spriteBatch.DrawString(spriteFont, MenuTitle, ItemRect,
+                ExtendedSpriteBatch.Alignment.Center, Color.Black, 1.5f);
+
+            ItemRect.Offset(-2, -2);
+
             spriteBatch.DrawString(spriteFont, MenuTitle, ItemRect,
                 ExtendedSpriteBatch.Alignment.Center, Color.DarkTurquoise, 1.5f);
         }
