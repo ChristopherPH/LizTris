@@ -34,6 +34,7 @@ namespace Common.MenuSystem
             inputManager.AddAction(MenuCommands.MenuRight, InputManager<MenuCommands>.GamePadButtons.Right);
         }
 
+        public Action<object> ActionHandler { get; set; }
 
         public SerializableDictionary<string, object> Options { get; } = new SerializableDictionary<string, object>();
 
@@ -85,10 +86,15 @@ namespace Common.MenuSystem
             return IsMenuActive;
         }
 
+        public void ResetInputs()
+        {
+            inputManager.Update(PlayerIndex.One);
+        }
 
         protected override void OnSetProperty(string Property, object Value)
         {
             Options[Property] = Value;
+
             System.Diagnostics.Debug.Print("Set {0} to {1}",
                 Property, Value);
         }
@@ -97,6 +103,9 @@ namespace Common.MenuSystem
         protected override void OnAction(object Action)
         {
             System.Diagnostics.Debug.Print("Action {0}", Action);
+
+            if (ActionHandler != null)
+                ActionHandler(Action);
         }
 
         protected override void DrawMenuBegin(ExtendedSpriteBatch spriteBatch, 

@@ -13,7 +13,8 @@ namespace Common.MenuSystem
             this.Text = Text;
         }
 
-        public string Text { get; set; }
+        public string Text { get; }
+
         public string SetProperty { get; set; }
         public object Value { get; set; }
         public object DoAction { get; set; }

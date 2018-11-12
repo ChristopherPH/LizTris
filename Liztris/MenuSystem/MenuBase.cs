@@ -23,16 +23,16 @@ namespace Common.MenuSystem
         public MenuBase(string Title, MenuItem[] MenuItems) :
             base(Title, MenuItems)
         {
-            Reset();
+            ShowMenu();
         }
 
         public MenuBase(string Title, MenuItem[] MenuItems, int SelectedIndex) :
             base(Title, MenuItems, SelectedIndex)
         {
-            Reset();
+            ShowMenu();
         }
 
-        public void Reset()
+        public void ShowMenu()
         {
             _Menus.Clear();
             _Menus.Push(this);
@@ -124,6 +124,12 @@ namespace Common.MenuSystem
 
         public bool RunMenuCommandBack()
         {
+            if (_Menus.Count == 0)
+                return false;
+
+            if (_Menus.Peek().CloseOnBack == false)
+                return false;
+
             return CloseMenu();
         }
 
@@ -170,7 +176,7 @@ namespace Common.MenuSystem
             return rc;
         }
 
-        protected bool CloseMenu()
+        public bool CloseMenu()
         {
             if (_Menus.Count == 0)
                 return false;
@@ -182,7 +188,7 @@ namespace Common.MenuSystem
             return true;
         }
 
-        protected bool OpenMenu(SubMenu menu)
+        public bool OpenMenu(SubMenu menu)
         {
             if ((menu == null) || (menu.MenuItems == null) || (menu.MenuItems.Length == 0))
                 return false;
@@ -190,6 +196,15 @@ namespace Common.MenuSystem
             _Menus.Push(menu);
             SetupMenu(menu);
 
+            return true;
+        }
+
+        public bool ExitMenu()
+        {
+            if (_Menus.Count == 0)
+                return false;
+
+            _Menus.Clear();
             return true;
         }
 
@@ -202,11 +217,9 @@ namespace Common.MenuSystem
                 var choice = item as Choice;
                 if (choice != null)
                 {
-                    //choice.SetDefaultItem();
+                    choice.ResetDefaultIndex();
                     HandleProperty(choice.SelectedItem);
                 }
-                //else
-                //    HandleProperty(item);
             }
         }
 

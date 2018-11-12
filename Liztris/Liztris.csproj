@@ -49,9 +49,8 @@
     <Compile Include="Common\External\Controls.cs" />
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\SpriteSheet.cs" />
+    <Compile Include="GameMenus.cs" />
     <Compile Include="Liztris.cs" />
-    <Compile Include="MainMenu.cs" />
-    <Compile Include="Menu.cs" />
     <Compile Include="MenuSystem\MenuBase.cs" />
     <Compile Include="MenuSystem\MenuItem.cs" />
     <Compile Include="MenuSystem\MenuItemCollection.cs" />

@@ -11,15 +11,48 @@ using System.Threading.Tasks;
 
 namespace Liztris
 {
-    public static class TestMenu
+    public static class GameMenus
     {
-        public static SimpleMenu MyMenu = new SimpleMenu("LizTris", new MenuItem[]
+        public enum GameMenuOptions
+        {
+            QuitGame,
+            NewGame,
+            Exit,
+            ApplyGraphics,
+            ChangeAudio,
+        }
+
+        public static SimpleMenu PauseMenu = new SimpleMenu("Paused", new MenuItem[]
+        {
+            new CloseMenu("Resume"),
+            new CloseMenu("Quit Game") { DoAction = GameMenuOptions.QuitGame },
+        });
+
+
+        public static SimpleMenu MainMenu = new SimpleMenu(string.Empty, new MenuItem[]
         {
             new OpenMenu("New Game") { Menu = new SubMenu(string.Empty, new MenuItem[]
             {
-                new MenuItem("Single Player") { SetProperty = "Players", Value = 1, DoAction = 50 },
+                new OpenMenu("Single Player") {
+                    SetProperty = "Players", Value = 1,
+                    Menu = new SubMenu(string.Empty, new MenuItem[]
+                {
+                    new Choice("Speed:", new MenuItem[]
+                    {
+                        new MenuItem("Slow") { SetProperty = "Speed", Value = 0 },
+                        new MenuItem("Normal") { SetProperty = "Speed", Value = 1 },
+                        new MenuItem("Fast") { SetProperty = "Speed", Value = 2 },
+                    }) { DefaultIndex = 1 },
 
-                new OpenMenu("Multi Player") { Menu = new SubMenu(string.Empty, new MenuItem[]
+                    new MenuItem("Start Game") {
+                        SetProperty = "SharedGrid", Value = false,
+                        DoAction = GameMenuOptions.NewGame },
+
+                    new CloseMenu("Back"),
+                }) { DefaultIndex = 1 } },
+
+                new OpenMenu("Multi Player") {
+                    Menu = new SubMenu(string.Empty, new MenuItem[]
                 {
                     new Choice("Players:", new MenuItem[]
                     {
@@ -32,31 +65,18 @@ namespace Liztris
                         new MenuItem("Slow") { SetProperty = "Speed", Value = 0 },
                         new MenuItem("Normal") { SetProperty = "Speed", Value = 1 },
                         new MenuItem("Fast") { SetProperty = "Speed", Value = 2 },
-                    }) { DefaultIndex = 1 },
+                    }),
                     new Choice("Grid:", new MenuItem[]
                     {
                         new MenuItem("Player") { SetProperty = "SharedGrid", Value = false },
                         new MenuItem("Shared") { SetProperty = "SharedGrid", Value = true },
                     }),
-                    new MenuItem("Start Game") { DoAction = -1 },
-                }) },
-
-                new OpenMenu("3 Players") { SetProperty = "Players", Value = 3,
-                    Menu = new SubMenu(string.Empty, new MenuItem[]
-                    {
-                        new MenuItem("Grid Per Player") { SetProperty = "SharedGrid", Value = false, DoAction = 50 },
-                        new MenuItem("Shared Grid") { SetProperty = "SharedGrid", Value = true, DoAction = 50 },
-                        new CloseMenu("Back"),
-                    }) },
-                new OpenMenu("4 Players") { SetProperty = "Players", Value = 4,
-                    Menu = new SubMenu(string.Empty, new MenuItem[]
-                    {
-                        new MenuItem("Grid Per Player") { SetProperty = "SharedGrid", Value = false, DoAction = 50 },
-                        new MenuItem("Shared Grid") { SetProperty = "SharedGrid", Value = true, DoAction = 50 },
-                        new CloseMenu("Back"),
-                    }) },
+                    new MenuItem("Start Game") {
+                        DoAction = GameMenuOptions.NewGame },
+                    new CloseMenu("Back"),
+                })  { DefaultIndex = 3 }},
                 new CloseMenu("Back"),
-            }) },
+            }) { DefaultIndex = 0 } },
             new OpenMenu("Options") { Menu = new SubMenu("Options", new MenuItem[]
             {
                 new OpenMenu("Video") { Menu = new SubMenu("Video", new MenuItem[]
@@ -66,39 +86,39 @@ namespace Liztris
                         new MenuItem("No") { SetProperty = "Fullscreen", Value = false },
                         new MenuItem("Yes") { SetProperty = "Fullscreen", Value = true },
                     }),
-                    new Choice("VSync:", new MenuItem[]
+                    /*new Choice("VSync:", new MenuItem[]
                     {
                         new MenuItem("No") { SetProperty = "VSync", Value = false },
                         new MenuItem("Yes") { SetProperty = "VSync", Value = true },
-                    }),
-                    new MenuItem("Apply") { DoAction = 99 },
+                    }),*/
+                    new MenuItem("Apply") { DoAction = GameMenuOptions.ApplyGraphics },
                     new CloseMenu("Back"),
                 }) },
                 new OpenMenu("Audio") { Menu = new SubMenu("Audio", new MenuItem[]
                 {
-                    new Choice("Sound:", new MenuItem[]
+                    /*new Choice("Sound:", new MenuItem[]
                     {
-                        new MenuItem("Off") { SetProperty = "Sound", Value = false },
-                        new MenuItem("On") { SetProperty = "Sound", Value = true },
-                    }),
+                        new MenuItem("Off") { SetProperty = "Sound", Value = false, DoAction = GameMenuOptions.ChangeAudio },
+                        new MenuItem("On") { SetProperty = "Sound", Value = true, DoAction = GameMenuOptions.ChangeAudio },
+                    }),*/
                     new Choice("Music:", new MenuItem[]
                     {
-                        new MenuItem("Off") { SetProperty = "Music", Value = false },
-                        new MenuItem("On") { SetProperty = "Music", Value = true },
-                    }),
+                        new MenuItem("Off") { SetProperty = "Music", Value = false, DoAction = GameMenuOptions.ChangeAudio },
+                        new MenuItem("On") { SetProperty = "Music", Value = true, DoAction = GameMenuOptions.ChangeAudio },
+                    }, 1),
                     new CloseMenu("Back"),
                 }) },
-                new MenuItem("Controls"),
+                //new MenuItem("Controls"),
                 new CloseMenu("Back"),
-            }) },
+            }) { DefaultIndex = 0 }  },
             new OpenMenu("Quit") { Menu = new SubMenu("Really Quit?", new MenuItem[]
             {
                 new Choice("Quit", new MenuItem[]
                 {
-                    new MenuItem("Yes") { DoAction = -1 },
+                    new MenuItem("Yes") { DoAction = GameMenuOptions.Exit },
                     new CloseMenu("No"),
                 }) { DefaultIndex = 1 },
             }) },
-        });
+        }) { CloseOnBack = false };
     }
 }

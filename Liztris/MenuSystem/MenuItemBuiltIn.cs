@@ -25,6 +25,8 @@ namespace Common.MenuSystem
 
         public SubMenu(string Title, MenuItem[] MenuItems, int SelectedIndex) :
             base(Title, MenuItems, SelectedIndex) { }
+
+        public bool CloseOnBack { get; set; } = true;
     }
 
     public class Choice : MenuItemCollection

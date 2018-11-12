@@ -1,6 +1,4 @@
-﻿//#define NEWMENUTEST
-//#define SHOWSTUFF
-//#define NOMUSIC
+﻿//#define SHOWSTUFF
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,40 +31,6 @@ namespace Liztris
             Menu,
         }
 
-        enum GlobalMenuItems
-        {
-            Resume,
-            NewGame,
-            Options,
-            QuitGame,
-            Exit,
-
-            OnePlayer,
-            TwoPlayer,
-            ThreePlayer,
-            FourPlayer,
-
-            GridPerPlayer,
-            SharedGrid,
-
-            BackToGameMenu,
-            BackToPlayerCountMenu,
-            BackToSpeedMenu,
-
-            SpeedSlow,
-            SpeedNormal,
-            SpeedFast,
-        }
-
-        Menu<GlobalMenuItems> StartMenu = null;
-        Menu<GlobalMenuItems> GameMenu = null;
-        Menu<GlobalMenuItems> PlayerCountMenu = null;
-        Menu<GlobalMenuItems> SharedGrid = null;
-        Menu<GlobalMenuItems> SpeedMenu = null;
-
-        Menu<GlobalMenuItems> CurrentGameMenu = null;
-        Menu<GlobalMenuItems> CurrentMenu = null;
-
         InputManager<GlobalCommands> inputManager = new InputManager<GlobalCommands>();
 
         List<Grid> Grids = new List<Grid>();
@@ -76,8 +40,6 @@ namespace Liztris
         const int BlockPixelSize = 32;
         const int BlocksBetweenGrids = 8;
         const int BlocksAboveBottom = 1;
-        const int PlayerCount = 2;
-        const bool ShareGrid = true;
 
         public int[][] LevelSpeeds = { //Slow, Normal, Fast
             new int[] { 1500, 1400, 1300, 1200, 1100, 1000, 900, 800, 750, 700, 650, 600, 550, 500, 500 },
@@ -112,7 +74,7 @@ namespace Liztris
             base.Initialize();
 
             SetupGameResolution(ref graphics);
-            
+
             //Window.IsBorderless = true;
             //Window.Position = new Point(0, 0);
 
@@ -121,10 +83,8 @@ namespace Liztris
             inputManager.AddAction(GlobalCommands.Menu, InputManager<GlobalCommands>.GamePadButtons.Back);
 
             musicDefaultInstance.Volume = 0.20f;
-#if !NOMUSIC
             musicDefaultInstance.IsLooped = true;
             musicDefaultInstance.Play();
-#endif
 
 #if SHOWSTUFF
 
@@ -169,8 +129,57 @@ namespace Liztris
 
 #endif
 
-            CurrentGameMenu = StartMenu;
-            CurrentMenu = CurrentGameMenu;
+            GameMenus.MainMenu.ActionHandler = (object Action) =>
+            {
+                switch ((GameMenus.GameMenuOptions)Action)
+                {
+                    case GameMenus.GameMenuOptions.Exit:
+                        musicDefaultInstance.Stop();
+                        Exit();
+                        break;
+
+                    case GameMenus.GameMenuOptions.NewGame:
+                        var players = (int)GameMenus.MainMenu.Options["Players"];
+                        var speed = (int)GameMenus.MainMenu.Options["Speed"];
+                        var sharedgrid = (bool)GameMenus.MainMenu.Options["SharedGrid"];
+                        NewGame(players, speed, sharedgrid);
+                        GameMenus.MainMenu.ExitMenu();
+                        break;
+
+                    case GameMenus.GameMenuOptions.ApplyGraphics:
+                        var fullscreen = (bool)GameMenus.MainMenu.Options["Fullscreen"];
+                        //var vsync = (bool)GameMenus.MainMenu.Options["VSync"];
+
+                        if (fullscreen)
+                            IndependentResolutionRendering.Resolution.SetResolution(
+                                1920, 1080, fullscreen);
+                        else
+                            IndependentResolutionRendering.Resolution.SetResolution(
+                                1600, 900, fullscreen);
+                        break;
+
+                    case GameMenus.GameMenuOptions.ChangeAudio:
+                        //var sound = (bool)GameMenus.MainMenu.Options["Sound"];
+                        var music = (bool)GameMenus.MainMenu.Options["Music"];
+
+                        if (music)
+                            musicDefaultInstance.Play();
+                        else
+                            musicDefaultInstance.Stop();
+                        break;
+                }
+            };
+            GameMenus.MainMenu.ShowMenu();
+
+            GameMenus.PauseMenu.ActionHandler = (object Action) =>
+            {
+                switch ((GameMenus.GameMenuOptions)Action)
+                {
+                    case GameMenus.GameMenuOptions.QuitGame:
+                        GameMenus.MainMenu.ShowMenu();
+                        break;
+                }
+            };
         }
 
         /// <summary>
@@ -211,40 +220,6 @@ namespace Liztris
             soundTetris = Content.Load<SoundEffect>("Sounds/Tetris");
 
             musicDefaultInstance = musicDefault.CreateInstance();
-
-
-            StartMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
-                new Menu<GlobalMenuItems>.MenuItem("New Game", GlobalMenuItems.NewGame),
-                new Menu<GlobalMenuItems>.MenuItem("Full Screen", GlobalMenuItems.Options),
-                new Menu<GlobalMenuItems>.MenuItem("Exit Liztris", GlobalMenuItems.Exit),
-            }, fontMenu);
-
-            GameMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
-                new Menu<GlobalMenuItems>.MenuItem("Resume", GlobalMenuItems.Resume),
-                new Menu<GlobalMenuItems>.MenuItem("New Game", GlobalMenuItems.NewGame),
-                new Menu<GlobalMenuItems>.MenuItem("Quit Game", GlobalMenuItems.QuitGame),
-            }, fontMenu, 0, GlobalMenuItems.Resume);
-
-            PlayerCountMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
-                new Menu<GlobalMenuItems>.MenuItem("One Player", GlobalMenuItems.OnePlayer),
-                new Menu<GlobalMenuItems>.MenuItem("Two Players", GlobalMenuItems.TwoPlayer),
-                new Menu<GlobalMenuItems>.MenuItem("Three Players", GlobalMenuItems.ThreePlayer),
-                new Menu<GlobalMenuItems>.MenuItem("Four Players", GlobalMenuItems.FourPlayer),
-                new Menu<GlobalMenuItems>.MenuItem("Back", GlobalMenuItems.BackToGameMenu),
-            }, fontMenu, 0, GlobalMenuItems.BackToGameMenu);
-
-            SharedGrid = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
-                new Menu<GlobalMenuItems>.MenuItem("Grid Per Player", GlobalMenuItems.GridPerPlayer),
-                new Menu<GlobalMenuItems>.MenuItem("Shared Grid", GlobalMenuItems.SharedGrid),
-                new Menu<GlobalMenuItems>.MenuItem("Back", GlobalMenuItems.BackToSpeedMenu),
-            }, fontMenu, 0, GlobalMenuItems.BackToSpeedMenu);
-
-            SpeedMenu = new Menu<GlobalMenuItems>(new Menu<GlobalMenuItems>.MenuItem[] {
-                new Menu<GlobalMenuItems>.MenuItem("Slow", GlobalMenuItems.SpeedSlow),
-                new Menu<GlobalMenuItems>.MenuItem("Normal", GlobalMenuItems.SpeedNormal),
-                new Menu<GlobalMenuItems>.MenuItem("Fast", GlobalMenuItems.SpeedFast),
-                new Menu<GlobalMenuItems>.MenuItem("Back", GlobalMenuItems.BackToPlayerCountMenu),
-            }, fontMenu, 1, GlobalMenuItems.BackToPlayerCountMenu);
         }
 
         /// <summary>
@@ -325,9 +300,6 @@ namespace Liztris
                 grid.NewGame();
         }
 
-        private int mnuPlayers = 0;
-        private int mnuSpeed = 1;
-
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -354,127 +326,27 @@ namespace Liztris
             else if (toggle2Timer.UpdateAndCheck(gameTime))
                 toggle = !toggle;
 
-#if NEWMENUTEST
-            TestMenu.MyMenu.Update(gameTime);
-            return;
-#endif
 
-            if (CurrentMenu != null)
+            //Gamestate: MainMenu
+            if (GameMenus.MainMenu.IsMenuActive)
             {
-                if (CurrentMenu.Update(gameTime, out GlobalMenuItems? Choice))
-                {
-                    if (Choice != null)
-                    {
-                        switch (Choice.Value)
-                        {
-                            case GlobalMenuItems.Exit:
-                                musicDefaultInstance.Stop();
-                                Exit();
-                                break;
-
-                            case GlobalMenuItems.Resume:
-                                CurrentMenu = null;
-                                break;
-
-                            case GlobalMenuItems.QuitGame:
-                                CurrentGameMenu = StartMenu;
-                                CurrentMenu = CurrentGameMenu;
-                                CurrentMenu.ResetMenu();
-                                break;
-
-                            case GlobalMenuItems.NewGame:
-                                CurrentMenu = PlayerCountMenu;
-                                CurrentMenu.ResetMenu();
-                                mnuPlayers = 0;
-                                break;
-
-                            case GlobalMenuItems.OnePlayer:
-                                mnuPlayers = 1;
-                                CurrentMenu = SpeedMenu;
-                                CurrentMenu.ResetMenu();
-                                break;
-
-                            case GlobalMenuItems.TwoPlayer:
-                                mnuPlayers = 2;
-                                CurrentMenu = SpeedMenu;
-                                CurrentMenu.ResetMenu();
-                                break;
-
-                            case GlobalMenuItems.ThreePlayer:
-                                mnuPlayers = 3;
-                                CurrentMenu = SpeedMenu;
-                                CurrentMenu.ResetMenu();
-                                break;
-
-                            case GlobalMenuItems.FourPlayer:
-                                mnuPlayers = 4;
-                                CurrentMenu = SpeedMenu;
-                                CurrentMenu.ResetMenu();
-                                break;
-
-                            case GlobalMenuItems.SpeedSlow:
-                                mnuSpeed = 0;
-                                CurrentMenu = SharedGrid;
-                                CurrentMenu.ResetMenu();
-                                break;
-
-                            case GlobalMenuItems.SpeedNormal:
-                                mnuSpeed = 1;
-                                CurrentMenu = SharedGrid;
-                                CurrentMenu.ResetMenu();
-                                break;
-
-                            case GlobalMenuItems.SpeedFast:
-                                mnuSpeed = 2;
-                                CurrentMenu = SharedGrid;
-                                CurrentMenu.ResetMenu();
-                                break;
-
-                            case GlobalMenuItems.GridPerPlayer:
-                                NewGame(mnuPlayers, mnuSpeed, false);
-                                CurrentMenu = null;
-                                break;
-
-                            case GlobalMenuItems.SharedGrid:
-                                NewGame(mnuPlayers, mnuSpeed, true);
-                                CurrentMenu = null;
-                                break;
-
-                            case GlobalMenuItems.BackToSpeedMenu:
-                                CurrentMenu = SpeedMenu;
-                                CurrentMenu.ResetMenu();
-                                mnuSpeed = 1;
-                                break;
-
-                            case GlobalMenuItems.BackToGameMenu:
-                                CurrentMenu = CurrentGameMenu;
-                                CurrentMenu.ResetMenu();
-                                break;
-
-                            case GlobalMenuItems.BackToPlayerCountMenu:
-                                CurrentMenu = PlayerCountMenu;
-                                CurrentMenu.ResetMenu();
-                                mnuPlayers = 0;
-                                break;
-
-                            case GlobalMenuItems.Options:
-                                IndependentResolutionRendering.Resolution.SetResolution(1920, 1080, true);
-                                break;
-                        }
-                    }
-                }
-
+                GameMenus.MainMenu.Update(gameTime);
                 return;
             }
 
+            //Gamestate: PauseMenu
+            if (GameMenus.PauseMenu.IsMenuActive)
+            {
+                GameMenus.PauseMenu.Update(gameTime);
+                return;
+            }
+
+            //Gamestate: Playing game
             inputManager.Update(PlayerIndex.One);
             if (inputManager.IsActionTriggered(GlobalCommands.Menu))
             {
-                CurrentGameMenu = GameMenu; //change to resumable menu
-
-                CurrentMenu = CurrentGameMenu;
-                CurrentMenu.ResetMenu();
-                
+                GameMenus.PauseMenu.ShowMenu();
+                GameMenus.PauseMenu.ResetInputs();
                 return;
             }
 
@@ -514,19 +386,9 @@ namespace Liztris
             spriteBatch.FillRectangle(GameRectangle, Color.CornflowerBlue);
 
             spriteBatch.Draw(Background[BackgroundIndex], GameRectangle, Color.White);
-#if NEWMENUTEST
-            var r = new Rectangle(
-                (GamePixelWidth / 8) * 3,
-                GamePixelHeight / 4,
-                GamePixelWidth / 4,
-                GamePixelHeight / 2);
 
-            TestMenu.MyMenu.Draw(spriteBatch, fontMenu, r, true);
-            spriteBatch.End();
-            return;
-#endif
-
-            if (CurrentMenu != null)
+            //Gamestate: MainMenu / PauseMenu
+            if (GameMenus.MainMenu.IsMenuActive || GameMenus.PauseMenu.IsMenuActive)
             {
                 spriteBatch.DrawString(fontTitleHuge, "LIZTRIS", new Vector2(30, 250), Color.Black,
                     -0.5f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
@@ -543,7 +405,10 @@ namespace Liztris
 
                 spriteBatch.Draw(transparentDarkTexture, MenuRect, Color.White * 0.5f);
 
-                CurrentMenu.Draw(spriteBatch, MenuRect);
+                if (GameMenus.MainMenu.IsMenuActive)
+                    GameMenus.MainMenu.Draw(spriteBatch, fontMenu, MenuRect, true);
+                else  if (GameMenus.PauseMenu.IsMenuActive)
+                    GameMenus.PauseMenu.Draw(spriteBatch, fontMenu, MenuRect, true);
 
 #if SHOWSTUFF
                 spriteBatch.DrawString(fontMenu, "Mouse: " + 
@@ -561,6 +426,8 @@ namespace Liztris
                 spriteBatch.End();
                 return;
             }
+
+            //Gamestate: Playing game
 
             //draw
             spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 2), Color.Black);
