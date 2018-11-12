@@ -1,4 +1,5 @@
 ﻿//#define SHOWSTUFF
+//#define START_FULL_SCREEN_AT_1920_X_1080
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -51,9 +52,16 @@ namespace Liztris
 
         protected override int WantedGameResolutionWidth => 1280;
         protected override int WantedGameResolutionHeight => 720;
+
+#if START_FULL_SCREEN_AT_1920_X_1080
+        protected override int WindowWidth => 1920;
+        protected override int WindowHeight => 1080;
+        protected override bool WindowFullScreen => true;
+#else
         protected override int WindowWidth => 1600;
         protected override int WindowHeight => 900;
         protected override bool WindowFullScreen => false;
+#endif
 
         public Liztris()
         {
@@ -187,6 +195,7 @@ namespace Liztris
                         break;
                 }
             };
+
             GameMenus.MainMenu.ShowMenu();
 
             GameMenus.PauseMenu.ActionHandler = (object Action) =>
@@ -194,7 +203,9 @@ namespace Liztris
                 switch ((GameMenus.GameMenuOptions)Action)
                 {
                     case GameMenus.GameMenuOptions.QuitGame:
+                        //HACK: leaving current state, reset input manager of new state
                         GameMenus.MainMenu.ShowMenu();
+                        GameMenus.MainMenu.ResetInputs();
                         break;
                 }
             };
@@ -364,6 +375,14 @@ namespace Liztris
             if (GameMenus.PauseMenu.IsMenuActive)
             {
                 GameMenus.PauseMenu.Update(gameTime);
+
+                if (!GameMenus.PauseMenu.IsMenuActive)
+                {
+                    //HACK: leaving current state, reset input manager of new state
+                    foreach (var grid in Grids)
+                        foreach (var player in grid.Players)
+                            player.inputManager.Update(player.playerIndex);
+                }
                 return;
             }
 
@@ -371,6 +390,7 @@ namespace Liztris
             inputManager.Update(PlayerIndex.One);
             if (inputManager.IsActionTriggered(GlobalCommands.Menu))
             {
+                //HACK: leaving current state, reset input manager of new state
                 GameMenus.PauseMenu.ShowMenu();
                 GameMenus.PauseMenu.ResetInputs();
                 return;

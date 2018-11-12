@@ -36,6 +36,7 @@ namespace Common.MenuSystem
         {
             _Menus.Clear();
             _Menus.Push(this);
+            SetupMenu(this);
         }
 
         public bool IsMenuActive => _Menus.Count != 0;

@@ -26,7 +26,7 @@ namespace Liztris
         {
             new CloseMenu("Resume"),
             new CloseMenu("Quit Game") { DoAction = GameMenuOptions.QuitGame },
-        });
+        }) { DefaultIndex = 0 };
 
 
         public static SimpleMenu MainMenu = new SimpleMenu(string.Empty, new MenuItem[]
