@@ -1,5 +1,4 @@
 ﻿//#define SHOWSTUFF
-//#define START_FULL_SCREEN_AT_1920_X_1080
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -53,20 +52,29 @@ namespace Liztris
         protected override int WantedGameResolutionWidth => 1280;
         protected override int WantedGameResolutionHeight => 720;
 
-#if START_FULL_SCREEN_AT_1920_X_1080
-        protected override int WindowWidth => 1920;
-        protected override int WindowHeight => 1080;
-        protected override bool WindowFullScreen => true;
-#else
-        protected override int WindowWidth => 1600;
-        protected override int WindowHeight => 900;
-        protected override bool WindowFullScreen => false;
-#endif
+        protected override int WindowWidth => _Settings.Video.Width;
+        protected override int WindowHeight => _Settings.Video.Height;
+        protected override bool WindowFullScreen => 
+            _Settings.Video.WindowMode == VideoSettings.WindowModeTypes.Fullscreen;
+
+        private Settings _Settings;
 
         public Liztris()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            _Settings = Settings.LoadSettings();
+
+
+            GameMenus.MainMenu.Options["Fullscreen"] = 
+                _Settings.Video.WindowMode == VideoSettings.WindowModeTypes.Fullscreen;
+            GameMenus.MainMenu.Options["VSync"] = _Settings.Video.VSync;
+
+            GameMenus.MainMenu.Options["Resolution"] = 
+                string.Format("{0}x{1}", _Settings.Video.Width, _Settings.Video.Height);
+
+            GameMenus.MainMenu.Options["Music"] = _Settings.Audio.Music;
         }
 
         /// <summary>
@@ -92,7 +100,9 @@ namespace Liztris
 
             musicDefaultInstance.Volume = 0.20f;
             musicDefaultInstance.IsLooped = true;
-            musicDefaultInstance.Play();
+
+            if (_Settings.Audio.Music)
+                musicDefaultInstance.Play();
 
 #if SHOWSTUFF
 
@@ -155,43 +165,43 @@ namespace Liztris
                         break;
 
                     case GameMenus.GameMenuOptions.ApplyGraphics:
-                        var fullscreen = (bool)GameMenus.MainMenu.Options["Fullscreen"];
-                        var vsync = (bool)GameMenus.MainMenu.Options["VSync"];
+                        if ((bool)GameMenus.MainMenu.Options["Fullscreen"])
+                            _Settings.Video.WindowMode = VideoSettings.WindowModeTypes.Fullscreen;
+                        else
+                            _Settings.Video.WindowMode = VideoSettings.WindowModeTypes.Windowed;
+
+                        _Settings.Video.VSync = (bool)GameMenus.MainMenu.Options["VSync"];
+
                         var resolution = (string)GameMenus.MainMenu.Options["Resolution"];
 
                         switch (resolution)
                         {
-                            case "1280x720":
-                                IndependentResolutionRendering.Resolution.SetResolution(
-                                    1280, 720, fullscreen);
-                                break;
-                            case "1366x768":
-                                IndependentResolutionRendering.Resolution.SetResolution(
-                                    1366, 768, fullscreen);
-                                break;
-                            case "1600x900":
-                                IndependentResolutionRendering.Resolution.SetResolution(
-                                    1600, 900, fullscreen);
-                                break;
-                            case "1920x1080":
-                                IndependentResolutionRendering.Resolution.SetResolution(
-                                    1920, 1080, fullscreen);
-                                break;
+                            case "1280x720":  _Settings.Video.Width = 1280; _Settings.Video.Height = 720; break;
+                            case "1366x768":  _Settings.Video.Width = 1366; _Settings.Video.Height = 768; break;
+                            case "1600x900":  _Settings.Video.Width = 1600; _Settings.Video.Height = 900; break;
+                            case "1920x1080": _Settings.Video.Width = 1920; _Settings.Video.Height = 1080; break;
                         }
 
-                        this.IsFixedTimeStep = vsync;
-                        graphics.SynchronizeWithVerticalRetrace = vsync;
+                        IndependentResolutionRendering.Resolution.SetResolution(
+                            _Settings.Video.Width, _Settings.Video.Height,
+                            _Settings.Video.WindowMode == VideoSettings.WindowModeTypes.Fullscreen);
+
+                        this.IsFixedTimeStep = _Settings.Video.VSync;
+                        graphics.SynchronizeWithVerticalRetrace = _Settings.Video.VSync;
                         graphics.ApplyChanges();
+                        _Settings.SaveSettings();
                         break;
 
                     case GameMenus.GameMenuOptions.ChangeAudio:
                         //var sound = (bool)GameMenus.MainMenu.Options["Sound"];
-                        var music = (bool)GameMenus.MainMenu.Options["Music"];
+                        _Settings.Audio.Music = (bool)GameMenus.MainMenu.Options["Music"];
 
-                        if (music)
+                        if (_Settings.Audio.Music)
                             musicDefaultInstance.Play();
                         else
                             musicDefaultInstance.Stop();
+
+                        _Settings.SaveSettings();
                         break;
                 }
             };
@@ -211,6 +221,14 @@ namespace Liztris
             };
 
             Intro.IsActive = true;
+
+
+            foreach (DisplayMode mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
+            {
+                System.Diagnostics.Debug.Print("{0}x{1}   asp={2}  format={3}   safe={4}",
+                    mode.Width, mode.Height, mode.AspectRatio, mode.Format, mode.TitleSafeArea);
+                //mode.whatever (and use any of avaliable information)
+            }
         }
 
         /// <summary>
