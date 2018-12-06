@@ -43,11 +43,11 @@
   <ItemGroup>
     <Compile Include="Common\ExtendedSpriteBatch.cs" />
     <Compile Include="Common\External\SerializableDictionary.cs" />
-    <Compile Include="Common\External\XMLHelper.cs" />
     <Compile Include="Common\GameResolution.cs" />
     <Compile Include="Common\External\Resolution.cs" />
     <Compile Include="Common\External\Controls.cs" />
     <Compile Include="Common\Extensions.cs" />
+    <Compile Include="Common\SettingsBase.cs" />
     <Compile Include="Common\SpriteSheet.cs" />
     <Compile Include="GameMenus.cs" />
     <Compile Include="Intro.cs" />

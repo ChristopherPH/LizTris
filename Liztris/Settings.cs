@@ -55,10 +55,8 @@ namespace Liztris
     }
 
     [Serializable()]
-    public class Settings
+    public class Settings : Common.SettingsBase
     {
-        private static XmlSerializer serializer = new XmlSerializer(typeof(Settings));
-
         public static string SettingsFile => "settings.xml";
 
         public VideoSettings Video { get; set; } = new VideoSettings();
@@ -68,56 +66,16 @@ namespace Liztris
 
         public static Settings LoadSettings()
         {
-            string XMLText;
+            var rc = LoadSettings<Settings>(SettingsFile);
+            if (rc == null)
+                rc = new Settings();
 
-            try
-            {
-                XMLText = File.ReadAllText(Settings.SettingsFile);
-            }
-            catch
-            {
-                return new Settings();
-            }
-
-            using (var stream = new MemoryStream())
-            {
-                using (var writer = new StreamWriter(stream))
-                {
-                    writer.Write(XMLText);
-                    writer.Flush();
-                    stream.Position = 0;
-
-                    using (var reader = XmlReader.Create(stream, new XmlReaderSettings()
-                        { ConformanceLevel = ConformanceLevel.Document }))
-                    {
-                        return serializer.Deserialize(reader) as Settings;
-                    }
-                }
-            }
+            return rc;
         }
 
-        public void SaveSettings()
+        public bool SaveSettings()
         {
-            var tmpFileName = Path.GetTempFileName();
-
-            XmlTextWriter stream = new XmlTextWriter(tmpFileName, System.Text.Encoding.UTF8);
-            stream.WriteProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"");
-            using (Stream baseStream = stream.BaseStream)
-            {
-                stream.Formatting = Formatting.Indented;
-                stream.IndentChar = '\t';
-                stream.Indentation = 1;
-
-                XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
-                ns.Add(string.Empty, string.Empty);
-
-                serializer.Serialize(stream, this, ns);
-            }
-
-            if (File.Exists(SettingsFile))
-                File.Delete(SettingsFile);
-
-            File.Move(tmpFileName, SettingsFile);
+            return SaveSettings(this, SettingsFile);
         }
     }
 }
