@@ -14,9 +14,13 @@ namespace Liztris
         [STAThread]
         static void Main()
         {
+            Settings = Settings.LoadSettings();
+
             using (var game = new Liztris())
                 game.Run();
         }
+
+        public static Settings Settings;
     }
 #endif
 }

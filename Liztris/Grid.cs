@@ -258,6 +258,19 @@ namespace Liztris
         Timer GameOverTimer = null;
         bool CanResetGameOver = false;
 
+        public void AddHighScore(int Score)
+        {
+            if (Score > 0)
+            {
+                Program.Settings.Game.HighScores.Add(Score);
+                Program.Settings.Game.HighScores =
+                    Program.Settings.Game.HighScores.OrderByDescending(x => x)
+                    .Take(10)
+                    .ToList();
+                Program.Settings.SaveSettings();
+            }
+        }
+
         public void Update(GameTime gameTime)
         {
             if (GameOverTimer != null)
@@ -322,6 +335,7 @@ namespace Liztris
                             }
                         }
 
+                        AddHighScore(Score);
                         return;
                     }
                 }

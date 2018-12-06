@@ -6,6 +6,7 @@ Player names / profiles
 menus should remember location, unless 'back (closemenu)' was selected
 be able to join in while playing
 hard drop
+toast on level change
 
 Game modes
  - Challenge

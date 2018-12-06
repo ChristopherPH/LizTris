@@ -12,7 +12,7 @@ namespace Liztris
 {
     public class GameSettings
     {
-        
+        public List<int> HighScores { get; set; } = new List<int>();
     }
 
     public class ControlSettings

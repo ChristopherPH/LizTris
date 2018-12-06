@@ -25,6 +25,7 @@ namespace Liztris
         SoundEffect soundLine, soundLevel, soundLose, musicDefault, soundDrop, soundTetris;
         SoundEffectInstance musicDefaultInstance;
         int BackgroundIndex = 0;
+        bool ShowHighScores = false;
 
         enum GlobalCommands
         {
@@ -52,29 +53,24 @@ namespace Liztris
         protected override int WantedGameResolutionWidth => 1280;
         protected override int WantedGameResolutionHeight => 720;
 
-        protected override int WindowWidth => _Settings.Video.Width;
-        protected override int WindowHeight => _Settings.Video.Height;
-        protected override bool WindowFullScreen => 
-            _Settings.Video.WindowMode == VideoSettings.WindowModeTypes.Fullscreen;
-
-        private Settings _Settings;
+        protected override int WindowWidth => Program.Settings.Video.Width;
+        protected override int WindowHeight => Program.Settings.Video.Height;
+        protected override bool WindowFullScreen =>
+            Program.Settings.Video.WindowMode == VideoSettings.WindowModeTypes.Fullscreen;
 
         public Liztris()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            _Settings = Settings.LoadSettings();
-
-
-            GameMenus.MainMenu.Options["Fullscreen"] = 
-                _Settings.Video.WindowMode == VideoSettings.WindowModeTypes.Fullscreen;
-            GameMenus.MainMenu.Options["VSync"] = _Settings.Video.VSync;
+            GameMenus.MainMenu.Options["Fullscreen"] =
+                Program.Settings.Video.WindowMode == VideoSettings.WindowModeTypes.Fullscreen;
+            GameMenus.MainMenu.Options["VSync"] = Program.Settings.Video.VSync;
 
             GameMenus.MainMenu.Options["Resolution"] = 
-                string.Format("{0}x{1}", _Settings.Video.Width, _Settings.Video.Height);
+                string.Format("{0}x{1}", Program.Settings.Video.Width, Program.Settings.Video.Height);
 
-            GameMenus.MainMenu.Options["Music"] = _Settings.Audio.Music;
+            GameMenus.MainMenu.Options["Music"] = Program.Settings.Audio.Music;
         }
 
         /// <summary>
@@ -101,7 +97,7 @@ namespace Liztris
             musicDefaultInstance.Volume = 0.20f;
             musicDefaultInstance.IsLooped = true;
 
-            if (_Settings.Audio.Music)
+            if (Program.Settings.Audio.Music)
                 musicDefaultInstance.Play();
 
 #if SHOWSTUFF
@@ -166,42 +162,46 @@ namespace Liztris
 
                     case GameMenus.GameMenuOptions.ApplyGraphics:
                         if ((bool)GameMenus.MainMenu.Options["Fullscreen"])
-                            _Settings.Video.WindowMode = VideoSettings.WindowModeTypes.Fullscreen;
+                            Program.Settings.Video.WindowMode = VideoSettings.WindowModeTypes.Fullscreen;
                         else
-                            _Settings.Video.WindowMode = VideoSettings.WindowModeTypes.Windowed;
+                            Program.Settings.Video.WindowMode = VideoSettings.WindowModeTypes.Windowed;
 
-                        _Settings.Video.VSync = (bool)GameMenus.MainMenu.Options["VSync"];
+                        Program.Settings.Video.VSync = (bool)GameMenus.MainMenu.Options["VSync"];
 
                         var resolution = (string)GameMenus.MainMenu.Options["Resolution"];
 
                         switch (resolution)
                         {
-                            case "1280x720":  _Settings.Video.Width = 1280; _Settings.Video.Height = 720; break;
-                            case "1366x768":  _Settings.Video.Width = 1366; _Settings.Video.Height = 768; break;
-                            case "1600x900":  _Settings.Video.Width = 1600; _Settings.Video.Height = 900; break;
-                            case "1920x1080": _Settings.Video.Width = 1920; _Settings.Video.Height = 1080; break;
+                            case "1280x720": Program.Settings.Video.Width = 1280; Program.Settings.Video.Height = 720; break;
+                            case "1366x768": Program.Settings.Video.Width = 1366; Program.Settings.Video.Height = 768; break;
+                            case "1600x900": Program.Settings.Video.Width = 1600; Program.Settings.Video.Height = 900; break;
+                            case "1920x1080": Program.Settings.Video.Width = 1920; Program.Settings.Video.Height = 1080; break;
                         }
 
                         IndependentResolutionRendering.Resolution.SetResolution(
-                            _Settings.Video.Width, _Settings.Video.Height,
-                            _Settings.Video.WindowMode == VideoSettings.WindowModeTypes.Fullscreen);
+                            Program.Settings.Video.Width, Program.Settings.Video.Height,
+                            Program.Settings.Video.WindowMode == VideoSettings.WindowModeTypes.Fullscreen);
 
-                        this.IsFixedTimeStep = _Settings.Video.VSync;
-                        graphics.SynchronizeWithVerticalRetrace = _Settings.Video.VSync;
+                        this.IsFixedTimeStep = Program.Settings.Video.VSync;
+                        graphics.SynchronizeWithVerticalRetrace = Program.Settings.Video.VSync;
                         graphics.ApplyChanges();
-                        _Settings.SaveSettings();
+                        Program.Settings.SaveSettings();
                         break;
 
                     case GameMenus.GameMenuOptions.ChangeAudio:
                         //var sound = (bool)GameMenus.MainMenu.Options["Sound"];
-                        _Settings.Audio.Music = (bool)GameMenus.MainMenu.Options["Music"];
+                        Program.Settings.Audio.Music = (bool)GameMenus.MainMenu.Options["Music"];
 
-                        if (_Settings.Audio.Music)
+                        if (Program.Settings.Audio.Music)
                             musicDefaultInstance.Play();
                         else
                             musicDefaultInstance.Stop();
 
-                        _Settings.SaveSettings();
+                        Program.Settings.SaveSettings();
+                        break;
+
+                    case GameMenus.GameMenuOptions.ShowScores:
+                        ShowHighScores = true;
                         break;
                 }
             };
@@ -382,6 +382,16 @@ namespace Liztris
                 return;
             }
 
+            if (ShowHighScores)
+            {
+                inputManager.Update(PlayerIndex.One);
+                if (inputManager.IsActionTriggered(GlobalCommands.Menu))
+                {
+                    ShowHighScores = false;
+                }
+                return;
+            }
+
             //Gamestate: MainMenu
             if (GameMenus.MainMenu.IsMenuActive)
             {
@@ -455,6 +465,44 @@ namespace Liztris
             if (Intro.IsActive)
             {
                 Intro.Draw(spriteBatch, fontTitleHuge);
+
+                spriteBatch.End();
+                return;
+            }
+
+            if (ShowHighScores)
+            {
+                spriteBatch.DrawString(fontTitleHuge, "LIZTRIS", new Vector2(30, 250), Color.Black,
+                    -0.5f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+                spriteBatch.DrawString(fontTitleHuge, "LIZTRIS", new Vector2(28, 248), Color.Wheat,
+                    -0.5f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+
+
+                var ScoreRect = new Rectangle(
+                    (GamePixelWidth / 8) * 3,
+                    GamePixelHeight / 4,
+                    GamePixelWidth / 4,
+                    GamePixelHeight / 2);
+
+                
+
+                spriteBatch.DrawRectangle(ScoreRect, Color.Teal, 3, false);
+
+                spriteBatch.Draw(transparentDarkTexture, ScoreRect, Color.White * 0.5f);
+
+                var r = new Rectangle(ScoreRect.Left, ScoreRect.Top + 5, ScoreRect.Width, 50);
+                spriteBatch.DrawString(fontTitle, "HIGH SCORES", r, ExtendedSpriteBatch.Alignment.Center, Color.Black);
+                r.Offset(2, 2);
+                spriteBatch.DrawString(fontTitle, "HIGH SCORES", r, ExtendedSpriteBatch.Alignment.Center, Color.Wheat);
+                r.Offset(-2, -2);
+                r.Offset(0, 40);
+
+                foreach (var score in Program.Settings.Game.HighScores)
+                {
+                    spriteBatch.DrawString(fontScore, score.ToString(),
+                        r, ExtendedSpriteBatch.Alignment.Center, Color.Wheat);
+                    r.Offset(0, 30);
+                }
 
                 spriteBatch.End();
                 return;

@@ -20,6 +20,7 @@ namespace Liztris
             Exit,
             ApplyGraphics,
             ChangeAudio,
+            ShowScores
         }
 
         public static SimpleMenu PauseMenu = new SimpleMenu("Paused", new MenuItem[]
@@ -145,6 +146,7 @@ namespace Liztris
                 //new MenuItem("Controls"),
                 new CloseMenu("Back"),
             }) { DefaultIndex = 0 }  },
+            new MenuItem("High Scores") { DoAction = GameMenuOptions.ShowScores },
             new OpenMenu("Quit") { Menu = new SubMenu("Really Quit?", new MenuItem[]
             {
                 new Choice("Quit:", new MenuItem[]
