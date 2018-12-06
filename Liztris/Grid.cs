@@ -381,6 +381,14 @@ namespace Liztris
                                         Level = ix;
                                         GridDropTime.SetDelay(LevelSpeeds[Level]);
                                         ss = SoundState.NextLevel;
+
+                                        Toasts.AddToast(
+                                            new Rectangle(ScreenRect.X,
+                                                ScreenRect.Y + (ScreenRect.Height / 2),
+                                                ScreenRect.Width, 100),
+                                            2000,
+                                            "Level " + Level.ToString(),
+                                            Color.Khaki, 1f);
                                     }
                                     break;
                                 }
