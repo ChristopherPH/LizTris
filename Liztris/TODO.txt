@@ -4,6 +4,8 @@ Game states (intro screen with animation, etc)
 Per player, per mode, per speed, high scores, saved
 Player names / profiles
 menus should remember location, unless 'back (closemenu)' was selected
+be able to join in while playing
+hard drop
 
 Game modes
  - Challenge

@@ -154,24 +154,40 @@ namespace Common.MenuSystem
             Vector2 size = spriteFont.MeasureString(CurrentItem.Text);
 
             var c = Color.White;
-            if (IsSelected)
-                c = Color.Aquamarine;
+            var scale = 1.0f;
 
-            spriteBatch.DrawString(spriteFont, CurrentItem.Text, ItemRect,
-                ExtendedSpriteBatch.Alignment.Left, c, 1.0f);
+            if (IsSelected)
+            {
+                c = Color.Aquamarine;
+                //scale = _scale;
+            }
+
+            var r = new Rectangle(ItemRect.X, ItemRect.Y, (int)size.X, ItemRect.Height);
+            spriteBatch.DrawString(spriteFont, CurrentItem.Text, r,
+                ExtendedSpriteBatch.Alignment.Center, c, scale);
 
             int x = ItemRect.Left + (int)size.X + PixelsBetweenChoices;
 
             foreach (var choice in Choices)
             {
                 c = Color.White;
+                scale = 1.0f;
 
                 if (choice == SelectedChoice)
+                {
                     c = Color.LightBlue;
 
-                spriteBatch.DrawString(spriteFont, choice.Text, new Vector2(x, ItemRect.Y), c);
+                    if (IsSelected)
+                        scale = _scale;
+                }
 
-                x += (int)spriteFont.MeasureString(choice.Text).X + PixelsBetweenChoices;
+                size = spriteFont.MeasureString(choice.Text);
+                r = new Rectangle(x, ItemRect.Y, (int)size.X, ItemRect.Height);
+
+                spriteBatch.DrawString(spriteFont, choice.Text, r,
+                    ExtendedSpriteBatch.Alignment.Center, c, scale);
+
+                x += (int)size.X + PixelsBetweenChoices;
             }
         }
     }
