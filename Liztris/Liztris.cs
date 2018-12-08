@@ -499,7 +499,7 @@ namespace Liztris
 
                 foreach (var score in Program.Settings.Game.HighScores)
                 {
-                    spriteBatch.DrawString(fontScore, score.ToString(),
+                    spriteBatch.DrawString(fontScore, score.ToString("N0"),
                         r, ExtendedSpriteBatch.Alignment.Center, Color.Wheat);
                     r.Offset(0, 30);
                 }
