@@ -18,7 +18,6 @@ namespace Liztris
     {
         GraphicsDeviceManager graphics;
         ExtendedSpriteBatch spriteBatch;
-        Texture2D transparentDarkTexture;
         Texture2D[] Background;
         SpriteSheet Blocks;
         SpriteFont fontScore, fontTitle, fontMenu, fontTitleHuge;
@@ -242,9 +241,6 @@ namespace Liztris
             spriteBatch = new ExtendedSpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            transparentDarkTexture = new Texture2D(GraphicsDevice, 1, 1);
-            transparentDarkTexture.SetData(new[] { Color.DarkSlateGray });
-
             Texture2D tex = Content.Load<Texture2D>("Graphics/Blocks");
             Blocks = new SpriteSheet(tex, 5, 4);
 
@@ -280,7 +276,6 @@ namespace Liztris
         {
             
             // TODO: Unload any non ContentManager content here
-            transparentDarkTexture.Dispose();
         }
 
 
@@ -489,7 +484,7 @@ namespace Liztris
 
                 spriteBatch.DrawRectangle(ScoreRect, Color.Teal, 3, false);
 
-                spriteBatch.Draw(transparentDarkTexture, ScoreRect, Color.White * 0.5f);
+                spriteBatch.FillRectangle(ScoreRect, Color.Teal, 0.25f);
 
                 var r = new Rectangle(ScoreRect.Left, ScoreRect.Top + 5, ScoreRect.Width, 50);
                 spriteBatch.DrawString(fontTitle, "HIGH SCORES", r, ExtendedSpriteBatch.Alignment.Center, Color.Black);
@@ -525,7 +520,7 @@ namespace Liztris
 
                 spriteBatch.DrawRectangle(MenuRect, Color.Teal, 3, false);
 
-                spriteBatch.Draw(transparentDarkTexture, MenuRect, Color.White * 0.5f);
+                spriteBatch.FillRectangle(MenuRect, Color.Teal, 0.25f);
 
                 if (GameMenus.MainMenu.IsMenuActive)
                     GameMenus.MainMenu.Draw(spriteBatch, fontMenu, MenuRect, true);
@@ -585,7 +580,7 @@ namespace Liztris
                 //spriteBatch.DrawRectangle(borderRect, Color.Gray, 6, false);
                 spriteBatch.DrawRectangle(borderRect, Color.Teal, 3, false);
 
-                spriteBatch.Draw(transparentDarkTexture, grid.ScreenRect, Color.White * 0.5f);
+                spriteBatch.FillRectangle(grid.ScreenRect, Color.Teal, 0.25f);
 
                 //draw grid
                 grid.Draw(spriteBatch, Blocks, BlockPixelSize);

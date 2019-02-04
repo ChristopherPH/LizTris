@@ -13,13 +13,24 @@ namespace Common
         /// The texture used when drawing rectangles, lines and other 
         /// primitives. This is a 1x1 white texture created at runtime.
         /// </summary>
-        public Texture2D WhiteTexture { get; protected set; }
+        protected Texture2D WhiteTexture { get; private set; }
 
         public ExtendedSpriteBatch(GraphicsDevice graphicsDevice)
             : base(graphicsDevice)
         {
             this.WhiteTexture = new Texture2D(this.GraphicsDevice, 1, 1);
             this.WhiteTexture.SetData(new Color[] { Color.White });
+        }
+
+
+        /// <summary>
+        /// Draw texture to location with no tint
+        /// </summary>
+        /// <param name="texture"></param>
+        /// <param name="destinationRectangle"></param>
+        public void Draw(Texture2D texture, Rectangle destinationRectangle)
+        {
+            this.Draw(texture, destinationRectangle, Color.White);
         }
 
         /// <summary>
@@ -40,6 +51,8 @@ namespace Common
         /// </summary>
         /// <param name="rectangle">The rectangle to draw.</param>
         /// <param name="color">The draw color.</param>
+        /// <param name="Border">thickness of lines</param>
+        /// <param name="Inset">Rectangle is inside bounding box</param>
         public void DrawRectangle(Rectangle rectangle, Color color, int Border = 1, bool Inset = false)
         {
             if (Inset)
@@ -68,6 +81,19 @@ namespace Common
             this.Draw(this.WhiteTexture, rectangle, color);
         }
 
+        /// <summary>
+        /// Fill a rectangle with alpha
+        /// </summary>
+        /// <param name="rectangle">The rectangle to fill.</param>
+        /// <param name="color">The fill color.</param>
+        /// <param name="Alpha">0.0f to 1.0f</param>
+        public void FillRectangle(Rectangle rectangle, Color color, float Alpha)
+        {
+            Alpha = Math.Min(1.0f, Alpha);
+            Alpha = Math.Max(0.0f, Alpha);
+            this.Draw(this.WhiteTexture, rectangle, color * Alpha);
+        }
+
         [Flags]
         public enum Alignment { Center = 0, Left = 1, Right = 2, Top = 4, Bottom = 8 }
 
@@ -75,7 +101,7 @@ namespace Common
         {
             Vector2 size = font.MeasureString(text);
             Vector2 pos = bounds.GetCenter();
-            Vector2 origin = size * 0.5f;
+            Vector2 origin = size * 0.5f; //set origin to center of text
 
             if (align.HasFlag(Alignment.Left))
                 origin.X += bounds.Width / 2 - (size.X * scale) / 2;
