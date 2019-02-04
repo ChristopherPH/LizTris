@@ -22,7 +22,8 @@ namespace Liztris
         Texture2D[] Background;
         SpriteSheet Blocks;
         SpriteFont fontScore, fontTitle, fontMenu, fontTitleHuge;
-        SoundEffect soundLine, soundLevel, soundLose, musicDefault, soundDrop, soundTetris;
+        SoundEffect soundLine, soundLevel, soundLose, soundDrop, soundTetris;
+        SoundEffect musicDefault;
         SoundEffectInstance musicDefaultInstance;
         int BackgroundIndex = 0;
         bool ShowHighScores = false;
@@ -63,14 +64,14 @@ namespace Liztris
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            GameMenus.MainMenu.Options["Fullscreen"] =
-                Program.Settings.Video.WindowMode == VideoSettings.WindowModeTypes.Fullscreen;
-            GameMenus.MainMenu.Options["VSync"] = Program.Settings.Video.VSync;
+            GameMenus.MainMenu.SetPropertyValue("Fullscreen", 
+                Program.Settings.Video.WindowMode == VideoSettings.WindowModeTypes.Fullscreen);
+            GameMenus.MainMenu.SetPropertyValue("VSync", Program.Settings.Video.VSync);
 
-            GameMenus.MainMenu.Options["Resolution"] = 
-                string.Format("{0}x{1}", Program.Settings.Video.Width, Program.Settings.Video.Height);
+            GameMenus.MainMenu.SetPropertyValue("Resolution",
+                string.Format("{0}x{1}", Program.Settings.Video.Width, Program.Settings.Video.Height));
 
-            GameMenus.MainMenu.Options["Music"] = Program.Settings.Audio.Music;
+            GameMenus.MainMenu.SetPropertyValue("Music", Program.Settings.Audio.Music);
         }
 
         /// <summary>

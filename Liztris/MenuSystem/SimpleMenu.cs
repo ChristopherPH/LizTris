@@ -38,6 +38,38 @@ namespace Common.MenuSystem
 
         public SerializableDictionary<string, object> Options { get; } = new SerializableDictionary<string, object>();
 
+        public void SetPropertyValue(string Property, object value)
+        {
+            Options[Property] = value;
+
+            SetIndex(null, this, Property, value);
+        }
+
+        private static void SetIndex(MenuItemCollection parent, MenuItem item, string Property, object value)
+        {
+            var collect = item as MenuItemCollection;
+            if (collect != null)
+            {
+                foreach (var m in collect.MenuItems)
+                    SetIndex(collect, m, Property, value);
+            }
+
+            var open = item as OpenMenu;
+            if (open != null)
+            {
+                foreach (var m in open.Menu.MenuItems)
+                    SetIndex(open.Menu, m, Property, value);
+            }
+
+            if (item.SetProperty == null)
+                return;
+
+            if ((item.SetProperty == Property) && (object.Equals(item.Value, value)) && (parent != null))
+            {
+                parent.SelectedItem = item;
+            }
+        }
+
         InputManager<MenuCommands> inputManager = new InputManager<MenuCommands>();
         float _scale = 1;
         bool _scaleReverse = false;

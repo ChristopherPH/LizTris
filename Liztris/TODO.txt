@@ -4,8 +4,20 @@ Game states (intro screen with animation, etc)
 Per player, per mode, per speed, high scores, saved
 Player names / profiles
 menus should remember location, unless 'back (closemenu)' was selected
+menu should clear temp resolution settings when going back
+resolution menu should be dynamic choices
+resoltion menu ask if everything is ok on apply changes, and revert back
+	after a timer just in case
 be able to join in while playing
 hard drop
+
+tinted brackgrounds/border to indicate level
+and a slightly darker patterned background (squares, arrows, chevrons, etc)
+choose location on new player (left, right, middle, etc) when playing endless/challenge
+	and someone joins
+	 (right of 'Liz')
+	 (left of 'Liz')
+	 (between 'Liz and Gwen')
 
 Game modes
  - Challenge
@@ -15,6 +27,7 @@ Game modes
  - Battle
    - help / hinder magic
      - help fills holes?
+	 - help sends red line piece
 	 - hinder sends bad 'rainbow' blocks with weird shapes?
  - puzzle
  - dr mario / color match
@@ -32,3 +45,31 @@ Saved options
 
 
 
+
+  Menus - 
+    
+	choice can wrap
+	choice that shows all options
+	choice that shows 1 option with arrows on sides indicating more options
+
+	set properties and selected indicies on game load (resolution, controls, etc)
+	submenu options
+		when opening submenu, have a default index that is selected
+		[when opening submenu, do we want to have saved an index?]
+			ie start new game, select 4 players, back, start new game
+				do we show 4 players or 1 player?
+			this is important if you quit a game and start a new game
+			and want all the game options to be the same. Consider a
+			battle mode where you are adding an extra player but still 
+			want the other options to be the same...
+
+		when opening submenu2, save index of that submenu in submenu1 
+			so that when submenu2 is closed (back), the selected index
+			in submenu1 is submenu2
+
+		ensure that when a submenu is closed, the 'back'/close option
+			is not saved - since there can be 2 ways to close menu
+			(b / esc vs menu option)
+
+	should be able to draw an action (apply, new game) different than
+		a submenu (single right arrow indicating new menu will open?)

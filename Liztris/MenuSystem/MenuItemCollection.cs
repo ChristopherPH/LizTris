@@ -33,7 +33,15 @@ namespace Common.MenuSystem
         /// <summary>
         /// Currently selected item in collection
         /// </summary>
-        public MenuItem SelectedItem => MenuItems[SelectedIndex];
+        public MenuItem SelectedItem
+        {
+            get => MenuItems[SelectedIndex];
+            set
+            {
+                if (MenuItems.Contains(value))
+                    SelectedIndex = MenuItems.ToList().IndexOf(value);
+            }
+        }
 
         /// <summary>
         /// Index to set menu to when opened. If this is not
