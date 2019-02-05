@@ -8,8 +8,8 @@ namespace GameStateEngine
 {
     public partial class GameEngineSettings : SettingsBase
     {
-        public VideoSettings Video { get; set; } = new VideoSettings();
-        public AudioSettings Audio { get; set; } = new AudioSettings();
+        public VideoSettings Video { get; private set; } = new VideoSettings();
+        public AudioSettings Audio { get; private set; } = new AudioSettings();
 
         public static GameEngineSettings LoadSettings(string FileName)
         {

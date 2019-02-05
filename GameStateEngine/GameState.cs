@@ -8,36 +8,20 @@ namespace GameStateEngine
     public abstract class GameState : IDisposable
     {
         /// <summary>
-        /// called when state is pushed on stack
+        /// called when state is pushed on stack (resumed == false)
+        /// or the state on top of this state was popped off stack (resumed == true)
         /// </summary>
-        public virtual void OnInit  () { }
+        public virtual void OnStateStarted(bool Resumed) { }
 
         /// <summary>
-        /// called when state is popped off stack
+        /// called when state is popped off stack (paused == false)
+        /// or a state is pushed on top of this state (paused == true)
         /// </summary>
-        public virtual void OnCompleted() { }
+        public virtual void OnStateStopped(bool Paused) { }
 
-        /// <summary>
-        /// called when state is pushed over current state
-        /// </summary>
-        public virtual void OnPause() { }
+        public abstract void Draw(GameTime gameTime, ExtendedSpriteBatch spriteBatch, Rectangle GameRectangle);
 
-        /// <summary>
-        /// called when state is popped over current state
-        /// </summary>
-        public virtual void OnResume() { }
-
-
-        public abstract void Draw(GameTime gameTime, ExtendedSpriteBatch spriteBatch);
-
-        public enum StateOperation
-        {
-            StateRunning,
-            StateCompleted
-        }
-
-        public abstract StateOperation Update(GameTime gameTime);
-
+        public abstract void Update(GameTime gameTime, ref GameStateOperation Operation);
 
 
         /// <summary>
@@ -55,26 +39,22 @@ namespace GameStateEngine
          */
 
         /// <summary>
-        /// Next state to add when current state has completed
-        /// </summary>
-        public virtual GameState NextState => null;
-
-        /// <summary>
         /// Base path for content
         /// </summary>
         protected virtual string ContentRoot => "Content";
 
-        //TODO: implement
         public virtual bool RenderPreviousState => false;
 
         
         public void SetServiceProvider(IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
-                return;
+                //return;
+                throw new Exception("How do we have a null serviceProvider");
 
             if (Content != null)
                 return;
+                //throw new Exception("How do we have Content already?");
 
             Services = serviceProvider;
 
