@@ -39,11 +39,15 @@ namespace Common
         /// <param name="start">Starting point.</param>
         /// <param name="end">End point.</param>
         /// <param name="color">The draw color.</param>
-        public void DrawLine(Vector2 start, Vector2 end, Color color)
+        public void DrawLine(Vector2 start, Vector2 end, Color color, float Thickness = 1.0f)
         {
             float length = (end - start).Length();
             float rotation = (float)Math.Atan2(end.Y - start.Y, end.X - start.X);
-            this.Draw(this.WhiteTexture, start, null, color, rotation, Vector2.Zero, new Vector2(length, 1), SpriteEffects.None, 0);
+
+            this.Draw(this.WhiteTexture, start, null,color, rotation,
+                new Vector2(0, (float)this.WhiteTexture.Height / 2),
+                new Vector2(length, Thickness), 
+                SpriteEffects.None, 0);
         }
 
         /// <summary>
@@ -99,9 +103,10 @@ namespace Common
 
         public void DrawString(SpriteFont font, string text, Rectangle bounds, Alignment align, Color color, float scale = 1.0f)
         {
-            Vector2 size = font.MeasureString(text);
-            Vector2 pos = bounds.GetCenter();
-            Vector2 origin = size * 0.5f; //set origin to center of text
+            var size = font.MeasureString(text);
+            var pos = new Vector2(bounds.Left + bounds.Width / 2,
+                             bounds.Top + bounds.Height / 2);
+            var origin = size * 0.5f;
 
             if (align.HasFlag(Alignment.Left))
                 origin.X += bounds.Width / 2 - (size.X * scale) / 2;
@@ -117,5 +122,54 @@ namespace Common
 
             DrawString(font, text, pos, color, 0, origin, scale, SpriteEffects.None, 0);
         }
+
+        public void DrawPoly(Vector2[] Verticies, Color color, float Thickness = 1.0f)
+        {
+            if ((Verticies == null) || (Verticies.Length <= 1))
+                return;
+
+            int i = 0;
+            for (i = 1; i < Verticies.Length; i++)
+                DrawLine(Verticies[i - 1], Verticies[i], color, Thickness);
+
+            DrawLine(Verticies[i - 1], Verticies[0], color, Thickness);
+        }
+
+        public void DrawEquilateralTriangle(Vector2 Location, float Radius, Color color, float Angle, float Thickness = 1.0f)
+        {
+            Angle = (float)(Math.PI / 180) * Angle;
+
+            //https://qph.fs.quoracdn.net/main-qimg-92aee96dac9fb6ba3730d9f01a085022.webp
+            var root3xRadiusDiv2 = (float)Math.Sqrt(3) * Radius / 2;
+            var radiusx15 = (float)(Radius * 1.5);
+
+            //start point is top center
+            var top = new Vector2(Location.X + Radius, Location.Y);
+
+            //bottom point y is 1.5 * radius below top center
+            //distance between left and right bottom points are root 3 * radius
+            var bl = new Vector2(top.X - root3xRadiusDiv2, Location.Y + radiusx15);
+            var br = new Vector2(top.X + root3xRadiusDiv2, Location.Y + radiusx15);
+
+            //find center and rotate points before drawing
+            if (Angle != 0)
+            {
+                var center = new Vector2(Location.X + Radius, Location.Y + Radius);
+                bl = RotateAboutOrigin(bl, center, Angle);
+                br = RotateAboutOrigin(br, center, Angle);
+                top = RotateAboutOrigin(top, center, Angle);
+            }
+
+            this.DrawLine(bl, br, color, Thickness);
+            this.DrawLine(br, top, color, Thickness);
+            this.DrawLine(top, bl, color, Thickness);
+        }
+
+
+        private Vector2 RotateAboutOrigin(Vector2 point, Vector2 origin, float rotation)
+        {
+            return Vector2.Transform(point - origin, Matrix.CreateRotationZ(rotation)) + origin;
+        }
+
     }
 }

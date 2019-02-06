@@ -206,7 +206,7 @@ namespace Liztris
                 }
             };
 
-            GameMenus.MainMenu.ShowMenu();
+            GameMenus.MainMenu.ResetMenu();
 
             GameMenus.PauseMenu.ActionHandler = (object Action) =>
             {
@@ -214,21 +214,13 @@ namespace Liztris
                 {
                     case GameMenus.GameMenuOptions.QuitGame:
                         //HACK: leaving current state, reset input manager of new state
-                        GameMenus.MainMenu.ShowMenu();
+                        GameMenus.MainMenu.ResetMenu();
                         GameMenus.MainMenu.ResetInputs();
                         break;
                 }
             };
 
             Intro.IsActive = true;
-
-
-            foreach (DisplayMode mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
-            {
-                System.Diagnostics.Debug.Print("{0}x{1}   asp={2}  format={3}   safe={4}",
-                    mode.Width, mode.Height, mode.AspectRatio, mode.Format, mode.TitleSafeArea);
-                //mode.whatever (and use any of avaliable information)
-            }
         }
 
         /// <summary>
@@ -415,7 +407,7 @@ namespace Liztris
             if (inputManager.IsActionTriggered(GlobalCommands.Menu))
             {
                 //HACK: leaving current state, reset input manager of new state
-                GameMenus.PauseMenu.ShowMenu();
+                GameMenus.PauseMenu.ResetMenu();
                 GameMenus.PauseMenu.ResetInputs();
                 return;
             }
@@ -455,7 +447,7 @@ namespace Liztris
 
             spriteBatch.FillRectangle(GameRectangle, Color.CornflowerBlue);
 
-            spriteBatch.Draw(Background[BackgroundIndex], GameRectangle, Color.White);
+            spriteBatch.Draw(Background[BackgroundIndex], GameRectangle);
 
             //Gamestate: Intro
             if (Intro.IsActive)

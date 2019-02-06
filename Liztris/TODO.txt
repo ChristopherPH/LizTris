@@ -1,4 +1,10 @@
-﻿Remap keys?
+﻿Game Modes:
+
+	Dr. Liz  (with pic of headband stethascope)
+	LizTris
+
+
+Remap keys?
 Wait for players screen, so that pressing a controller becomes that player, or pressing keyboard becomes that one
 Game states (intro screen with animation, etc)
 Per player, per mode, per speed, high scores, saved

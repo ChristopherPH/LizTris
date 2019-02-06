@@ -200,26 +200,80 @@ namespace Common.MenuSystem
 
             int x = ItemRect.Left + (int)size.X + PixelsBetweenChoices;
 
-            foreach (var choice in Choices)
-            {
-                c = Color.White;
-                scale = 1.0f;
 
-                if (choice == SelectedChoice)
+            if (Choices.Length <= 2)
+            {
+                foreach (var choice in Choices)
                 {
-                    c = Color.LightBlue;
+                    c = Color.White;
+                    scale = 1.0f;
+
+                    if (choice == SelectedChoice)
+                    {
+                        c = Color.LightBlue;
+
+                        if (IsSelected)
+                            scale = _scale;
+                    }
+
+                    size = spriteFont.MeasureString(choice.Text);
+                    r = new Rectangle(x, ItemRect.Y, (int)size.X, ItemRect.Height);
+
+                    spriteBatch.DrawString(spriteFont, choice.Text, r,
+                        ExtendedSpriteBatch.Alignment.Center, c, scale);
+
+                    x += (int)size.X + PixelsBetweenChoices;
+                }
+            }
+            else
+            {
+                bool HasLeft = Choices[0] != SelectedChoice;
+                bool HasRight = Choices[Choices.Length - 1] != SelectedChoice;
+
+                //draw left arrow
+                if (HasLeft)
+                {
+                    var sz = r.Height / 4;
 
                     if (IsSelected)
-                        scale = _scale;
+                        sz = (int)(sz * _scale);
+
+                    var offsetY = r.Height / 2 - sz - 2;
+                    var offsetX = sz - r.Height / 4;
+
+                    spriteBatch.DrawEquilateralTriangle(
+                        new Vector2(x - offsetX, ItemRect.Y + offsetY), sz, Color.White, 270, 3f);
+
+                    x += (r.Height / 4) + PixelsBetweenChoices;
                 }
 
-                size = spriteFont.MeasureString(choice.Text);
+                //draw selected item
+                c = Color.LightBlue;
+
+                size = spriteFont.MeasureString(SelectedChoice.Text);
                 r = new Rectangle(x, ItemRect.Y, (int)size.X, ItemRect.Height);
 
-                spriteBatch.DrawString(spriteFont, choice.Text, r,
+                spriteBatch.DrawString(spriteFont, SelectedChoice.Text, r,
                     ExtendedSpriteBatch.Alignment.Center, c, scale);
 
                 x += (int)size.X + PixelsBetweenChoices;
+
+
+                //draw right arrow
+                if (HasRight)
+                {
+                    var sz = r.Height / 4;
+
+                    if (IsSelected)
+                        sz = (int)(sz * _scale);
+
+                    var offset = r.Height / 2 - sz - 2;
+
+                    spriteBatch.DrawEquilateralTriangle(
+                        new Vector2(x, ItemRect.Y + offset), sz, Color.White, 90, 3f);
+
+                    x += (r.Height / 4) + PixelsBetweenChoices;
+                }
             }
         }
     }

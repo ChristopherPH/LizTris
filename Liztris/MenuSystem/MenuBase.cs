@@ -23,16 +23,16 @@ namespace Common.MenuSystem
         public MenuBase(string Title, MenuItem[] MenuItems) :
             base(Title, MenuItems)
         {
-            ShowMenu();
+            ResetMenu();
         }
 
         public MenuBase(string Title, MenuItem[] MenuItems, int SelectedIndex) :
             base(Title, MenuItems, SelectedIndex)
         {
-            ShowMenu();
+            ResetMenu();
         }
 
-        public void ShowMenu()
+        public void ResetMenu()
         {
             _Menus.Clear();
             _Menus.Push(this);
