@@ -29,6 +29,23 @@ namespace Liztris
             new CloseMenu("Quit Game") { DoAction = GameMenuOptions.QuitGame },
         }) { DefaultIndex = 0 };
 
+        public class MenuResolutionChoice : Choice
+        {
+            public MenuResolutionChoice(string Text) :
+                base(Text, new MenuItem[] { new MenuItem("Default") })
+            {
+                this.MenuItems = GraphicsAdapter.DefaultAdapter.SupportedDisplayModes
+                    .Where(x => x.Format == SurfaceFormat.Color)
+                    .Where(x => x.Width >= 640)
+                    .Where(x => x.Height >= 480)
+                    .Select(x => new MenuItem(string.Format("{0}x{1}", x.Width, x.Height))
+                    {
+                        SetProperty = "Resolution",
+                        Value = string.Format("{0}x{1}", x.Width, x.Height)
+                    }).ToArray();
+            }
+        }
+
 
         public static SimpleMenu MainMenu = new SimpleMenu(string.Empty, new MenuItem[]
         {
@@ -105,18 +122,13 @@ namespace Liztris
             {
                 new OpenMenu("Video") { Menu = new SubMenu("Video", new MenuItem[]
                 {
-                    new Choice("Fullscreen:", new MenuItem[]
+                    new Choice("Mode:", new MenuItem[]
                     {
-                        new MenuItem("No") { SetProperty = "Fullscreen", Value = false },
-                        new MenuItem("Yes") { SetProperty = "Fullscreen", Value = true },
+                        new MenuItem("Windowed") { SetProperty = "WindowMode", Value = VideoSettings.WindowModeTypes.Windowed },
+                        new MenuItem("Fullscreen") { SetProperty = "WindowMode", Value = VideoSettings.WindowModeTypes.Fullscreen },
+                        new MenuItem("WindowFull") { SetProperty = "WindowMode", Value = VideoSettings.WindowModeTypes.WindowedFullscreen },
                     }, 0),
-                    new Choice("Res:", new MenuItem[]
-                    {
-                        new MenuItem("1280x720") { SetProperty = "Resolution", Value = "1280x720" },
-                        new MenuItem("1366x768") { SetProperty = "Resolution", Value = "1366x768" },
-                        new MenuItem("1600x900") { SetProperty = "Resolution", Value = "1600x900" },
-                        new MenuItem("1920x1080") { SetProperty = "Resolution", Value = "1920x1080" },
-                    }, 2),
+                    new MenuResolutionChoice("Screen:"),
                     new Choice("VSync:", new MenuItem[]
                     {
                         new MenuItem("No") { SetProperty = "VSync", Value = false },

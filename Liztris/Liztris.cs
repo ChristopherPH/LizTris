@@ -63,8 +63,7 @@ namespace Liztris
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            GameMenus.MainMenu.SetPropertyValue("Fullscreen", 
-                Program.Settings.Video.WindowMode == VideoSettings.WindowModeTypes.Fullscreen);
+            GameMenus.MainMenu.SetPropertyValue("WindowMode", Program.Settings.Video.WindowMode);
             GameMenus.MainMenu.SetPropertyValue("VSync", Program.Settings.Video.VSync);
 
             GameMenus.MainMenu.SetPropertyValue("Resolution",
@@ -85,10 +84,33 @@ namespace Liztris
 
             base.Initialize();
 
+            this.IsFixedTimeStep = Program.Settings.Video.VSync;
+            graphics.SynchronizeWithVerticalRetrace = Program.Settings.Video.VSync;
+
             SetupGameResolution(ref graphics);
 
-            //Window.IsBorderless = true;
-            //Window.Position = new Point(0, 0);
+            switch (Program.Settings.Video.WindowMode)
+            {
+                case VideoSettings.WindowModeTypes.Windowed:
+                    Window.IsBorderless = false;
+
+                    var x = (GraphicsDevice.DisplayMode.Width - WindowWidth) / 2;
+                    var y = (GraphicsDevice.DisplayMode.Height - WindowHeight) / 2;
+                    Window.Position = new Point(x, y);
+                    break;
+
+                case VideoSettings.WindowModeTypes.Fullscreen:
+                    Window.IsBorderless = false;
+                    break;
+
+
+                case VideoSettings.WindowModeTypes.WindowedFullscreen:
+                    Window.IsBorderless = true;
+                    Window.Position = new Point(0, 0);
+                    IndependentResolutionRendering.Resolution.SetResolution(
+                        GraphicsDevice.DisplayMode.Width, GraphicsDevice.DisplayMode.Height, false);
+                    break;
+            }
 
             inputManager.AddAction(GlobalCommands.Menu, Keys.Escape);
             inputManager.AddAction(GlobalCommands.Menu, InputManager<GlobalCommands>.GamePadButtons.Start);
@@ -161,29 +183,71 @@ namespace Liztris
                         break;
 
                     case GameMenus.GameMenuOptions.ApplyGraphics:
-                        if ((bool)GameMenus.MainMenu.Options["Fullscreen"])
-                            Program.Settings.Video.WindowMode = VideoSettings.WindowModeTypes.Fullscreen;
-                        else
-                            Program.Settings.Video.WindowMode = VideoSettings.WindowModeTypes.Windowed;
 
-                        Program.Settings.Video.VSync = (bool)GameMenus.MainMenu.Options["VSync"];
-
-                        var resolution = (string)GameMenus.MainMenu.Options["Resolution"];
-
-                        switch (resolution)
+                        var resString = (string)GameMenus.MainMenu.Options["Resolution"];
+                        if (string.IsNullOrWhiteSpace(resString))
                         {
-                            case "1280x720": Program.Settings.Video.Width = 1280; Program.Settings.Video.Height = 720; break;
-                            case "1366x768": Program.Settings.Video.Width = 1366; Program.Settings.Video.Height = 768; break;
-                            case "1600x900": Program.Settings.Video.Width = 1600; Program.Settings.Video.Height = 900; break;
-                            case "1920x1080": Program.Settings.Video.Width = 1920; Program.Settings.Video.Height = 1080; break;
+                            System.Diagnostics.Debug.Print("Invalid Resolution");
+                            return;
                         }
 
-                        IndependentResolutionRendering.Resolution.SetResolution(
-                            Program.Settings.Video.Width, Program.Settings.Video.Height,
-                            Program.Settings.Video.WindowMode == VideoSettings.WindowModeTypes.Fullscreen);
+                        var resStrings = resString.Split('x');
+                        if ((resStrings == null) || (resStrings.Length != 2))
+                        {
+                            System.Diagnostics.Debug.Print("Invalid Resolution {0}", resString);
+                            return;
+                        }
+
+                        if ((int.TryParse(resStrings[0], out int tmpWidth) == false) || (tmpWidth <= 0))
+                        {
+                            System.Diagnostics.Debug.Print("Invalid Resolution Width {0}", resStrings[0]);
+                            return;
+                        }
+
+                        if ((int.TryParse(resStrings[1], out int tmpHeight) == false) || (tmpHeight <= 0))
+                        {
+                            System.Diagnostics.Debug.Print("Invalid Resolution Height {0}", resStrings[1]);
+                            return;
+                        }
+
+                        Program.Settings.Video.WindowMode = (VideoSettings.WindowModeTypes)GameMenus.MainMenu.Options["WindowMode"];
+                        Program.Settings.Video.VSync = (bool)GameMenus.MainMenu.Options["VSync"];
+                        Program.Settings.Video.Width = tmpWidth;
+                        Program.Settings.Video.Height = tmpHeight;
+
 
                         this.IsFixedTimeStep = Program.Settings.Video.VSync;
                         graphics.SynchronizeWithVerticalRetrace = Program.Settings.Video.VSync;
+
+                        switch (Program.Settings.Video.WindowMode)
+                        {
+                            case VideoSettings.WindowModeTypes.Windowed:
+                                Window.IsBorderless = false;
+
+                                var x = (GraphicsDevice.DisplayMode.Width - WindowWidth) / 2;
+                                var y = (GraphicsDevice.DisplayMode.Height - WindowHeight) / 2;
+                                Window.Position = new Point(x, y);
+
+                                IndependentResolutionRendering.Resolution.SetResolution(
+                                    Program.Settings.Video.Width, Program.Settings.Video.Height,
+                                    false);
+                                break;
+
+                            case VideoSettings.WindowModeTypes.Fullscreen:
+                                Window.IsBorderless = false;
+
+                                IndependentResolutionRendering.Resolution.SetResolution(
+                                    Program.Settings.Video.Width, Program.Settings.Video.Height, true);
+                                break;
+
+                            case VideoSettings.WindowModeTypes.WindowedFullscreen:
+                                Window.IsBorderless = true;
+                                Window.Position = new Point(0, 0);
+                                IndependentResolutionRendering.Resolution.SetResolution(
+                                    GraphicsDevice.DisplayMode.Width, GraphicsDevice.DisplayMode.Height, false);
+                                break;
+                        }
+
                         graphics.ApplyChanges();
                         Program.Settings.SaveSettings();
                         break;
@@ -466,13 +530,13 @@ namespace Liztris
                     -0.5f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 
 
-                var ScoreRect = new Rectangle(
-                    (GamePixelWidth / 8) * 3,
-                    GamePixelHeight / 4,
-                    GamePixelWidth / 4,
-                    GamePixelHeight / 2);
+                var scoreWidth = GamePixelWidth * 0.34;
+                var scoreHeight = GamePixelHeight * 0.5;
 
-                
+                var ScoreRect = new Rectangle(
+                    (GamePixelWidth / 2) - (int)(scoreWidth / 2),
+                    (GamePixelHeight / 2) - (int)(scoreHeight / 2),
+                    (int)scoreWidth, (int)scoreHeight);
 
                 spriteBatch.DrawRectangle(ScoreRect, Color.Teal, 3, false);
 
@@ -504,11 +568,13 @@ namespace Liztris
                 spriteBatch.DrawString(fontTitleHuge, "LIZTRIS", new Vector2(28, 248), Color.Wheat,
                     -0.5f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 
+                var winWidth = GamePixelWidth * 0.34;
+                var winHeight = GamePixelHeight * 0.5;
+
                 var MenuRect = new Rectangle(
-                    (GamePixelWidth / 8) * 3, 
-                    GamePixelHeight / 4, 
-                    GamePixelWidth / 4, 
-                    GamePixelHeight / 2);
+                    (GamePixelWidth / 2) - (int)(winWidth / 2),
+                    (GamePixelHeight / 2) - (int)(winHeight / 2),
+                    (int)winWidth, (int)winHeight);
 
                 spriteBatch.DrawRectangle(MenuRect, Color.Teal, 3, false);
 

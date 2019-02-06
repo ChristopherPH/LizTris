@@ -26,7 +26,7 @@ namespace Liztris
         {
             Windowed,
             Fullscreen,
-            //WindowedFullscreen,
+            WindowedFullscreen,
         }
 
         [XmlAttribute, DefaultValue(1280)]
