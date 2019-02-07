@@ -13,12 +13,33 @@ namespace Liztris
     public class GameSettings
     {
         public List<HighScore> HighScores { get; set; } = new List<HighScore>();
-        public List<string> Profiles { get; set; } = new List<string>();
+        public List<Profile> Profiles { get; set; } = new List<Profile>()
+        {
+            new Profile() { Name = "Liz"},
+            new Profile() { Name = "Chris"},
+            new Profile() { Name = "Gwen"},
+            new Profile() { Name = "Guest"},
+        };
     }
 
     public class ControlSettings
     {
 
+    }
+
+    public class Profile
+    {
+        [XmlAttribute]
+        [DefaultValue("")]
+        public string Name { get; set; } = string.Empty;
+
+        [XmlAttribute]
+        [DefaultValue(0)]
+        public int BestScore { get; set; } = 0;
+
+        [XmlAttribute]
+        [DefaultValue(0)]
+        public int BestLines { get; set; } = 0;
     }
 
     public class HighScore

@@ -69,6 +69,17 @@ namespace Liztris
             }
 
             PlayerNames = string.Join("   ", Players.Select(x => x.Name));
+
+            if (Players.Count == 1)
+            {
+                //read in best score, and best line count
+                var Profile = Program.Settings.Game.Profiles.Where(x => x.Name == PlayerNames).FirstOrDefault();
+                if (Profile != null)
+                {
+                    BestScore = Profile.BestScore;
+                    BestLineCount = Profile.BestLines;
+                }
+            }
         }
 
         private void ClearGrid()
@@ -350,6 +361,21 @@ namespace Liztris
                                 }
                             }
                         }
+
+                        if (Players.Count == 1)
+                        {
+                            var Profile = Program.Settings.Game.Profiles.Where(x => x.Name == PlayerNames).FirstOrDefault();
+                            if (Profile != null)
+                            {
+                                if (BestScore > Profile.BestScore)
+                                {
+                                    Profile.BestScore = BestScore;
+                                    Profile.BestLines = BestLineCount;
+                                    Program.Settings.SaveSettings();
+                                }
+                            }
+                        }
+
 
                         AddHighScore(Score, LineCount);
                         return;

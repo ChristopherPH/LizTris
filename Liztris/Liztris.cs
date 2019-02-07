@@ -91,10 +91,6 @@ namespace Liztris
 
             base.Initialize();
 
-            foreach (var s in new string[] { "Liz", "Chris", "Gwen", "Guest" })
-                if (!Program.Settings.Game.Profiles.Contains(s))
-                    Program.Settings.Game.Profiles.Add(s);
-
             this.IsFixedTimeStep = Program.Settings.Video.VSync;
             graphics.SynchronizeWithVerticalRetrace = Program.Settings.Video.VSync;
 
@@ -374,7 +370,8 @@ namespace Liztris
 
             if (SharedGrid)
             {
-                var grid = new Grid(GridXPerPlayer * PlayerCount, GridY, LevelSpeeds[SpeedTypes[0]], LevelLines, ScoreMultiplier, LevelPattern, LevelTint);
+                var grid = new Grid(GridXPerPlayer * PlayerCount, GridY, LevelSpeeds[SpeedTypes[0]], 
+                    LevelLines, ScoreMultiplier, LevelPattern, LevelTint);
                 Grids.Add(grid);
 
                 for (int i = 0; i < PlayerCount; i++)
@@ -387,7 +384,8 @@ namespace Liztris
             {
                 for (int i = 0; i < PlayerCount; i++)
                 {
-                    var grid = new Grid(GridXPerPlayer, GridY, LevelSpeeds[SpeedTypes[i]], LevelLines, ScoreMultiplier, LevelPattern, LevelTint);
+                    var grid = new Grid(GridXPerPlayer, GridY, LevelSpeeds[SpeedTypes[i]], LevelLines, 
+                        ScoreMultiplier, LevelPattern, LevelTint);
                     Grids.Add(grid);
 
                     var player = new Player(grid, (PlayerIndex)i, Names[i], null);
@@ -561,8 +559,8 @@ namespace Liztris
                     -0.5f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 
 
-                var scoreWidth = GamePixelWidth * 0.34;
-                var scoreHeight = GamePixelHeight * 0.5;
+                var scoreWidth = GamePixelWidth * 0.5;
+                var scoreHeight = GamePixelHeight * 0.75;
 
                 var ScoreRect = new Rectangle(
                     (GamePixelWidth / 2) - (int)(scoreWidth / 2),
@@ -578,14 +576,14 @@ namespace Liztris
                 r.Offset(2, 2);
                 spriteBatch.DrawString(fontTitle, "HIGH SCORES", r, ExtendedSpriteBatch.Alignment.Center, Color.Wheat);
                 r.Offset(-2, -2);
-                r.Offset(0, 40);
+                r.Offset(0, 60);
 
                 foreach (var hs in Program.Settings.Game.HighScores)
                 {
                     spriteBatch.DrawString(fontScore, 
                         hs.Name + ": " + hs.Score.ToString("N0") + " and " + hs.Lines + " Lines",
                         r, ExtendedSpriteBatch.Alignment.Center, Color.Wheat);
-                    r.Offset(0, 30);
+                    r.Offset(0, 50);
                 }
 
                 spriteBatch.End();
@@ -640,12 +638,13 @@ namespace Liztris
             spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 2), Color.Black);
             spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 0), Color.Wheat);
 
+           
             foreach (var grid in Grids)
             {
                 //draw grid info on upper left of grid
                 if (!toggle ||
-                    ((grid.LineCount == grid.BestLineCount) && 
-                     (grid.Score == grid.BestScore)))
+                    ((grid.LineCount == grid.BestLineCount) &&
+                        (grid.Score == grid.BestScore)))
                 {
                     spriteBatch.DrawString(fontScore, "Level: " + grid.Level.ToString(),
                         new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 140), Color.Gold);

@@ -52,10 +52,10 @@ namespace Liztris
                 base(Text, new MenuItem[] { new MenuItem("Default") })
             {
                 this.MenuItems = Program.Settings.Game.Profiles
-                    .Select(x => new MenuItem(x)
+                    .Select(x => new MenuItem(x.Name)
                     {
                         SetProperty = "Profile" + ProfileNum,
-                        Value = x
+                        Value = x.Name
                     }).ToArray();
             }
         }
