@@ -29,17 +29,21 @@ namespace Liztris
         int[] LevelSpeeds;
         int[] LevelLines;
         int[] ScoreMultiplier;
+        int[] Pattern;
+        Color[] Tints;
         public List<Player> Players { get; } = new List<Player>();
         Timer GridDropTime = new Timer();
         Queue<Piece> NextPieces = new Queue<Piece>();
 
-        public Grid(int WidthInBlocks, int HeightInBlocks, int[] LevelSpeeds, int[] LevelLines, int [] ScoreMultiplier)
+        public Grid(int WidthInBlocks, int HeightInBlocks, int[] LevelSpeeds, int[] LevelLines, int [] ScoreMultiplier, int[] Pattern, Color[] Tints)
         {
             this.WidthInBlocks = WidthInBlocks;
             this.HeightInBlocks = HeightInBlocks;
             this.LevelSpeeds = LevelSpeeds;
             this.LevelLines = LevelLines;
             this.ScoreMultiplier = ScoreMultiplier;
+            this.Pattern = Pattern;
+            this.Tints = Tints;
 
             BlockMap = new int[HeightInBlocks, WidthInBlocks];
         }
@@ -258,13 +262,19 @@ namespace Liztris
         Timer GameOverTimer = null;
         bool CanResetGameOver = false;
 
-        public void AddHighScore(int Score)
+        public void AddHighScore(int Score, int Lines)
         {
             if (Score > 0)
             {
-                Program.Settings.Game.HighScores.Add(Score);
+                Program.Settings.Game.HighScores.Add(new HighScore()
+                {
+                    Name = "Guest",
+                    Score = Score,
+                    Lines = Lines, 
+                    Mode = "Default"
+                });
                 Program.Settings.Game.HighScores =
-                    Program.Settings.Game.HighScores.OrderByDescending(x => x)
+                    Program.Settings.Game.HighScores.OrderByDescending(x => x.Score)
                     .Take(10)
                     .ToList();
                 Program.Settings.SaveSettings();
@@ -335,7 +345,7 @@ namespace Liztris
                             }
                         }
 
-                        AddHighScore(Score);
+                        AddHighScore(Score, LineCount);
                         return;
                     }
                 }
@@ -448,12 +458,21 @@ namespace Liztris
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, SpriteSheet Blocks, int BlockPixelSize)
+        public void Draw(ExtendedSpriteBatch spriteBatch, SpriteSheet Blocks, SpriteSheet Patterns, int BlockPixelSize)
         {
+            spriteBatch.DrawRectangle(ScreenRect, Tints[Level - 1], 3, false);
+            spriteBatch.FillRectangle(ScreenRect, Tints[Level - 1], 0.25f);
+
             for (int x = 0; x < WidthInBlocks; x++)
             {
                 for (int y = 0; y < HeightInBlocks; y++)
                 {
+                    var dst = new Vector2(
+                            ScreenRect.X + (BlockPixelSize * x),
+                            ScreenRect.Y + (BlockPixelSize * y));
+
+                    Patterns.Draw(spriteBatch, Pattern[Level-1], dst, Tints[Level - 1] * 0.25f);
+
                     var BlockIndex = BlockMap[y, x] - 1;
                     if (BlockIndex <= -1)
                         continue;
@@ -461,10 +480,7 @@ namespace Liztris
                     //if (BlockIndex > Blocks. - 1)
                     //    BlockIndex = Blocks.Rows - 1;
 
-                    Blocks.Draw(spriteBatch, /*0,*/ BlockIndex,
-                        new Vector2(
-                            ScreenRect.X + (BlockPixelSize * x),
-                            ScreenRect.Y + (BlockPixelSize * y)));
+                    Blocks.Draw(spriteBatch, /*0,*/ BlockIndex, dst);
                 }
             }
 

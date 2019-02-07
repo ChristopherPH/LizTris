@@ -20,6 +20,7 @@ namespace Liztris
         ExtendedSpriteBatch spriteBatch;
         Texture2D[] Background;
         SpriteSheet Blocks;
+        SpriteSheet Patterns;
         SpriteFont fontScore, fontTitle, fontMenu, fontTitleHuge;
         SoundEffect soundLine, soundLevel, soundLose, soundDrop, soundTetris;
         SoundEffect musicDefault;
@@ -49,6 +50,12 @@ namespace Liztris
         public int[] LevelLines =  
                       { 0,    10,   20,   30,   40,   50,   60,  70,  80,  90,  100, 125, 150, 175, 200 };
         public int[] ScoreMultiplier = { 100, 250, 500, 1000 };
+        public int[] LevelPattern =
+                      { 0,     6,   19,    7,    4,   22,   16,  35,  12,  18,   19,  11,  28,  31,   4 };
+        public Color[] LevelTint =
+                      { Color.Teal, Color.Green, Color.DarkMagenta, Color.Olive, Color.Crimson, Color.DarkGoldenrod,
+                        Color.LightSkyBlue,  Color.Gray,  Color.Plum,  Color.Coral,
+                        Color.CornflowerBlue, Color.CadetBlue, Color.DarkSalmon, Color.Olive, Color.Red };
 
         protected override int WantedGameResolutionWidth => 1280;
         protected override int WantedGameResolutionHeight => 720;
@@ -83,6 +90,10 @@ namespace Liztris
             // TODO: Add your initialization logic here
 
             base.Initialize();
+
+            foreach (var s in new string[] { "Liz", "Chris", "Gwen", "Guest" })
+                if (!Program.Settings.Game.Profiles.Contains(s))
+                    Program.Settings.Game.Profiles.Add(s);
 
             this.IsFixedTimeStep = Program.Settings.Video.VSync;
             graphics.SynchronizeWithVerticalRetrace = Program.Settings.Video.VSync;
@@ -300,6 +311,9 @@ namespace Liztris
             Texture2D tex = Content.Load<Texture2D>("Graphics/Blocks");
             Blocks = new SpriteSheet(tex, 5, 4);
 
+            tex = Content.Load<Texture2D>("Graphics/Patterns");
+            Patterns = new SpriteSheet(tex, 6, 6);
+
             Background = new Texture2D[3];
             Background[0] = Content.Load<Texture2D>("Backgrounds/Beach"); 
             Background[1] = Content.Load<Texture2D>("Backgrounds/Ocean"); 
@@ -343,7 +357,7 @@ namespace Liztris
 
             if (SharedGrid)
             {
-                var grid = new Grid(GridXPerPlayer * PlayerCount, GridY, LevelSpeeds[SpeedType], LevelLines, ScoreMultiplier);
+                var grid = new Grid(GridXPerPlayer * PlayerCount, GridY, LevelSpeeds[SpeedType], LevelLines, ScoreMultiplier, LevelPattern, LevelTint);
                 Grids.Add(grid);
 
                 for (int i = 0; i < PlayerCount; i++)
@@ -356,7 +370,7 @@ namespace Liztris
             {
                 for (int i = 0; i < PlayerCount; i++)
                 {
-                    var grid = new Grid(GridXPerPlayer, GridY, LevelSpeeds[SpeedType], LevelLines, ScoreMultiplier);
+                    var grid = new Grid(GridXPerPlayer, GridY, LevelSpeeds[SpeedType], LevelLines, ScoreMultiplier, LevelPattern, LevelTint);
                     Grids.Add(grid);
 
                     var player = new Player(grid, (PlayerIndex)i, null);
@@ -549,9 +563,10 @@ namespace Liztris
                 r.Offset(-2, -2);
                 r.Offset(0, 40);
 
-                foreach (var score in Program.Settings.Game.HighScores)
+                foreach (var hs in Program.Settings.Game.HighScores)
                 {
-                    spriteBatch.DrawString(fontScore, score.ToString("N0"),
+                    spriteBatch.DrawString(fontScore, 
+                        hs.Name + ": " + hs.Score.ToString("N0") + " / " + hs.Lines,
                         r, ExtendedSpriteBatch.Alignment.Center, Color.Wheat);
                     r.Offset(0, 30);
                 }
@@ -632,16 +647,12 @@ namespace Liztris
                         new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Gold);
                 }
 
-                //draw grid border
-                var borderRect = grid.ScreenRect;
 
-                //spriteBatch.DrawRectangle(borderRect, Color.Gray, 6, false);
-                spriteBatch.DrawRectangle(borderRect, Color.Teal, 3, false);
-
-                spriteBatch.FillRectangle(grid.ScreenRect, Color.Teal, 0.25f);
+                //this line stops bleed from the neighboring patterns on the right and bottom
+                GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 
                 //draw grid
-                grid.Draw(spriteBatch, Blocks, BlockPixelSize);
+                grid.Draw(spriteBatch, Blocks, Patterns, BlockPixelSize);
             }
 
             Toasts.Draw(spriteBatch);

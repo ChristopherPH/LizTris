@@ -40,5 +40,24 @@ namespace Common
             spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, Color.White);
             //spriteBatch.End();
         }
+
+        public void Draw(SpriteBatch spriteBatch, int TileX, int TileY, Vector2 location, Color color)
+        {
+            int width = Texture.Width / Rows;
+            int height = Texture.Height / Columns;
+
+            Rectangle sourceRectangle = new Rectangle(width * TileX, height * TileY, width, height);
+            Rectangle destinationRectangle = new Rectangle((int)location.X, (int)location.Y, width, height);
+
+            spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, color);
+        }
+
+        public void Draw(SpriteBatch spriteBatch, int Tile, Vector2 location, Color color)
+        {
+            int TileX = Tile / Columns;
+            int TileY = Tile % Columns;
+
+            Draw(spriteBatch, TileX, TileY, location, color);
+        }
     }
 }

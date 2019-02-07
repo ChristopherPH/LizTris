@@ -12,12 +12,28 @@ namespace Liztris
 {
     public class GameSettings
     {
-        public List<int> HighScores { get; set; } = new List<int>();
+        public List<HighScore> HighScores { get; set; } = new List<HighScore>();
+        public List<string> Profiles { get; set; } = new List<string>();
     }
 
     public class ControlSettings
     {
 
+    }
+
+    public class HighScore
+    {
+        [XmlAttribute]
+        public string Name { get; set; }
+
+        [XmlAttribute]
+        public string Mode { get; set; }
+
+        [XmlAttribute]
+        public int Score { get; set; }
+
+        [XmlAttribute]
+        public int Lines { get; set; }
     }
 
     public class VideoSettings
