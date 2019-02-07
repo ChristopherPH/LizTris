@@ -76,6 +76,26 @@ namespace Liztris
                 }) { DefaultIndex = 1; }
         }
 
+        public class AudioVolumeChoice : Choice
+        {
+            public AudioVolumeChoice(string Text, string Property) :
+                base(Text, new MenuItem[]
+                {
+                    new MenuItem("0") { SetProperty = Property, Value = 0, DoAction = GameMenuOptions.ChangeAudio },
+                    new MenuItem("10") { SetProperty = Property, Value = 10, DoAction = GameMenuOptions.ChangeAudio },
+                    new MenuItem("20") { SetProperty = Property, Value = 20, DoAction = GameMenuOptions.ChangeAudio },
+                    new MenuItem("30") { SetProperty = Property, Value = 30, DoAction = GameMenuOptions.ChangeAudio },
+                    new MenuItem("40") { SetProperty = Property, Value = 40, DoAction = GameMenuOptions.ChangeAudio },
+                    new MenuItem("50") { SetProperty = Property, Value = 50, DoAction = GameMenuOptions.ChangeAudio },
+                    new MenuItem("60") { SetProperty = Property, Value = 60, DoAction = GameMenuOptions.ChangeAudio },
+                    new MenuItem("70") { SetProperty = Property, Value = 70, DoAction = GameMenuOptions.ChangeAudio },
+                    new MenuItem("80") { SetProperty = Property, Value = 80, DoAction = GameMenuOptions.ChangeAudio },
+                    new MenuItem("90") { SetProperty = Property, Value = 90, DoAction = GameMenuOptions.ChangeAudio },
+                    new MenuItem("100") { SetProperty = Property, Value = 100, DoAction = GameMenuOptions.ChangeAudio },
+                })
+            { DoActionOnSelect = true; }
+        }
+
 
         public static SimpleMenu MainMenu = new SimpleMenu(string.Empty, new MenuItem[]
         {
@@ -208,7 +228,7 @@ namespace Liztris
                         new CloseMenu("Back"),
 
                     }) },
-                    
+
                     new CloseMenu("Back"),
                 })  { DefaultIndex = 0 }},
                 new CloseMenu("Back"),
@@ -234,20 +254,8 @@ namespace Liztris
                 }) },
                 new OpenMenu("Audio") { Menu = new SubMenu("Audio", new MenuItem[]
                 {
-                    /*new Choice("Sound:", new MenuItem[]
-                    {
-                        new MenuItem("Off") { SetProperty = "Sound", Value = false, DoAction = GameMenuOptions.ChangeAudio },
-                        new MenuItem("On") { SetProperty = "Sound", Value = true, DoAction = GameMenuOptions.ChangeAudio },
-                    }),*/
-                    new Choice("Music:", new MenuItem[]
-                    {
-                        new MenuItem("Off") {
-                            SetProperty = "Music", Value = false,
-                            DoAction = GameMenuOptions.ChangeAudio },
-                        new MenuItem("On") {
-                            SetProperty = "Music", Value = true,
-                            DoAction = GameMenuOptions.ChangeAudio },
-                    }, 1) { DoActionOnSelect = true },
+                    new AudioVolumeChoice("Master Volume:", "MasterVolume"),
+                    new AudioVolumeChoice("Music Volume:", "MusicVolume"),
                     new CloseMenu("Back"),
                 }) },
                 //new MenuItem("Controls"),

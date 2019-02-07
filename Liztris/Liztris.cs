@@ -76,7 +76,8 @@ namespace Liztris
             GameMenus.MainMenu.SetPropertyValue("Resolution",
                 string.Format("{0}x{1}", Program.Settings.Video.Width, Program.Settings.Video.Height));
 
-            GameMenus.MainMenu.SetPropertyValue("Music", Program.Settings.Audio.Music);
+            GameMenus.MainMenu.SetPropertyValue("MasterVolume", Program.Settings.Audio.MasterVolume);
+            GameMenus.MainMenu.SetPropertyValue("MusicVolume", Program.Settings.Audio.MusicVolume);
 
             //ensure default profiles are created
             foreach (var s in new string[] { "Liz", "Chris", "Gwen", "Guest" })
@@ -128,10 +129,10 @@ namespace Liztris
             inputManager.AddAction(GlobalCommands.Menu, InputManager<GlobalCommands>.GamePadButtons.Start);
             inputManager.AddAction(GlobalCommands.Menu, InputManager<GlobalCommands>.GamePadButtons.Back);
 
-            musicDefaultInstance.Volume = 0.20f;
+            musicDefaultInstance.Volume = (float)Program.Settings.Audio.MusicVolume / 100;
             musicDefaultInstance.IsLooped = true;
 
-            if (Program.Settings.Audio.Music)
+            if (Program.Settings.Audio.MusicVolume > 0)
                 musicDefaultInstance.Play();
 
 #if SHOWSTUFF
@@ -283,12 +284,20 @@ namespace Liztris
 
                     case GameMenus.GameMenuOptions.ChangeAudio:
                         //var sound = (bool)GameMenus.MainMenu.Options["Sound"];
-                        Program.Settings.Audio.Music = (bool)GameMenus.MainMenu.Options["Music"];
+                        Program.Settings.Audio.MusicVolume = (int)GameMenus.MainMenu.Options["MusicVolume"];
+                        Program.Settings.Audio.MasterVolume = (int)GameMenus.MainMenu.Options["MasterVolume"];
 
-                        if (Program.Settings.Audio.Music)
-                            musicDefaultInstance.Play();
-                        else
+                        SoundEffect.MasterVolume = (float)Program.Settings.Audio.MasterVolume / 100;
+
+                        while (musicDefaultInstance.State == SoundState.Playing)
+                        {
                             musicDefaultInstance.Stop();
+                        }
+
+                        musicDefaultInstance.Volume = (float)Program.Settings.Audio.MusicVolume / 100;
+
+                        if (Program.Settings.Audio.MusicVolume > 0)
+                            musicDefaultInstance.Play();                      
 
                         Program.Settings.SaveSettings();
                         break;

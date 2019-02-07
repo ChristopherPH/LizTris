@@ -3,7 +3,6 @@
 		- call me maybe
 
 	Implement hard drop
-	Implement music / sound volume levels
 	Players other than the first should be able to pause / control menus
 
 
