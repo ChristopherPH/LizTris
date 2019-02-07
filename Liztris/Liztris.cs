@@ -187,9 +187,26 @@ namespace Liztris
 
                     case GameMenus.GameMenuOptions.NewGame:
                         var players = (int)GameMenus.MainMenu.Options["Players"];
-                        var speed = (int)GameMenus.MainMenu.Options["Speed"];
                         var sharedgrid = (bool)GameMenus.MainMenu.Options["SharedGrid"];
-                        NewGame(players, speed, sharedgrid);
+
+                        int[] speeds;
+                        if (sharedgrid)
+                        {
+                            speeds = new int[1];
+                            speeds[0] = (int)GameMenus.MainMenu.Options["Speed0"];
+                        }
+                        else
+                        {
+                            speeds = new int[players];
+                            for (int i = 0; i < players; i++)
+                                speeds[i] = (int)GameMenus.MainMenu.Options["Speed" + i.ToString()];
+                        }
+
+                        string[] names = new string[players];
+                        for (int i = 0; i < players; i++)
+                            names[i] = (string)GameMenus.MainMenu.Options["Profile" + i.ToString()];
+
+                        NewGame(players, names, speeds, sharedgrid);
                         GameMenus.MainMenu.ExitMenu();
                         break;
 
@@ -349,7 +366,7 @@ namespace Liztris
         }
 
 
-        public void NewGame(int PlayerCount, int SpeedType, bool SharedGrid)
+        public void NewGame(int PlayerCount, string[] Names, int[] SpeedTypes, bool SharedGrid)
         {
             foreach (var grid in Grids)
                 grid.Players.Clear();
@@ -357,12 +374,12 @@ namespace Liztris
 
             if (SharedGrid)
             {
-                var grid = new Grid(GridXPerPlayer * PlayerCount, GridY, LevelSpeeds[SpeedType], LevelLines, ScoreMultiplier, LevelPattern, LevelTint);
+                var grid = new Grid(GridXPerPlayer * PlayerCount, GridY, LevelSpeeds[SpeedTypes[0]], LevelLines, ScoreMultiplier, LevelPattern, LevelTint);
                 Grids.Add(grid);
 
                 for (int i = 0; i < PlayerCount; i++)
                 {
-                    var player = new Player(grid, (PlayerIndex)i, null);
+                    var player = new Player(grid, (PlayerIndex)i, Names[i], null);
                     grid.Players.Add(player);
                 }
             }
@@ -370,10 +387,10 @@ namespace Liztris
             {
                 for (int i = 0; i < PlayerCount; i++)
                 {
-                    var grid = new Grid(GridXPerPlayer, GridY, LevelSpeeds[SpeedType], LevelLines, ScoreMultiplier, LevelPattern, LevelTint);
+                    var grid = new Grid(GridXPerPlayer, GridY, LevelSpeeds[SpeedTypes[i]], LevelLines, ScoreMultiplier, LevelPattern, LevelTint);
                     Grids.Add(grid);
 
-                    var player = new Player(grid, (PlayerIndex)i, null);
+                    var player = new Player(grid, (PlayerIndex)i, Names[i], null);
                     grid.Players.Add(player);
                 }
             }
@@ -566,7 +583,7 @@ namespace Liztris
                 foreach (var hs in Program.Settings.Game.HighScores)
                 {
                     spriteBatch.DrawString(fontScore, 
-                        hs.Name + ": " + hs.Score.ToString("N0") + " / " + hs.Lines,
+                        hs.Name + ": " + hs.Score.ToString("N0") + " and " + hs.Lines + " Lines",
                         r, ExtendedSpriteBatch.Alignment.Center, Color.Wheat);
                     r.Offset(0, 30);
                 }
@@ -647,6 +664,9 @@ namespace Liztris
                         new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Gold);
                 }
 
+                spriteBatch.DrawString(fontMenu, grid.PlayerNames,
+                    new Rectangle(grid.ScreenRect.Left, grid.ScreenRect.Bottom,
+                    grid.ScreenRect.Width, 50), ExtendedSpriteBatch.Alignment.Center, Color.Gold);
 
                 //this line stops bleed from the neighboring patterns on the right and bottom
                 GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;

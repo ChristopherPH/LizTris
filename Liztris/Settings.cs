@@ -24,16 +24,22 @@ namespace Liztris
     public class HighScore
     {
         [XmlAttribute]
-        public string Name { get; set; }
+        [DefaultValue("")]
+        public string Name { get; set; } = string.Empty;
+
+        /*
+        [XmlAttribute]
+        [DefaultValue("")]
+        public string Mode { get; set; } = string.Empty;
+        */
 
         [XmlAttribute]
-        public string Mode { get; set; }
+        [DefaultValue(0)]
+        public int Score { get; set; } = 0;
 
         [XmlAttribute]
-        public int Score { get; set; }
-
-        [XmlAttribute]
-        public int Lines { get; set; }
+        [DefaultValue(0)]
+        public int Lines { get; set; } = 0;
     }
 
     public class VideoSettings

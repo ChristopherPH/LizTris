@@ -22,11 +22,12 @@ namespace Liztris
             RotateCounter,
         }
 
-        public Player(Grid grid, PlayerIndex Player, InputManager<Actions> InputManager)
+        public Player(Grid grid, PlayerIndex Player, string Name, InputManager<Actions> InputManager)
         {
             this.Grid = grid;
             this.inputManager = InputManager;
             this.playerIndex = Player;
+            this.Name = Name;
 
             inputManager = new InputManager<Actions>();
 
@@ -73,6 +74,7 @@ namespace Liztris
         public InputManager<Actions> inputManager;
         public PlayerIndex playerIndex;
         public Grid Grid { get; private set; }
+        public string Name { get; private set; }
 
         public Piece CurrentPiece;
         public int piece_x;

@@ -46,6 +46,31 @@ namespace Liztris
             }
         }
 
+        public class ProfileChoice : Choice
+        {
+            public ProfileChoice(string Text, int ProfileNum) :
+                base(Text, new MenuItem[] { new MenuItem("Default") })
+            {
+                this.MenuItems = Program.Settings.Game.Profiles
+                    .Select(x => new MenuItem(x)
+                    {
+                        SetProperty = "Profile" + ProfileNum,
+                        Value = x
+                    }).ToArray();
+            }
+        }
+
+        public class SpeedChoice : Choice
+        {
+            public SpeedChoice(string Text, int ProfileNum) :
+                base(Text, new MenuItem[]
+                {
+                    new MenuItem("Slow") { SetProperty = "Speed" + ProfileNum, Value = 0 },
+                    new MenuItem("Normal") { SetProperty = "Speed" + ProfileNum, Value = 1 },
+                    new MenuItem("Fast") { SetProperty = "Speed" + ProfileNum, Value = 2 },
+                }) { DefaultIndex = 1; }
+        }
+
 
         public static SimpleMenu MainMenu = new SimpleMenu(string.Empty, new MenuItem[]
         {
@@ -55,19 +80,15 @@ namespace Liztris
                     SetProperty = "Players", Value = 1,
                     Menu = new SubMenu(string.Empty, new MenuItem[]
                 {
-                    new Choice("Speed:", new MenuItem[]
-                    {
-                        new MenuItem("Slow") { SetProperty = "Speed", Value = 0 },
-                        new MenuItem("Normal") { SetProperty = "Speed", Value = 1 },
-                        new MenuItem("Fast") { SetProperty = "Speed", Value = 2 },
-                    }) { DefaultIndex = 1 },
+                    new ProfileChoice("Player:", 0),
+                    new SpeedChoice("Speed:", 0),
 
                     new MenuItem("Start Game") {
                         SetProperty = "SharedGrid", Value = false,
                         DoAction = GameMenuOptions.NewGame },
 
                     new CloseMenu("Back"),
-                }) { DefaultIndex = 1 } },
+                }) { DefaultIndex = 2 } },
 
                 new OpenMenu("Multi Player") {
                     Menu = new SubMenu(string.Empty, new MenuItem[]
@@ -76,43 +97,112 @@ namespace Liztris
                         SetProperty = "SharedGrid", Value = false,
                         Menu = new SubMenu(string.Empty, new MenuItem[]
                     {
-                        new Choice("Players:", new MenuItem[]
+                        new OpenMenu("2 Players") {
+                            SetProperty = "Players", Value = 2,
+                            Menu = new SubMenu(string.Empty, new MenuItem[]
                         {
-                            new MenuItem("2") { SetProperty = "Players", Value = 2 },
-                            new MenuItem("3") { SetProperty = "Players", Value = 3 },
-                            new MenuItem("4") { SetProperty = "Players", Value = 4 },
-                        }),
-                        new Choice("Speed:", new MenuItem[]
+                            new ProfileChoice("Player 1:", 0),
+                            new SpeedChoice("Speed 1:", 0),
+
+                            new ProfileChoice("Player 2:", 1)  { DefaultIndex = 1 },
+                            new SpeedChoice("Speed 2:", 1),
+
+                            new MenuItem("Start Game") {
+                                DoAction = GameMenuOptions.NewGame },
+                            new CloseMenu("Back"),
+                        }) { DefaultIndex = 4 }},
+
+                        new OpenMenu("3 Players") {
+                            SetProperty = "Players", Value = 3,
+                            Menu = new SubMenu(string.Empty, new MenuItem[]
                         {
-                            new MenuItem("Slow") { SetProperty = "Speed", Value = 0 },
-                            new MenuItem("Normal") { SetProperty = "Speed", Value = 1 },
-                            new MenuItem("Fast") { SetProperty = "Speed", Value = 2 },
-                        }, 1),
-                        new MenuItem("Start Game") {
-                            DoAction = GameMenuOptions.NewGame },
+                            new ProfileChoice("Player 1:", 0),
+                            new SpeedChoice("Speed 1:", 0),
+
+                            new ProfileChoice("Player 2:", 1)  { DefaultIndex = 1 },
+                            new SpeedChoice("Speed 2:", 1),
+
+                            new ProfileChoice("Player 3:", 2)  { DefaultIndex = 2 },
+                            new SpeedChoice("Speed 3:", 2),
+
+                            new MenuItem("Start Game") {
+                                DoAction = GameMenuOptions.NewGame },
+                            new CloseMenu("Back"),
+                        }) { DefaultIndex = 6 }},
+
+                        new OpenMenu("4 Players") {
+                            SetProperty = "Players", Value = 4,
+                            Menu = new SubMenu(string.Empty, new MenuItem[]
+                        {
+                            new ProfileChoice("Player 1:", 0),
+                            new SpeedChoice("Speed 1:", 0),
+
+                            new ProfileChoice("Player 2:", 1)  { DefaultIndex = 1 },
+                            new SpeedChoice("Speed 2:", 1),
+
+                            new ProfileChoice("Player 3:", 2)  { DefaultIndex = 2 },
+                            new SpeedChoice("Speed 3:", 2),
+
+                            new ProfileChoice("Player 4:", 3)  { DefaultIndex = 3 },
+                            new SpeedChoice("Speed 4:", 3),
+
+                            new MenuItem("Start Game") {
+                                DoAction = GameMenuOptions.NewGame },
+                            new CloseMenu("Back"),
+                        }) { DefaultIndex = 8 }},
+
                         new CloseMenu("Back"),
-                    })  { DefaultIndex = 2 }},
+                    })},
 
                     new OpenMenu("Co-Op") {
                         SetProperty = "SharedGrid", Value = true,
                         Menu = new SubMenu(string.Empty, new MenuItem[]
                     {
-                        new Choice("Players:", new MenuItem[]
+                        new OpenMenu("2 Players") {
+                            SetProperty = "Players", Value = 2,
+                            Menu = new SubMenu(string.Empty, new MenuItem[]
                         {
-                            new MenuItem("2") { SetProperty = "Players", Value = 2 },
-                            new MenuItem("3") { SetProperty = "Players", Value = 3 },
-                            new MenuItem("4") { SetProperty = "Players", Value = 4 },
-                        }),
-                        new Choice("Speed:", new MenuItem[]
+                            new ProfileChoice("Player 1:", 0),
+                            new ProfileChoice("Player 2:", 1)  { DefaultIndex = 1 },
+                            new SpeedChoice("Speed:", 0),
+
+                            new MenuItem("Start Game") {
+                                DoAction = GameMenuOptions.NewGame },
+                            new CloseMenu("Back"),
+                        }) { DefaultIndex = 3 }},
+
+                        new OpenMenu("3 Players") {
+                            SetProperty = "Players", Value = 3,
+                            Menu = new SubMenu(string.Empty, new MenuItem[]
                         {
-                            new MenuItem("Slow") { SetProperty = "Speed", Value = 0 },
-                            new MenuItem("Normal") { SetProperty = "Speed", Value = 1 },
-                            new MenuItem("Fast") { SetProperty = "Speed", Value = 2 },
-                        }, 1),
-                        new MenuItem("Start Game") {
-                            DoAction = GameMenuOptions.NewGame },
+                            new ProfileChoice("Player 1:", 0),
+                            new ProfileChoice("Player 2:", 1)  { DefaultIndex = 1 },
+                            new ProfileChoice("Player 3:", 2)  { DefaultIndex = 2 },
+                            new SpeedChoice("Speed:", 0),
+
+                            new MenuItem("Start Game") {
+                                DoAction = GameMenuOptions.NewGame },
+                            new CloseMenu("Back"),
+                        }) { DefaultIndex = 4 }},
+
+                        new OpenMenu("4 Players") {
+                            SetProperty = "Players", Value = 4,
+                            Menu = new SubMenu(string.Empty, new MenuItem[]
+                        {
+                            new ProfileChoice("Player 1:", 0),
+                            new ProfileChoice("Player 2:", 1)  { DefaultIndex = 1 },
+                            new ProfileChoice("Player 3:", 2)  { DefaultIndex = 2 },
+                            new ProfileChoice("Player 4:", 3)  { DefaultIndex = 3 },
+                            new SpeedChoice("Speed:", 0),
+
+                            new MenuItem("Start Game") {
+                                DoAction = GameMenuOptions.NewGame },
+                            new CloseMenu("Back"),
+                        }) { DefaultIndex = 5 }},
+
                         new CloseMenu("Back"),
-                    })  { DefaultIndex = 2 }},
+
+                    }) },
                     
                     new CloseMenu("Back"),
                 })  { DefaultIndex = 0 }},

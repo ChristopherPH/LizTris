@@ -34,6 +34,7 @@ namespace Liztris
         public List<Player> Players { get; } = new List<Player>();
         Timer GridDropTime = new Timer();
         Queue<Piece> NextPieces = new Queue<Piece>();
+        public string PlayerNames { get; private set; } = string.Empty;
 
         public Grid(int WidthInBlocks, int HeightInBlocks, int[] LevelSpeeds, int[] LevelLines, int [] ScoreMultiplier, int[] Pattern, Color[] Tints)
         {
@@ -66,6 +67,8 @@ namespace Liztris
                 NextPieces.Enqueue(PieceDefinition.GetRandomPiece());
                 SetupPlayerPiece(player);
             }
+
+            PlayerNames = string.Join("   ", Players.Select(x => x.Name));
         }
 
         private void ClearGrid()
@@ -266,12 +269,15 @@ namespace Liztris
         {
             if (Score > 0)
             {
+                var SortedPlayerNames = string.Join(" ", Players
+                .Select(x => x.Name)
+                .OrderBy(x => x));
+
                 Program.Settings.Game.HighScores.Add(new HighScore()
                 {
-                    Name = "Guest",
+                    Name = SortedPlayerNames,
                     Score = Score,
                     Lines = Lines, 
-                    Mode = "Default"
                 });
                 Program.Settings.Game.HighScores =
                     Program.Settings.Game.HighScores.OrderByDescending(x => x.Score)
@@ -476,9 +482,6 @@ namespace Liztris
                     var BlockIndex = BlockMap[y, x] - 1;
                     if (BlockIndex <= -1)
                         continue;
-
-                    //if (BlockIndex > Blocks. - 1)
-                    //    BlockIndex = Blocks.Rows - 1;
 
                     Blocks.Draw(spriteBatch, /*0,*/ BlockIndex, dst);
                 }
