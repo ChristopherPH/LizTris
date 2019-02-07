@@ -298,6 +298,23 @@ namespace Liztris
             }
         }
 
+        private void SetProfileScore()
+        {
+            if (Players.Count == 1)
+            {
+                var Profile = Program.Settings.Game.Profiles.Where(x => x.Name == PlayerNames).FirstOrDefault();
+                if (Profile != null)
+                {
+                    if (BestScore > Profile.BestScore)
+                    {
+                        Profile.BestScore = BestScore;
+                        Profile.BestLines = BestLineCount;
+                        Program.Settings.SaveSettings();
+                    }
+                }
+            }
+        }
+
         public void Update(GameTime gameTime)
         {
             if (GameOverTimer != null)
@@ -362,21 +379,7 @@ namespace Liztris
                             }
                         }
 
-                        if (Players.Count == 1)
-                        {
-                            var Profile = Program.Settings.Game.Profiles.Where(x => x.Name == PlayerNames).FirstOrDefault();
-                            if (Profile != null)
-                            {
-                                if (BestScore > Profile.BestScore)
-                                {
-                                    Profile.BestScore = BestScore;
-                                    Profile.BestLines = BestLineCount;
-                                    Program.Settings.SaveSettings();
-                                }
-                            }
-                        }
-
-
+                        SetProfileScore();
                         AddHighScore(Score, LineCount);
                         return;
                     }

@@ -13,13 +13,7 @@ namespace Liztris
     public class GameSettings
     {
         public List<HighScore> HighScores { get; set; } = new List<HighScore>();
-        public List<Profile> Profiles { get; set; } = new List<Profile>()
-        {
-            new Profile() { Name = "Liz"},
-            new Profile() { Name = "Chris"},
-            new Profile() { Name = "Gwen"},
-            new Profile() { Name = "Guest"},
-        };
+        public List<Profile> Profiles { get; set; } = new List<Profile>();
     }
 
     public class ControlSettings

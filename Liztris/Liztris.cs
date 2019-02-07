@@ -21,7 +21,7 @@ namespace Liztris
         Texture2D[] Background;
         SpriteSheet Blocks;
         SpriteSheet Patterns;
-        SpriteFont fontScore, fontTitle, fontMenu, fontTitleHuge;
+        SpriteFont fontScore, fontScoreBig, fontTitle, fontMenu, fontTitleHuge;
         SoundEffect soundLine, soundLevel, soundLose, soundDrop, soundTetris;
         SoundEffect musicDefault;
         SoundEffectInstance musicDefaultInstance;
@@ -77,6 +77,11 @@ namespace Liztris
                 string.Format("{0}x{1}", Program.Settings.Video.Width, Program.Settings.Video.Height));
 
             GameMenus.MainMenu.SetPropertyValue("Music", Program.Settings.Audio.Music);
+
+            //ensure default profiles are created
+            foreach (var s in new string[] { "Liz", "Chris", "Gwen", "Guest" })
+                if (!Program.Settings.Game.Profiles.Where(x => x.Name == s).Any())
+                    Program.Settings.Game.Profiles.Add(new Profile() { Name = s });
         }
 
         /// <summary>
@@ -334,6 +339,7 @@ namespace Liztris
             BackgroundIndex = 0;
 
             fontScore = Content.Load<SpriteFont>("Fonts/Score");
+            fontScoreBig = Content.Load<SpriteFont>("Fonts/ScoreBig");
             fontTitle = Content.Load<SpriteFont>("Fonts/Title");
             fontMenu = Content.Load<SpriteFont>("Fonts/Menu");
             fontTitleHuge = Content.Load<SpriteFont>("Fonts/TitleHuge");
@@ -635,44 +641,93 @@ namespace Liztris
             //Gamestate: Playing game
 
             //draw
-            spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 2), Color.Black);
-            spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 0), Color.Wheat);
 
-           
-            foreach (var grid in Grids)
+
+            //draw scores
+            if ((Grids.Count <= 2) && (Grids[0].Players.Count <= 2))
             {
-                //draw grid info on upper left of grid
-                if (!toggle ||
-                    ((grid.LineCount == grid.BestLineCount) &&
-                        (grid.Score == grid.BestScore)))
+                //spriteBatch.FillRectangle(new Rectangle(5, 5, 405, 100), Color.Teal * 0.25f);
+                spriteBatch.DrawString(fontTitleHuge, "LIZTRIS", new Vector2(3, -20), Color.Black);
+                spriteBatch.DrawString(fontTitleHuge, "LIZTRIS", new Vector2(0, -23), Color.Wheat);
+
+                foreach (var grid in Grids)
                 {
-                    spriteBatch.DrawString(fontScore, "Level: " + grid.Level.ToString(),
-                        new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 140), Color.Gold);
-                    spriteBatch.DrawString(fontScore, "Lines: " + grid.LineCount.ToString(),
-                        new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Gold);
-                    spriteBatch.DrawString(fontScore, "Pts: " + grid.Score.ToString(),
-                        new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Gold);
+                    var sX = grid.ScreenRect.X - 300;
+                    if (Grids.IndexOf(grid) == 1)
+                        sX = grid.ScreenRect.Right + 25;
+
+                    var sY = grid.ScreenRect.Y - 15;
+                    var sC = Color.Black;
+
+                    spriteBatch.DrawString(fontScoreBig, grid.PlayerNames, new Vector2(sX, sY), sC);
+                    spriteBatch.DrawString(fontScoreBig, "Level: " + grid.Level, new Vector2(sX, sY + 100), sC);
+                    spriteBatch.DrawString(fontScoreBig, "Lines: " + grid.LineCount, new Vector2(sX, sY + 175), sC);
+                    spriteBatch.DrawString(fontScoreBig, grid.Score.ToString("N0"), new Vector2(sX, sY + 250), sC);
+                    spriteBatch.DrawString(fontScoreBig, "High Score", new Vector2(sX, sY + 350), sC);
+                    spriteBatch.DrawString(fontScoreBig, "Lines: " + grid.BestLineCount, new Vector2(sX, sY + 425), sC);
+                    spriteBatch.DrawString(fontScoreBig, grid.BestScore.ToString("N0"), new Vector2(sX, sY + 500), sC);
+
+                    sX -= 3;
+                    sY -= 3;
+                    sC = Color.White; 
+                    spriteBatch.DrawString(fontScoreBig, grid.PlayerNames, new Vector2(sX, sY), sC);
+
+                    sC = Color.Cyan;
+                    spriteBatch.DrawString(fontScoreBig, "Level: " + grid.Level, new Vector2(sX, sY + 100), sC);
+                    sC = Color.LimeGreen;
+                    spriteBatch.DrawString(fontScoreBig, "Lines: " + grid.LineCount, new Vector2(sX, sY + 175), sC);
+                    spriteBatch.DrawString(fontScoreBig, grid.Score.ToString("N0"), new Vector2(sX, sY + 250), sC);
+
+                    sC = Color.White;
+                    spriteBatch.DrawString(fontScoreBig, "High Score", new Vector2(sX, sY + 350), sC);
+                    sC = Color.Yellow;
+                    spriteBatch.DrawString(fontScoreBig, "Lines: " + grid.BestLineCount, new Vector2(sX, sY + 425), sC);
+                    spriteBatch.DrawString(fontScoreBig, grid.BestScore.ToString("N0"), new Vector2(sX, sY + 500), sC);
                 }
-                else
-                {
-                    spriteBatch.DrawString(fontScore, "Best:",
-                        new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 140), Color.Gold);
-                    spriteBatch.DrawString(fontScore, "Lines: " + grid.BestLineCount.ToString(),
-                        new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Gold);
-                    spriteBatch.DrawString(fontScore, "Pts: " + grid.BestScore.ToString(),
-                        new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Gold);
-                }
-
-                spriteBatch.DrawString(fontMenu, grid.PlayerNames,
-                    new Rectangle(grid.ScreenRect.Left, grid.ScreenRect.Bottom,
-                    grid.ScreenRect.Width, 50), ExtendedSpriteBatch.Alignment.Center, Color.Gold);
-
-                //this line stops bleed from the neighboring patterns on the right and bottom
-                GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
-
-                //draw grid
-                grid.Draw(spriteBatch, Blocks, Patterns, BlockPixelSize);
             }
+            else
+            {
+                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(30, 2), Color.Black);
+                spriteBatch.DrawString(fontTitle, "LIZTRIS", new Vector2(28, 0), Color.Wheat);
+
+                foreach (var grid in Grids)
+                {
+                    //draw grid info on upper left of grid
+                    if (!toggle ||
+                        ((grid.LineCount == grid.BestLineCount) &&
+                         (grid.Score == grid.BestScore)))
+                    {
+                        spriteBatch.DrawString(fontScore, "Level: " + grid.Level.ToString(),
+                            new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 140), Color.Gold);
+                        spriteBatch.DrawString(fontScore, "Lines: " + grid.LineCount.ToString(),
+                            new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Gold);
+                        spriteBatch.DrawString(fontScore, "Pts: " + grid.Score.ToString(),
+                            new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Gold);
+                    }
+                    else
+                    {
+                        spriteBatch.DrawString(fontScore, "Best:",
+                            new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 140), Color.Gold);
+                        spriteBatch.DrawString(fontScore, "Lines: " + grid.BestLineCount.ToString(),
+                            new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 100), Color.Gold);
+                        spriteBatch.DrawString(fontScore, "Pts: " + grid.BestScore.ToString(),
+                            new Vector2(grid.ScreenRect.X, grid.ScreenRect.Y - 60), Color.Gold);
+                    }
+
+                    spriteBatch.DrawString(fontScore, grid.PlayerNames,
+                        new Rectangle(grid.ScreenRect.Left, grid.ScreenRect.Bottom - 7,
+                        grid.ScreenRect.Width, 50), ExtendedSpriteBatch.Alignment.Center, Color.Gold);
+                }
+            }
+
+
+            //draw grids
+
+            //this line stops bleed from the neighboring patterns on the right and bottom
+            GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+
+            foreach (var grid in Grids)
+                grid.Draw(spriteBatch, Blocks, Patterns, BlockPixelSize);
 
             Toasts.Draw(spriteBatch);
 
