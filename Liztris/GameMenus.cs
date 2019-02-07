@@ -256,6 +256,13 @@ namespace Liztris
                 {
                     new AudioVolumeChoice("Master Volume:", "MasterVolume"),
                     new AudioVolumeChoice("Music Volume:", "MusicVolume"),
+
+                    new Choice("MP3 Music:", new MenuItem[]
+                    {
+                        new MenuItem("No") { SetProperty = "UseMP3", Value = false, DoAction = GameMenuOptions.ChangeAudio },
+                        new MenuItem("Yes") { SetProperty = "UseMP3", Value = true, DoAction = GameMenuOptions.ChangeAudio },
+                    }) { DoActionOnSelect = true },
+
                     new CloseMenu("Back"),
                 }) },
                 //new MenuItem("Controls"),

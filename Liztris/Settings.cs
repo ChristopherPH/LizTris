@@ -86,6 +86,9 @@ namespace Liztris
 
         [XmlAttribute, DefaultValue(20)]
         public int MusicVolume { get; set; } = 20;
+
+        [XmlAttribute, DefaultValue(false)]
+        public bool UseMP3 { get; set; } = false;
     }
 
     [Serializable()]

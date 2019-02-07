@@ -115,6 +115,12 @@
 /processorParam:TextureFormat=Color
 /build:Graphics/Patterns.png
 
+#begin Music/musicMP3.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/musicMP3.mp3
+
 #begin Music/music.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

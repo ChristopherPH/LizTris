@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 
 namespace Liztris
 {
@@ -25,6 +26,7 @@ namespace Liztris
         SoundEffect soundLine, soundLevel, soundLose, soundDrop, soundTetris;
         SoundEffect musicDefault;
         SoundEffectInstance musicDefaultInstance;
+        Song musicMP3;
         int BackgroundIndex = 0;
         bool ShowHighScores = false;
 
@@ -78,11 +80,17 @@ namespace Liztris
 
             GameMenus.MainMenu.SetPropertyValue("MasterVolume", Program.Settings.Audio.MasterVolume);
             GameMenus.MainMenu.SetPropertyValue("MusicVolume", Program.Settings.Audio.MusicVolume);
+            GameMenus.MainMenu.SetPropertyValue("UseMP3", Program.Settings.Audio.UseMP3);
 
             //ensure default profiles are created
             foreach (var s in new string[] { "Liz", "Chris", "Gwen", "Guest" })
                 if (!Program.Settings.Game.Profiles.Where(x => x.Name == s).Any())
                     Program.Settings.Game.Profiles.Add(new Profile() { Name = s });
+        }
+
+        private void MediaPlayer_MediaStateChanged(object sender, EventArgs e)
+        {
+            MediaPlayer.Play(musicMP3);
         }
 
         /// <summary>
@@ -131,9 +139,16 @@ namespace Liztris
 
             musicDefaultInstance.Volume = (float)Program.Settings.Audio.MusicVolume / 100;
             musicDefaultInstance.IsLooped = true;
+            MediaPlayer.Volume = (float)Program.Settings.Audio.MusicVolume / 100;
+            MediaPlayer.MediaStateChanged += MediaPlayer_MediaStateChanged;
 
             if (Program.Settings.Audio.MusicVolume > 0)
-                musicDefaultInstance.Play();
+            {
+                if (Program.Settings.Audio.UseMP3)
+                    MediaPlayer.Play(musicMP3);
+                else
+                    musicDefaultInstance.Play();
+            }
 
 #if SHOWSTUFF
 
@@ -286,18 +301,37 @@ namespace Liztris
                         //var sound = (bool)GameMenus.MainMenu.Options["Sound"];
                         Program.Settings.Audio.MusicVolume = (int)GameMenus.MainMenu.Options["MusicVolume"];
                         Program.Settings.Audio.MasterVolume = (int)GameMenus.MainMenu.Options["MasterVolume"];
+                        Program.Settings.Audio.UseMP3 = (bool)GameMenus.MainMenu.Options["UseMP3"];
 
                         SoundEffect.MasterVolume = (float)Program.Settings.Audio.MasterVolume / 100;
-
-                        while (musicDefaultInstance.State == SoundState.Playing)
-                        {
-                            musicDefaultInstance.Stop();
-                        }
-
                         musicDefaultInstance.Volume = (float)Program.Settings.Audio.MusicVolume / 100;
+                        MediaPlayer.Volume = (float)Program.Settings.Audio.MusicVolume / 100;
 
                         if (Program.Settings.Audio.MusicVolume > 0)
-                            musicDefaultInstance.Play();                      
+                        {
+                            //pause and play to kick the volume change
+                            if (MediaPlayer.State == MediaState.Playing)
+                                musicDefaultInstance.Pause();
+
+                            if (Program.Settings.Audio.UseMP3)
+                            {
+                                if (MediaPlayer.State != MediaState.Playing)
+                                    MediaPlayer.Play(musicMP3);
+                            }
+                            else
+                            {
+                                MediaPlayer.Stop();
+                                musicDefaultInstance.Play();
+                            }
+                        }
+                        else
+                        {
+                            if (MediaPlayer.State == MediaState.Playing)
+                                MediaPlayer.Stop();
+
+                            if (musicDefaultInstance.State == SoundState.Playing)
+                                musicDefaultInstance.Stop();
+                        }
 
                         Program.Settings.SaveSettings();
                         break;
@@ -356,6 +390,7 @@ namespace Liztris
             Toasts.spriteFont = Content.Load<SpriteFont>("Fonts/Toast");
 
             musicDefault = Content.Load<SoundEffect>("Music/Music");
+            musicMP3 = Content.Load<Song>("Music/musicMP3");
 
             soundLine = Content.Load<SoundEffect>("Sounds/Line");
             soundLevel = Content.Load<SoundEffect>("Sounds/Level");

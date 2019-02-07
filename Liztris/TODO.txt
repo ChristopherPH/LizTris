@@ -1,7 +1,4 @@
 ﻿TODO:
-	New music
-		- call me maybe
-
 	Implement hard drop
 	Players other than the first should be able to pause / control menus
 
