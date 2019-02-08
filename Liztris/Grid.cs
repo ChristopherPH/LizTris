@@ -495,8 +495,12 @@ namespace Liztris
 
         public void Draw(ExtendedSpriteBatch spriteBatch, SpriteSheet Blocks, SpriteSheet Patterns, int BlockPixelSize)
         {
-            spriteBatch.DrawRectangle(ScreenRect, Tints[Level - 1], 3, false);
-            spriteBatch.FillRectangle(ScreenRect, Tints[Level - 1], 0.25f);
+            var tint = Tints[Level - 1];
+            var tintalpha = 0.25f;
+            var pattern = Pattern[Level - 1];
+
+            spriteBatch.DrawRectangle(ScreenRect, tint, 3, false);
+            spriteBatch.FillRectangle(ScreenRect, tint, tintalpha);
 
             for (int x = 0; x < WidthInBlocks; x++)
             {
@@ -506,13 +510,13 @@ namespace Liztris
                             ScreenRect.X + (BlockPixelSize * x),
                             ScreenRect.Y + (BlockPixelSize * y));
 
-                    Patterns.Draw(spriteBatch, Pattern[Level-1], dst, Tints[Level - 1] * 0.25f);
+                    Patterns.Draw(spriteBatch, pattern, dst, tint * tintalpha);
 
                     var BlockIndex = BlockMap[y, x] - 1;
                     if (BlockIndex <= -1)
                         continue;
 
-                    Blocks.Draw(spriteBatch, /*0,*/ BlockIndex, dst);
+                    Blocks.Draw(spriteBatch, BlockIndex, dst);
                 }
             }
 

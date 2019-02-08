@@ -3,11 +3,7 @@
 	Players other than the first should be able to pause / control menus
 	cant quit sometimes into steam?
 	hard to read score on some backgrounds 
-		- minimize colors (swap green/yellow)
-		- maybe a grid behind the score
-	remove red/purple backgrounds on grid
-	fix 10 highscores not fitting in window
-	test all patterns, colors, backgrounds
+		- maybe a grid behind the scorew
 	music from folder
 		- spotify integration?
 	highscore turns on then off the first time viewing

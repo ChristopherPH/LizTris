@@ -13,7 +13,22 @@ namespace Liztris
     public class GameSettings
     {
         public List<HighScore> HighScores { get; set; } = new List<HighScore>();
-        public List<Profile> Profiles { get; set; } = new List<Profile>();
+
+        [XmlIgnore]
+        public List<Profile> Profiles { get; set; } = new List<Profile>()
+        {
+            new Profile() {Name = "Liz" },
+            new Profile() {Name = "Chris" },
+            new Profile() {Name = "Gwen" },
+            new Profile() {Name = "Guest" },
+        };
+
+        [XmlArray(ElementName = nameof(Profiles))]
+        public Profile[] Profiles_XMLSerializationProxy_DO_NOT_USE
+        {
+            get { return Profiles?.ToArray(); }
+            set { Profiles = value?.ToList(); }
+        }
     }
 
     public class ControlSettings

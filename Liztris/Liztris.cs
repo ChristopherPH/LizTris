@@ -54,11 +54,11 @@ namespace Liztris
                       { 0,    10,   20,   30,   40,   50,   60,  70,  80,  90,  100, 125, 150, 175, 200 };
         public int[] ScoreMultiplier = { 100, 250, 500, 1000 };
         public int[] LevelPattern =
-                      { 0,     6,   19,    7,    4,   22,   16,  35,  12,  18,   19,  11,  28,  31,   4 };
+                  { 0,     1,   19,    7,    4,   22,   16,  35,  12,  18,   5,  11,  28,  31,   17 };
         public Color[] LevelTint =
-                      { Color.Teal, Color.Green, Color.DarkMagenta, Color.Olive, Color.Crimson, Color.DarkGoldenrod,
-                        Color.LightSkyBlue,  Color.Gray,  Color.Plum,  Color.Coral,
-                        Color.CornflowerBlue, Color.CadetBlue, Color.DarkSalmon, Color.Olive, Color.Red };
+            { Color.Teal, Color.Green, Color.MediumOrchid, Color.Olive, Color.IndianRed, Color.DarkGoldenrod,
+                Color.PowderBlue,  Color.Gray,  Color.Plum,  Color.LightSalmon,
+                Color.LightSteelBlue, Color.CadetBlue, Color.Honeydew, Color.Khaki, Color.Thistle };
 
         protected override int WantedGameResolutionWidth => 1280;
         protected override int WantedGameResolutionHeight => 720;
@@ -82,11 +82,6 @@ namespace Liztris
             GameMenus.MainMenu.SetPropertyValue("MasterVolume", Program.Settings.Audio.MasterVolume);
             GameMenus.MainMenu.SetPropertyValue("MusicVolume", Program.Settings.Audio.MusicVolume);
             GameMenus.MainMenu.SetPropertyValue("UseMP3", Program.Settings.Audio.UseMP3);
-
-            //ensure default profiles are created
-            foreach (var s in new string[] { "Liz", "Chris", "Gwen", "Guest" })
-                if (!Program.Settings.Game.Profiles.Where(x => x.Name == s).Any())
-                    Program.Settings.Game.Profiles.Add(new Profile() { Name = s });
         }
 
         private void MediaPlayer_MediaStateChanged(object sender, EventArgs e)
@@ -551,7 +546,7 @@ namespace Liztris
 
 
                 var scoreWidth = GamePixelWidth * 0.5;
-                var scoreHeight = GamePixelHeight * 0.75;
+                var scoreHeight = GamePixelHeight * 0.8;
 
                 var ScoreRect = new Rectangle(
                     (GamePixelWidth / 2) - (int)(scoreWidth / 2),
@@ -654,18 +649,17 @@ namespace Liztris
 
                     sX -= 3;
                     sY -= 3;
-                    sC = Color.White; 
+                    sC = Color.Cyan; 
                     spriteBatch.DrawString(fontScoreBig, grid.PlayerNames, new Vector2(sX, sY), sC);
 
-                    sC = Color.Cyan;
+                    sC = Color.White;
                     spriteBatch.DrawString(fontScoreBig, "Level: " + grid.Level, new Vector2(sX, sY + 100), sC);
-                    sC = Color.LimeGreen;
                     spriteBatch.DrawString(fontScoreBig, "Lines: " + grid.LineCount, new Vector2(sX, sY + 175), sC);
                     spriteBatch.DrawString(fontScoreBig, grid.Score.ToString("N0"), new Vector2(sX, sY + 250), sC);
 
-                    sC = Color.White;
+                    sC = Color.LimeGreen;
                     spriteBatch.DrawString(fontScoreBig, "High Score", new Vector2(sX, sY + 350), sC);
-                    sC = Color.Yellow;
+                    sC = Color.White;
                     spriteBatch.DrawString(fontScoreBig, "Lines: " + grid.BestLineCount, new Vector2(sX, sY + 425), sC);
                     spriteBatch.DrawString(fontScoreBig, grid.BestScore.ToString("N0"), new Vector2(sX, sY + 500), sC);
                 }

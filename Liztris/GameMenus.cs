@@ -66,11 +66,6 @@ namespace Liztris
             public ProfileChoice(string Text, int ProfileNum) :
                 base(Text, new MenuItem[] { new MenuItem("Default") })
             {
-                //HACK: need to ensure profiles are available 
-                foreach (var s in new string[] { "Liz", "Chris", "Gwen", "Guest" })
-                    if (!Program.Settings.Game.Profiles.Where(x => x.Name == s).Any())
-                        Program.Settings.Game.Profiles.Add(new Profile() { Name = s });
-
                 this.MenuItems = Program.Settings.Game.Profiles
                     .Select(x => new MenuItem(x.Name)
                     {
