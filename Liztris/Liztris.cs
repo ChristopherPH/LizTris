@@ -451,7 +451,8 @@ namespace Liztris
             if (ShowHighScores)
             {
                 inputManager.Update(PlayerIndex.One);
-                if (inputManager.IsActionTriggered(GlobalCommands.ExitHighScore))
+                if (inputManager.IsActionTriggered(GlobalCommands.ExitHighScore) ||
+                    inputManager.IsActionTriggered(GlobalCommands.Menu))
                 {
                     ShowHighScores = false;
                 }
