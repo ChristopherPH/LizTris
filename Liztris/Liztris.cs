@@ -23,7 +23,7 @@ namespace Liztris
         SpriteSheet Blocks;
         SpriteSheet Patterns;
         SpriteFont fontScore, fontScoreBig, fontTitle, fontMenu, fontTitleHuge;
-        SoundEffect soundLine, soundLevel, soundLose, soundDrop, soundTetris;
+        SoundEffect soundLine, soundLevel, soundLose, soundDrop, soundTetris, soundMenuSelect;
         SoundEffect musicDefault;
         SoundEffectInstance musicDefaultInstance;
         Song musicMP3;
@@ -356,6 +356,9 @@ namespace Liztris
                 }
             };
 
+            GameMenus.MainMenu.MenuChanged = () => { soundMenuSelect.Play(); };
+            GameMenus.PauseMenu.MenuChanged = () => { soundMenuSelect.Play(); };
+
             Intro.IsActive = true;
         }
 
@@ -397,6 +400,8 @@ namespace Liztris
             soundLose = Content.Load<SoundEffect>("Sounds/Lose");
             soundDrop = Content.Load<SoundEffect>("Sounds/Drop");
             soundTetris = Content.Load<SoundEffect>("Sounds/Tetris");
+
+            soundMenuSelect = Content.Load<SoundEffect>("Sounds/MenuSelect");
 
             musicDefaultInstance = musicDefault.CreateInstance();
         }

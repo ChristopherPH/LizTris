@@ -22,7 +22,6 @@ Game modes
 
  Misc Other backend things 
 	[Mostly menu, player join and controller stuff, and key remapping]
-	Menu sounds
 	Remap keys, and save keyboard map
 	Wait for players screen, so that pressing a controller becomes that player, or pressing keyboard becomes that one
 	Game states (intro screen with animation, etc)

@@ -35,6 +35,7 @@ namespace Common.MenuSystem
         }
 
         public Action<object> ActionHandler { get; set; }
+        public Action MenuChanged { get; set; }
 
         public SerializableDictionary<string, object> Options { get; } = new SerializableDictionary<string, object>();
 
@@ -112,7 +113,8 @@ namespace Common.MenuSystem
 
             if (rc)
             {
-                //play sound
+                if (MenuChanged != null)
+                    MenuChanged();
             }
 
             return IsMenuActive;

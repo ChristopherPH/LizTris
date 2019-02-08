@@ -115,17 +115,17 @@
 /processorParam:TextureFormat=Color
 /build:Graphics/Patterns.png
 
-#begin Music/musicMP3.mp3
-/importer:Mp3Importer
-/processor:SongProcessor
-/processorParam:Quality=Best
-/build:Music/musicMP3.mp3
-
 #begin Music/music.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Music/music.wav
+
+#begin Music/musicMP3.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/musicMP3.mp3
 
 #begin Sounds/Drop.wav
 /importer:WavImporter
@@ -150,6 +150,12 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sounds/Lose.wav
+
+#begin Sounds/MenuSelect.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/MenuSelect.wav
 
 #begin Sounds/Tetris.wav
 /importer:WavImporter
