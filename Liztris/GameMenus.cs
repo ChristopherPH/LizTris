@@ -26,6 +26,21 @@ namespace Liztris
         public static SimpleMenu PauseMenu = new SimpleMenu("Paused", new MenuItem[]
         {
             new CloseMenu("Resume"),
+
+            new OpenMenu("Audio") { Menu = new SubMenu("Audio", new MenuItem[]
+            {
+                new AudioVolumeChoice("Master Volume:", "MasterVolume"),
+                new AudioVolumeChoice("Music Volume:", "MusicVolume"),
+
+                new Choice("MP3 Music:", new MenuItem[]
+                {
+                    new MenuItem("No") { SetProperty = "UseMP3", Value = false, DoAction = GameMenuOptions.ChangeAudio },
+                    new MenuItem("Yes") { SetProperty = "UseMP3", Value = true, DoAction = GameMenuOptions.ChangeAudio },
+                }) { DoActionOnSelect = true },
+
+                new CloseMenu("Back"),
+            }) },
+
             new CloseMenu("Quit Game") { DoAction = GameMenuOptions.QuitGame },
         }) { DefaultIndex = 0 };
 

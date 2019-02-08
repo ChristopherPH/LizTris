@@ -33,6 +33,7 @@ namespace Liztris
         enum GlobalCommands
         {
             Menu,
+            ExitHighScore
         }
 
         InputManager<GlobalCommands> inputManager = new InputManager<GlobalCommands>();
@@ -90,7 +91,12 @@ namespace Liztris
 
         private void MediaPlayer_MediaStateChanged(object sender, EventArgs e)
         {
-            MediaPlayer.Play(musicMP3);
+            if ((MediaPlayer.State == MediaState.Stopped) &&
+                (Program.Settings.Audio.UseMP3) &&
+                (Program.Settings.Audio.MusicVolume > 0))
+            {
+                MediaPlayer.Play(musicMP3);
+            }
         }
 
         /// <summary>
@@ -136,6 +142,10 @@ namespace Liztris
             inputManager.AddAction(GlobalCommands.Menu, Keys.Escape);
             inputManager.AddAction(GlobalCommands.Menu, InputManager<GlobalCommands>.GamePadButtons.Start);
             inputManager.AddAction(GlobalCommands.Menu, InputManager<GlobalCommands>.GamePadButtons.Back);
+            inputManager.AddAction(GlobalCommands.ExitHighScore, InputManager<GlobalCommands>.GamePadButtons.A);
+            inputManager.AddAction(GlobalCommands.ExitHighScore, InputManager<GlobalCommands>.GamePadButtons.B);
+            inputManager.AddAction(GlobalCommands.ExitHighScore, InputManager<GlobalCommands>.GamePadButtons.X);
+            inputManager.AddAction(GlobalCommands.ExitHighScore, InputManager<GlobalCommands>.GamePadButtons.Y);
 
             musicDefaultInstance.Volume = (float)Program.Settings.Audio.MusicVolume / 100;
             musicDefaultInstance.IsLooped = true;
@@ -228,112 +238,17 @@ namespace Liztris
                         break;
 
                     case GameMenus.GameMenuOptions.ApplyGraphics:
-
-                        var resString = (string)GameMenus.MainMenu.Options["Resolution"];
-                        if (string.IsNullOrWhiteSpace(resString))
-                        {
-                            System.Diagnostics.Debug.Print("Invalid Resolution");
-                            return;
-                        }
-
-                        var resStrings = resString.Split('x');
-                        if ((resStrings == null) || (resStrings.Length != 2))
-                        {
-                            System.Diagnostics.Debug.Print("Invalid Resolution {0}", resString);
-                            return;
-                        }
-
-                        if ((int.TryParse(resStrings[0], out int tmpWidth) == false) || (tmpWidth <= 0))
-                        {
-                            System.Diagnostics.Debug.Print("Invalid Resolution Width {0}", resStrings[0]);
-                            return;
-                        }
-
-                        if ((int.TryParse(resStrings[1], out int tmpHeight) == false) || (tmpHeight <= 0))
-                        {
-                            System.Diagnostics.Debug.Print("Invalid Resolution Height {0}", resStrings[1]);
-                            return;
-                        }
-
-                        Program.Settings.Video.WindowMode = (VideoSettings.WindowModeTypes)GameMenus.MainMenu.Options["WindowMode"];
-                        Program.Settings.Video.VSync = (bool)GameMenus.MainMenu.Options["VSync"];
-                        Program.Settings.Video.Width = tmpWidth;
-                        Program.Settings.Video.Height = tmpHeight;
-
-
-                        this.IsFixedTimeStep = Program.Settings.Video.VSync;
-                        graphics.SynchronizeWithVerticalRetrace = Program.Settings.Video.VSync;
-
-                        switch (Program.Settings.Video.WindowMode)
-                        {
-                            case VideoSettings.WindowModeTypes.Windowed:
-                                Window.IsBorderless = false;
-
-                                var x = (GraphicsDevice.DisplayMode.Width - WindowWidth) / 2;
-                                var y = (GraphicsDevice.DisplayMode.Height - WindowHeight) / 2;
-                                Window.Position = new Point(x, y);
-
-                                IndependentResolutionRendering.Resolution.SetResolution(
-                                    Program.Settings.Video.Width, Program.Settings.Video.Height,
-                                    false);
-                                break;
-
-                            case VideoSettings.WindowModeTypes.Fullscreen:
-                                Window.IsBorderless = false;
-
-                                IndependentResolutionRendering.Resolution.SetResolution(
-                                    Program.Settings.Video.Width, Program.Settings.Video.Height, true);
-                                break;
-
-                            case VideoSettings.WindowModeTypes.WindowedFullscreen:
-                                Window.IsBorderless = true;
-                                Window.Position = new Point(0, 0);
-                                IndependentResolutionRendering.Resolution.SetResolution(
-                                    GraphicsDevice.DisplayMode.Width, GraphicsDevice.DisplayMode.Height, false);
-                                break;
-                        }
-
-                        graphics.ApplyChanges();
-                        Program.Settings.SaveSettings();
+                        AdjustVideoSettings();
                         break;
 
                     case GameMenus.GameMenuOptions.ChangeAudio:
+                        //set up audio parameters
                         //var sound = (bool)GameMenus.MainMenu.Options["Sound"];
                         Program.Settings.Audio.MusicVolume = (int)GameMenus.MainMenu.Options["MusicVolume"];
                         Program.Settings.Audio.MasterVolume = (int)GameMenus.MainMenu.Options["MasterVolume"];
                         Program.Settings.Audio.UseMP3 = (bool)GameMenus.MainMenu.Options["UseMP3"];
 
-                        SoundEffect.MasterVolume = (float)Program.Settings.Audio.MasterVolume / 100;
-                        musicDefaultInstance.Volume = (float)Program.Settings.Audio.MusicVolume / 100;
-                        MediaPlayer.Volume = (float)Program.Settings.Audio.MusicVolume / 100;
-
-                        if (Program.Settings.Audio.MusicVolume > 0)
-                        {
-                            //pause and play to kick the volume change
-                            if (MediaPlayer.State == MediaState.Playing)
-                                musicDefaultInstance.Pause();
-
-                            if (Program.Settings.Audio.UseMP3)
-                            {
-                                if (MediaPlayer.State != MediaState.Playing)
-                                    MediaPlayer.Play(musicMP3);
-                            }
-                            else
-                            {
-                                MediaPlayer.Stop();
-                                musicDefaultInstance.Play();
-                            }
-                        }
-                        else
-                        {
-                            if (MediaPlayer.State == MediaState.Playing)
-                                MediaPlayer.Stop();
-
-                            if (musicDefaultInstance.State == SoundState.Playing)
-                                musicDefaultInstance.Stop();
-                        }
-
-                        Program.Settings.SaveSettings();
+                        AdjustAudioSettings();
                         break;
 
                     case GameMenus.GameMenuOptions.ShowScores:
@@ -352,6 +267,21 @@ namespace Liztris
                         //HACK: leaving current state, reset input manager of new state
                         GameMenus.MainMenu.ResetMenu();
                         GameMenus.MainMenu.ResetInputs();
+                        break;
+
+                    case GameMenus.GameMenuOptions.ChangeAudio:
+                        //set up audio parameters
+                        //var sound = (bool)GameMenus.PauseMenu.Options["Sound"];
+                        Program.Settings.Audio.MusicVolume = (int)GameMenus.PauseMenu.Options["MusicVolume"];
+                        Program.Settings.Audio.MasterVolume = (int)GameMenus.PauseMenu.Options["MasterVolume"];
+                        Program.Settings.Audio.UseMP3 = (bool)GameMenus.PauseMenu.Options["UseMP3"];
+
+                        AdjustAudioSettings();
+
+                        //HACK: fix up audio settings on main menu
+                        GameMenus.MainMenu.SetPropertyValue("MasterVolume", Program.Settings.Audio.MasterVolume);
+                        GameMenus.MainMenu.SetPropertyValue("MusicVolume", Program.Settings.Audio.MusicVolume);
+                        GameMenus.MainMenu.SetPropertyValue("UseMP3", Program.Settings.Audio.UseMP3);
                         break;
                 }
             };
@@ -521,7 +451,7 @@ namespace Liztris
             if (ShowHighScores)
             {
                 inputManager.Update(PlayerIndex.One);
-                if (inputManager.IsActionTriggered(GlobalCommands.Menu))
+                if (inputManager.IsActionTriggered(GlobalCommands.ExitHighScore))
                 {
                     ShowHighScores = false;
                 }
@@ -554,6 +484,11 @@ namespace Liztris
             inputManager.Update(PlayerIndex.One);
             if (inputManager.IsActionTriggered(GlobalCommands.Menu))
             {
+                //HACK: Set up audio levels in different menu
+                GameMenus.PauseMenu.SetPropertyValue("MasterVolume", Program.Settings.Audio.MasterVolume);
+                GameMenus.PauseMenu.SetPropertyValue("MusicVolume", Program.Settings.Audio.MusicVolume);
+                GameMenus.PauseMenu.SetPropertyValue("UseMP3", Program.Settings.Audio.UseMP3);
+
                 //HACK: leaving current state, reset input manager of new state
                 GameMenus.PauseMenu.ResetMenu();
                 GameMenus.PauseMenu.ResetInputs();
@@ -781,6 +716,116 @@ namespace Liztris
             Toasts.Draw(spriteBatch);
 
             spriteBatch.End();
+        }
+
+        void AdjustVideoSettings()
+        {
+            var resString = (string)GameMenus.MainMenu.Options["Resolution"];
+            if (string.IsNullOrWhiteSpace(resString))
+            {
+                System.Diagnostics.Debug.Print("Invalid Resolution");
+                return;
+            }
+
+            var resStrings = resString.Split('x');
+            if ((resStrings == null) || (resStrings.Length != 2))
+            {
+                System.Diagnostics.Debug.Print("Invalid Resolution {0}", resString);
+                return;
+            }
+
+            if ((int.TryParse(resStrings[0], out int tmpWidth) == false) || (tmpWidth <= 0))
+            {
+                System.Diagnostics.Debug.Print("Invalid Resolution Width {0}", resStrings[0]);
+                return;
+            }
+
+            if ((int.TryParse(resStrings[1], out int tmpHeight) == false) || (tmpHeight <= 0))
+            {
+                System.Diagnostics.Debug.Print("Invalid Resolution Height {0}", resStrings[1]);
+                return;
+            }
+
+            Program.Settings.Video.WindowMode = (VideoSettings.WindowModeTypes)GameMenus.MainMenu.Options["WindowMode"];
+            Program.Settings.Video.VSync = (bool)GameMenus.MainMenu.Options["VSync"];
+            Program.Settings.Video.Width = tmpWidth;
+            Program.Settings.Video.Height = tmpHeight;
+
+
+            this.IsFixedTimeStep = Program.Settings.Video.VSync;
+            graphics.SynchronizeWithVerticalRetrace = Program.Settings.Video.VSync;
+
+            switch (Program.Settings.Video.WindowMode)
+            {
+                case VideoSettings.WindowModeTypes.Windowed:
+                    Window.IsBorderless = false;
+
+                    var x = (GraphicsDevice.DisplayMode.Width - WindowWidth) / 2;
+                    var y = (GraphicsDevice.DisplayMode.Height - WindowHeight) / 2;
+                    Window.Position = new Point(x, y);
+
+                    IndependentResolutionRendering.Resolution.SetResolution(
+                        Program.Settings.Video.Width, Program.Settings.Video.Height,
+                        false);
+                    break;
+
+                case VideoSettings.WindowModeTypes.Fullscreen:
+                    Window.IsBorderless = false;
+
+                    IndependentResolutionRendering.Resolution.SetResolution(
+                        Program.Settings.Video.Width, Program.Settings.Video.Height, true);
+                    break;
+
+                case VideoSettings.WindowModeTypes.WindowedFullscreen:
+                    Window.IsBorderless = true;
+                    Window.Position = new Point(0, 0);
+                    IndependentResolutionRendering.Resolution.SetResolution(
+                        GraphicsDevice.DisplayMode.Width, GraphicsDevice.DisplayMode.Height, false);
+                    break;
+            }
+
+            graphics.ApplyChanges();
+            Program.Settings.SaveSettings();
+        }
+
+        void AdjustAudioSettings()
+        {
+            SoundEffect.MasterVolume = (float)Program.Settings.Audio.MasterVolume / 100;
+            musicDefaultInstance.Volume = (float)Program.Settings.Audio.MusicVolume / 100;
+            MediaPlayer.Volume = (float)Program.Settings.Audio.MusicVolume / 100;
+
+            if (Program.Settings.Audio.MusicVolume > 0)
+            {
+                //pause and play to kick the volume change
+                if (musicDefaultInstance.State == SoundState.Playing)
+                    musicDefaultInstance.Pause();
+
+                if (Program.Settings.Audio.UseMP3)
+                {
+                    //play mp3 if not playing already, other music is already paused or stopped
+                    if (MediaPlayer.State != MediaState.Playing)
+                        MediaPlayer.Play(musicMP3);
+                }
+                else
+                {
+                    //play other music, stop the mp3 if playing
+                    if (MediaPlayer.State == MediaState.Playing)
+                        MediaPlayer.Stop();
+
+                    musicDefaultInstance.Play();
+                }
+            }
+            else //no volume
+            {
+                //stop all music
+                if (MediaPlayer.State == MediaState.Playing)
+                    MediaPlayer.Stop();
+
+                if (musicDefaultInstance.State == SoundState.Playing)
+                    musicDefaultInstance.Stop();
+            }
+
+            Program.Settings.SaveSettings();
         }
     }
 }
