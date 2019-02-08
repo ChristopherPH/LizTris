@@ -29,10 +29,8 @@ namespace GameStateEngine
         /// </summary>
         public double stateTimer { get; set; }
 
-
         protected ContentManager Content { get; private set; }
-        protected IServiceProvider Services;
-
+        protected GameEngine Engine;
 
         /*
          * GameState control options below
@@ -46,20 +44,16 @@ namespace GameStateEngine
         public virtual bool RenderPreviousState => false;
 
         
-        public void SetServiceProvider(IServiceProvider serviceProvider)
+        public void SetupState(GameEngine Engine)
         {
-            if (serviceProvider == null)
-                //return;
-                throw new Exception("How do we have a null serviceProvider");
-
-            if (Content != null)
+            //this means the state has already been set up
+            if (Content != null) 
                 return;
-                //throw new Exception("How do we have Content already?");
 
-            Services = serviceProvider;
+            this.Engine = Engine;
 
             // Create a new content manager to load content used just by this level.
-            Content = new ContentManager(Services, ContentRoot);
+            Content = new ContentManager(Engine.Services, ContentRoot);
             LoadContent();
         }
 

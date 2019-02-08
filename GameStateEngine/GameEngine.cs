@@ -45,6 +45,8 @@ namespace GameStateEngine
         Timer fpsTimer = new Timer(500);
         double framerate = 0;
 
+        public bool ShowGraphicsInfo { get; set; } = false;
+
         public GameEngine()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -64,11 +66,6 @@ namespace GameStateEngine
                 GameEngineSettings.Video.Height,
                 GameEngineSettings.Video.WindowMode,
                 GameEngineSettings.Video.VSync);
-
-            InitialGameState.SetServiceProvider(this.Services);
-            gameStates.Push(InitialGameState);
-            gameRenderStates = 1;
-            InitialGameState.OnStateStarted(false);
         }
 
         protected void SaveResolution(int Width, int Height, VideoSettings.WindowModeTypes windowMode, bool VSync)
@@ -127,6 +124,14 @@ namespace GameStateEngine
             // TODO: Add your initialization logic here
 
             base.Initialize();
+
+            //set up the initial state AFTER everything else has been initialized
+            var stateInstance = InitialGameState;
+
+            stateInstance.SetupState(this);
+            gameStates.Push(stateInstance);
+            gameRenderStates = 1;
+            stateInstance.OnStateStarted(false);
         }
 
         /// <summary>
@@ -140,9 +145,6 @@ namespace GameStateEngine
 
             // TODO: use this.Content to load your game content here
             DefaultFont = Content.Load<SpriteFont>(DefaultSpriteFontContentPath);
-
-            foreach (var state in gameStates)
-                state.SetServiceProvider(Services);
         }
 
         /// <summary>
@@ -199,7 +201,7 @@ namespace GameStateEngine
                 if (Operation.StateToPush != null)
                 {
                     gameStates.Push(Operation.StateToPush);
-                    Operation.StateToPush.SetServiceProvider(this.Services);
+                    Operation.StateToPush.SetupState(this);
                     Operation.StateToPush.OnStateStarted(false);
                 }
 
@@ -237,21 +239,27 @@ namespace GameStateEngine
                         null, null, null, null, DrawMatrix);
 
                     spriteBatch.FillRectangle(GameRectangle, Color.CornflowerBlue);
-
-                    spriteBatch.DrawString(DefaultFont,
-                        //string.Format("{0}x{1}", GraphicsDevice.DisplayMode.Width, GraphicsDevice.DisplayMode.Height),
-                        //string.Format("{0}x{1} {2}", graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, graphics.IsFullScreen),
-                        //string.Format("FPS: {0:N0}", framerate),
-                        string.Format("{0}x{1} {2} FPS:{3:N5}", graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, graphics.IsFullScreen, framerate),
-                        GameRectangle,
-                        ExtendedSpriteBatch.Alignment.Top | ExtendedSpriteBatch.Alignment.Right,
-                        Color.Black);
                 }
 
                 //draw states back to front
                 foreach (var state in gameStates.Take(gameRenderStates).Reverse())
                 {
                     state.Draw(gameTime, spriteBatch, GameRectangle);
+                }
+
+                //draw fps
+                if (ShowGraphicsInfo)
+                {
+                    spriteBatch.DrawString(DefaultFont,
+                        //string.Format("{0}x{1}", GraphicsDevice.DisplayMode.Width, GraphicsDevice.DisplayMode.Height),
+                        //string.Format("{0}x{1} {2}", graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, graphics.IsFullScreen),
+                        //string.Format("FPS: {0:N0}", framerate),
+                        string.Format("{0}x{1} {2} FPS:{3:N5}", 
+                            graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 
+                            graphics.IsFullScreen, framerate),
+                        GameRectangle,
+                        ExtendedSpriteBatch.Alignment.Top | ExtendedSpriteBatch.Alignment.Right,
+                        Color.Black);
                 }
 
                 if (StartEndSpriteBatchInDraw)
