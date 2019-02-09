@@ -9,6 +9,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "GameStateEngine", "GameStat
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		GameStateEngine\GameStateEngine.projitems*{27649f31-680c-4fca-acda-efc35c324719}*SharedItemsImports = 4
 		GameStateEngine\GameStateEngine.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
