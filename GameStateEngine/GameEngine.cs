@@ -13,16 +13,17 @@ namespace GameStateEngine
     /// Common XNA/Monogame game, with:
     /// - Game State Manager
     /// - Independant Resolutions
+    /// - Music
     /// - Saved / Loaded Video settings
     ///     - Resolution
     ///     - Windowed / Windowed Fullscreen / Fullscreen
     /// - Saved / Loaded Audio settings
     ///     - Music level (in 10% increments), On/Off
     ///     - Sound level (in 10% increments), On/Off
-    /// - Extensible singleton / global shared data between states
     /// - FPS Display
     /// 
     /// Thoughts:
+    /// - Extensible singleton / global shared data between states
     /// - Input Manager / remapper
     /// - Mouse / Gamepad / keyboard support
     /// </summary>
@@ -293,6 +294,7 @@ namespace GameStateEngine
             if (gameStates.Count == 0)
             {
                 gameRenderStates = 0;
+                StopMusic();
                 Exit();
                 return;
             }
