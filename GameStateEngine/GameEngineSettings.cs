@@ -8,8 +8,8 @@ namespace GameStateEngine
 {
     public partial class GameEngineSettings : SettingsBase
     {
-        public VideoSettings Video { get; private set; } = new VideoSettings();
-        public AudioSettings Audio { get; private set; } = new AudioSettings();
+        public VideoSettings Video { get; set; } = new VideoSettings();
+        public AudioSettings Audio { get; set; } = new AudioSettings();
 
         public static GameEngineSettings LoadSettings(string FileName)
         {
@@ -51,16 +51,10 @@ namespace GameStateEngine
 
     public class AudioSettings
     {
-        [XmlAttribute, DefaultValue(typeof(uint), "100")]
-        public uint SoundVolume { get; set; } = 100;
+        [XmlAttribute, DefaultValue(100)]
+        public int MasterVolume { get; set; } = 100;
 
-        [XmlAttribute, DefaultValue(typeof(uint), "100")]
-        public uint MusicVolume { get; set; } = 100;
-
-        [XmlAttribute, DefaultValue(true)]
-        public bool Sound { get; set; } = true;
-
-        [XmlAttribute, DefaultValue(true)]
-        public bool Music { get; set; } = true;
+        [XmlAttribute, DefaultValue(20)]
+        public int MusicVolume { get; set; } = 20;
     }
 }

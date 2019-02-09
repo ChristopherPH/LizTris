@@ -1,7 +1,9 @@
 ﻿using Common;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -34,8 +36,12 @@ namespace GameStateEngine
         protected virtual string SettingsFile { get; } = "settings.xml";
         protected GameEngineSettings GameEngineSettings { get; } 
         protected virtual bool StartEndSpriteBatchInDraw { get; } = true;
-        protected Rectangle GameRectangle { get; private set; }
-        protected SpriteFont DefaultFont { get; private set; }
+
+        public Rectangle GameRectangle { get; private set; }
+        public SpriteFont DefaultFont { get; private set; }
+
+        SoundEffectInstance musicDefaultInstance;
+        Song musicDefaultSong;
 
         GraphicsDeviceManager graphics;
         protected ExtendedSpriteBatch spriteBatch;
@@ -65,22 +71,15 @@ namespace GameStateEngine
             SetResolution(GameEngineSettings.Video.Width,
                 GameEngineSettings.Video.Height,
                 GameEngineSettings.Video.WindowMode,
-                GameEngineSettings.Video.VSync);
+                GameEngineSettings.Video.VSync, false);
+
+            SetVolume(GameEngineSettings.Audio.MasterVolume, 
+                GameEngineSettings.Audio.MusicVolume, false);
+
+            MediaPlayer.MediaStateChanged += MediaPlayer_MediaStateChanged;
         }
 
-        protected void SaveResolution(int Width, int Height, VideoSettings.WindowModeTypes windowMode, bool VSync)
-        {
-            GameEngineSettings.Video.Width = Width;
-            GameEngineSettings.Video.Height = Height;
-            GameEngineSettings.Video.WindowMode = windowMode;
-            GameEngineSettings.Video.VSync = VSync;
-
-            GameEngineSettings.SaveSettings(SettingsFile);
-
-            SetResolution(Width, Height, windowMode, VSync);
-        }
-
-        public void SetResolution(int Width, int Height, VideoSettings.WindowModeTypes WindowMode, bool VSync)
+        public void SetResolution(int Width, int Height, VideoSettings.WindowModeTypes WindowMode, bool VSync, bool SaveSettings)
         {
             this.IsFixedTimeStep = VSync;
             graphics.SynchronizeWithVerticalRetrace = VSync;
@@ -111,7 +110,135 @@ namespace GameStateEngine
                         GraphicsDevice.DisplayMode.Width, GraphicsDevice.DisplayMode.Height, false);
                     break;
             }
+
+            //TODO: Ensure video changed successfully before saving
+
+
+            if (SaveSettings)
+            {
+                GameEngineSettings.Video.Width = Width;
+                GameEngineSettings.Video.Height = Height;
+                GameEngineSettings.Video.WindowMode = WindowMode;
+                GameEngineSettings.Video.VSync = VSync;
+
+                GameEngineSettings.SaveSettings(SettingsFile);
+            }
         }
+
+        public void SetVolume(int MasterVolume, int MusicVolume, bool SaveSettings)
+        {
+            SoundEffect.MasterVolume = (float)MasterVolume / 100;
+            MediaPlayer.Volume = (float)MusicVolume / 100;
+
+            if (musicDefaultInstance != null)
+            {
+                musicDefaultInstance.Volume = (float)MusicVolume / 100;
+
+                if (MusicVolume > 0)
+                {
+                    //pause and play to kick the volume change
+                    if (musicDefaultInstance.State == SoundState.Playing)
+                        musicDefaultInstance.Pause();
+
+                    musicDefaultInstance.Play();
+                }
+                else
+                {
+                    if (musicDefaultInstance.State == SoundState.Playing)
+                        musicDefaultInstance.Stop();
+
+
+                    musicDefaultInstance.Stop();
+                }
+            }
+
+            if (musicDefaultSong != null)
+            {
+                if (MusicVolume > 0)
+                {
+                    if (MediaPlayer.State != MediaState.Playing)
+                        MediaPlayer.Play(musicDefaultSong);
+                }
+                else
+                {
+                    if (MediaPlayer.State == MediaState.Playing)
+                        MediaPlayer.Stop();
+                }
+            }
+
+            if (SaveSettings)
+            {
+                GameEngineSettings.Audio.MasterVolume = MasterVolume;
+                GameEngineSettings.Audio.MusicVolume = MusicVolume;
+
+                GameEngineSettings.SaveSettings(SettingsFile);
+            }
+        }
+
+        public void PlayMusic(SoundEffect music)
+        {
+            StopMusic();
+
+            if (music == null)   
+                return;
+
+            musicDefaultInstance = music.CreateInstance();
+            musicDefaultInstance.Volume = (float)GameEngineSettings.Audio.MusicVolume / 100;
+            musicDefaultInstance.IsLooped = true;
+
+            if (GameEngineSettings.Audio.MusicVolume > 0)
+                musicDefaultInstance.Play();
+        }
+
+        public void PlayMusic(Song music)
+        {
+            StopMusic();
+            if (music == null)
+                return;
+
+            this.musicDefaultSong = music;
+
+            if (GameEngineSettings.Audio.MusicVolume > 0)
+                MediaPlayer.Play(music);
+        }
+
+        public void StopMusic()
+        {
+            if (musicDefaultSong != null)
+            {
+                musicDefaultSong = null;
+                MediaPlayer.Stop();
+            }
+
+            if (musicDefaultInstance != null)
+            {
+                musicDefaultInstance.Stop();
+                musicDefaultInstance = null;
+            }
+        }
+         
+
+        private void MediaPlayer_MediaStateChanged(object sender, System.EventArgs e)
+        {
+            if (musicDefaultSong != null)
+            {
+                //repeat song if stopped and volume exists
+                if ((MediaPlayer.State == MediaState.Stopped) &&
+                    (GameEngineSettings.Audio.MusicVolume > 0))
+                {
+                    MediaPlayer.Play(musicDefaultSong);
+                }
+            }
+        }
+
+
+        //HACK: There must be a better way to sync the settings and menu
+        public int Audio_MasterVolume => GameEngineSettings.Audio.MasterVolume;
+        public int Audio_MusicVolume => GameEngineSettings.Audio.MusicVolume;
+        public int Video_Width => GameEngineSettings.Video.Width;
+        public int Video_Height => GameEngineSettings.Video.Height;
+        public VideoSettings.WindowModeTypes Video_WindowMode => GameEngineSettings.Video.WindowMode;
+        public bool Video_VSync => GameEngineSettings.Video.VSync;
 
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
