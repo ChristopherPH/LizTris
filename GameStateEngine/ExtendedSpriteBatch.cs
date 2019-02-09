@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameStateEngine
+namespace Common
 {
     /// <summary>
     /// SpriteBatch that allows Lines and Rectangles to be drawn directly

@@ -9,12 +9,24 @@
     <Import_RootNamespace>GameStateEngine</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Controls.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExtendedSpriteBatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GameEngine.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GameEngineSettings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GameState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GameStateOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameStateEngine\GameEngine.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameStateEngine\GameEngineSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameStateEngine\GameState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameStateEngine\GameStateOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Misc\GameStateSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MenuSystem\MenuBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MenuSystem\MenuItem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MenuSystem\MenuItemBuiltIn.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MenuSystem\MenuItemCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Misc\SimpleMenu.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resolution.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SerializableDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SettingsBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Timer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)GameStateEngine\" />
   </ItemGroup>
 </Project>
