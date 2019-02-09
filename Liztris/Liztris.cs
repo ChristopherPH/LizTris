@@ -142,6 +142,7 @@ namespace Liztris
             inputManager.AddAction(GlobalCommands.ExitHighScore, InputManager<GlobalCommands>.GamePadButtons.X);
             inputManager.AddAction(GlobalCommands.ExitHighScore, InputManager<GlobalCommands>.GamePadButtons.Y);
 
+            SoundEffect.MasterVolume = (float)Program.Settings.Audio.MasterVolume / 100;
             musicDefaultInstance.Volume = (float)Program.Settings.Audio.MusicVolume / 100;
             musicDefaultInstance.IsLooped = true;
             MediaPlayer.Volume = (float)Program.Settings.Audio.MusicVolume / 100;
