@@ -21,6 +21,18 @@ namespace Common.MenuSystem
             MenuBack,
         }
 
+        [Flags]
+        public enum MenuResult
+        {
+            None = 0x00,
+            ChangedSelection = 0x01,
+            ChangedChoice = 0x02,
+            PerformedAction = 0x04,
+            SetProperty = 0x08,
+            OpenMenu = 0x10,
+            CloseMenu = 0x20,
+        }
+
         public MenuBase(string Title, MenuItem[] MenuItems) :
             base(Title, MenuItems)
         {
@@ -44,7 +56,7 @@ namespace Common.MenuSystem
 
         private Stack<SubMenu> _Menus = new Stack<SubMenu>();
 
-        public bool RunMenuCommand(MenuCommands command)
+        public MenuResult RunMenuCommand(MenuCommands command)
         {
             switch (command)
             {
@@ -61,71 +73,87 @@ namespace Common.MenuSystem
                 case MenuCommands.MenuBack:
                     return RunMenuCommandBack();
             }
-            return false;
+
+            return MenuResult.None;
         }
 
-        public bool RunMenuCommandUp()
+        public MenuResult RunMenuCommandUp()
         {
             if (_Menus.Count == 0)
-                return false;
+                return MenuResult.None;
 
             return _Menus.Peek().PreviousItem();
         }
 
-        public bool RunMenuCommandDown()
+        public MenuResult RunMenuCommandDown()
         {
             if (_Menus.Count == 0)
-                return false;
+                return MenuResult.None;
 
             return _Menus.Peek().NextItem();
         }
 
-        public bool RunMenuCommandLeft()
+        public MenuResult RunMenuCommandLeft()
         {
+            var rc = MenuResult.None;
+
             if (_Menus.Count == 0)
-                return false;
+                return rc;
 
             var choice = _Menus.Peek().SelectedItem as Choice;
             if (choice == null)
-                return false;
+                return rc;
 
-            if (!choice.PreviousItem())
-                return false;
+            //change MenuResult.ChangedSelection to ChangedChoice
+            if (choice.PreviousItem() != MenuResult.None)
+            {
+                rc |= MenuResult.ChangedChoice;
 
-            if (choice.DoActionOnSelect)
-                return HandleSelect(choice.SelectedItem);
-            else
-                return HandleProperty(choice.SelectedItem);
+                if (choice.DoActionOnSelect)
+                    rc |= HandleSelect(choice.SelectedItem);
+                else
+                    rc |= HandleProperty(choice.SelectedItem);
+            }
+
+            return rc;
         }
 
-        public bool RunMenuCommandRight()
+        public MenuResult RunMenuCommandRight()
         {
+            var rc = MenuResult.None;
+
             if (_Menus.Count == 0)
-                return false;
+                return rc;
 
             var choice = _Menus.Peek().SelectedItem as Choice;
             if (choice == null)
-                return false;
+                return rc;
 
-            if (!choice.NextItem())
-                return false;
+            //change MenuResult.ChangedSelection to ChangedChoice
+            if (choice.NextItem() != MenuResult.None)
+            {
+                rc |= MenuResult.ChangedChoice;
 
-            if (choice.DoActionOnSelect)
-                return HandleSelect(choice.SelectedItem);
-            else
-                return HandleProperty(choice.SelectedItem);
+                if (choice.DoActionOnSelect)
+                    rc |= HandleSelect(choice.SelectedItem);
+                else
+                    rc |= HandleProperty(choice.SelectedItem);
+            }
+
+            return rc;
         }
 
-        public bool RunMenuCommandSelect()
+        public MenuResult RunMenuCommandSelect()
         {
             if (_Menus.Count == 0)
-                return false;
+                return MenuResult.None;
 
             var choice = _Menus.Peek().SelectedItem as Choice;
             if (choice != null)
             {
+                //skip action if selection trriggers it
                 if (choice.DoActionOnSelect)
-                    return false;
+                    return MenuResult.None;
 
                 return HandleSelect(choice.SelectedItem);
             }
@@ -133,81 +161,81 @@ namespace Common.MenuSystem
             return HandleSelect(_Menus.Peek().SelectedItem);
         }
 
-        public bool RunMenuCommandBack()
+        public MenuResult RunMenuCommandBack()
         {
             if (_Menus.Count == 0)
-                return false;
+                return MenuResult.None;
 
             if (_Menus.Peek().CloseOnBack == false)
-                return false;
+                return MenuResult.None;
 
             return CloseMenu();
         }
 
-        private bool HandleProperty(MenuItem Selection)
+        private MenuResult HandleProperty(MenuItem Selection)
         {
             if (!string.IsNullOrWhiteSpace(Selection.SetProperty))
             {
                 OnSetProperty(Selection.SetProperty, Selection.Value);
-                return true;
+                return MenuResult.SetProperty;
             }
 
-            return false;
+            return MenuResult.None;
         }
 
-        private bool HandleSelect(MenuItem Selection)
+        private MenuResult HandleSelect(MenuItem Selection)
         {
+            MenuResult rc = MenuResult.None;
+
             if (Selection == null)
-                return false;
+                return rc;
 
-            bool rc = false;
-
-            if (HandleProperty(Selection))
-                rc = true;
+            rc |= HandleProperty(Selection);
 
             if (Selection.DoAction != null)
             {
+                rc |= MenuResult.PerformedAction;
+
                 //do something for action
                 OnAction(Selection.DoAction);
-                rc = true;
             }
 
             var openMenu = Selection as OpenMenu;
             if (openMenu != null)
             {
-                rc = OpenMenu(openMenu.Menu);
+                rc |= OpenMenu(openMenu.Menu);
             }
 
             var closeMenu = Selection as CloseMenu;
             if (closeMenu != null)
             {
-                rc = CloseMenu();
+                rc |= CloseMenu();
             }
 
             return rc;
         }
 
-        public bool CloseMenu()
+        public MenuResult CloseMenu()
         {
             if (_Menus.Count == 0)
-                return false;
+                return MenuResult.None;
 
             _Menus.Pop();
             if (_Menus.Count > 0)
                 SetupMenu(_Menus.Peek());
 
-            return true;
+            return MenuResult.CloseMenu;
         }
 
-        public bool OpenMenu(SubMenu menu)
+        public MenuResult OpenMenu(SubMenu menu)
         {
             if ((menu == null) || (menu.MenuItems == null) || (menu.MenuItems.Length == 0))
-                return false;
+                return MenuResult.None;
 
             _Menus.Push(menu);
             SetupMenu(menu);
 
-            return true;
+            return MenuResult.OpenMenu;
         }
 
         public bool ExitMenu()

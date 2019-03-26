@@ -14,18 +14,12 @@ namespace Common.Misc
     class GameStateEngineSettings : GameState
     {
         SpriteFont _font;
-        SimpleMenu SettingsMenu;
-
-        public GameStateEngineSettings()
+        SimpleMenu SettingsMenu = new SimpleMenu(string.Empty, new MenuItem[]
         {
-            SettingsMenu = new SimpleMenu(string.Empty, new MenuItem[]
-            {
-                AudioMenu,
-                VideoMenu,
-                new CloseMenu("Back"),
-            });
-            SettingsMenu.ActionHandler = MenuAction;
-        }
+            AudioMenu,
+            VideoMenu,
+            new CloseMenu("Back"),
+        });
 
         public override void Draw(GameTime gameTime, ExtendedSpriteBatch spriteBatch, Rectangle GameRectangle)
         {
@@ -42,7 +36,53 @@ namespace Common.Misc
 
         public override void Update(GameTime gameTime, ref GameStateOperation Operation)
         {
-            SettingsMenu.Update(gameTime);
+            var rc = SettingsMenu.Update(gameTime, out object MenuAction);
+
+            if (rc.HasFlag(MenuBase.MenuResult.PerformedAction) && (MenuAction != null))
+            {
+                switch ((SettingOptions)MenuAction)
+                {
+                    case SettingOptions.ChangeAudio:
+                        var tmpMusicVolume = (int)SettingsMenu.Options["MusicVolume"];
+                        var tmpMasterVolume = (int)SettingsMenu.Options["MasterVolume"];
+                        Engine.SetVolume(tmpMasterVolume, tmpMusicVolume, true);
+                        break;
+
+                    case SettingOptions.ChangeVideo:
+                        var resString = (string)SettingsMenu.Options["Resolution"];
+                        if (string.IsNullOrWhiteSpace(resString))
+                        {
+                            System.Diagnostics.Debug.Print("Invalid Resolution");
+                            return;
+                        }
+
+                        var resStrings = resString.Split('x');
+                        if ((resStrings == null) || (resStrings.Length != 2))
+                        {
+                            System.Diagnostics.Debug.Print("Invalid Resolution {0}", resString);
+                            return;
+                        }
+
+                        if ((int.TryParse(resStrings[0], out int tmpWidth) == false) || (tmpWidth <= 0))
+                        {
+                            System.Diagnostics.Debug.Print("Invalid Resolution Width {0}", resStrings[0]);
+                            return;
+                        }
+
+                        if ((int.TryParse(resStrings[1], out int tmpHeight) == false) || (tmpHeight <= 0))
+                        {
+                            System.Diagnostics.Debug.Print("Invalid Resolution Height {0}", resStrings[1]);
+                            return;
+                        }
+
+                        var tmpVSync = (bool)SettingsMenu.Options["VSync"];
+                        var tmpMode = (VideoSettings.WindowModeTypes)SettingsMenu.Options["WindowMode"];
+
+                        Engine.SetResolution(tmpWidth, tmpHeight, tmpMode, tmpVSync, true);
+                        break;
+                }
+            }
+
             if (!SettingsMenu.IsMenuActive)
                 Operation = GameStateOperation.CompleteState;
         }
@@ -80,15 +120,6 @@ namespace Common.Misc
             {
                 new AudioVolumeChoice("Master Volume:", "MasterVolume"),
                 new AudioVolumeChoice("Music Volume:", "MusicVolume"),
-
-                /*
-                new Choice("MP3 Music:", new MenuItem[]
-                {
-                    new MenuItem("No") { SetProperty = "UseMP3", Value = false, DoAction = SettingOptions.ChangeAudio },
-                    new MenuItem("Yes") { SetProperty = "UseMP3", Value = true, DoAction = SettingOptions.ChangeAudio },
-                }) { DoActionOnSelect = true },
-                */
-
                 new CloseMenu("Back"),
             })
         };
@@ -148,51 +179,6 @@ namespace Common.Misc
                         SetProperty = "Resolution",
                         Value = string.Format("{0}x{1}", x.Width, x.Height)
                     }).ToArray();
-            }
-        }
-
-        private void MenuAction(object o)
-        {
-            switch((SettingOptions)o)
-            {
-                case SettingOptions.ChangeAudio:
-                    var tmpMusicVolume = (int)SettingsMenu.Options["MusicVolume"];
-                    var tmpMasterVolume = (int)SettingsMenu.Options["MasterVolume"];
-                    Engine.SetVolume(tmpMasterVolume, tmpMusicVolume, true);
-                    break;
-
-                case SettingOptions.ChangeVideo:
-                    var resString = (string)SettingsMenu.Options["Resolution"];
-                    if (string.IsNullOrWhiteSpace(resString))
-                    {
-                        System.Diagnostics.Debug.Print("Invalid Resolution");
-                        return;
-                    }
-
-                    var resStrings = resString.Split('x');
-                    if ((resStrings == null) || (resStrings.Length != 2))
-                    {
-                        System.Diagnostics.Debug.Print("Invalid Resolution {0}", resString);
-                        return;
-                    }
-
-                    if ((int.TryParse(resStrings[0], out int tmpWidth) == false) || (tmpWidth <= 0))
-                    {
-                        System.Diagnostics.Debug.Print("Invalid Resolution Width {0}", resStrings[0]);
-                        return;
-                    }
-
-                    if ((int.TryParse(resStrings[1], out int tmpHeight) == false) || (tmpHeight <= 0))
-                    {
-                        System.Diagnostics.Debug.Print("Invalid Resolution Height {0}", resStrings[1]);
-                        return;
-                    }
-
-                    var tmpVSync = (bool)SettingsMenu.Options["VSync"];
-                    var tmpMode = (VideoSettings.WindowModeTypes)SettingsMenu.Options["WindowMode"];
-
-                    Engine.SetResolution(tmpWidth, tmpHeight, tmpMode, tmpVSync, true);
-                    break;
             }
         }
     }

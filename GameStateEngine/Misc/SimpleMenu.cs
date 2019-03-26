@@ -34,7 +34,6 @@ namespace Common.Misc
         }
 
         public Action<object> ActionHandler { get; set; }
-        public Action MenuChanged { get; set; }
 
         public SerializableDictionary<string, object> Options { get; } = new SerializableDictionary<string, object>();
 
@@ -74,8 +73,9 @@ namespace Common.Misc
         float _scale = 1;
         bool _scaleReverse = false;
         Timer AnimationTimer = new Timer(20);
+        object _LastAction = null;
 
-        public bool Update(GameTime gameTime)
+        public MenuResult Update(GameTime gameTime, out object MenuAction)
         {
             AnimationTimer.UpdateAndCheck(gameTime, () =>
             {
@@ -95,28 +95,22 @@ namespace Common.Misc
 
             inputManager.Update(PlayerIndex.One);
 
-            bool rc = false;
+            var rc = MenuResult.None;
+            _LastAction = null;
 
-            if (inputManager.IsActionTriggered(MenuCommands.MenuUp))
-                rc = RunMenuCommand(MenuCommands.MenuUp);
-            else if (inputManager.IsActionTriggered(MenuCommands.MenuDown))
-                rc = RunMenuCommand(MenuCommands.MenuDown);
-            else if (inputManager.IsActionTriggered(MenuCommands.MenuLeft))
-                rc = RunMenuCommand(MenuCommands.MenuLeft);
-            else if (inputManager.IsActionTriggered(MenuCommands.MenuRight))
-                rc = RunMenuCommand(MenuCommands.MenuRight);
-            else if (inputManager.IsActionTriggered(MenuCommands.MenuSelect))
-                rc = RunMenuCommand(MenuCommands.MenuSelect);
-            else if (inputManager.IsActionTriggered(MenuCommands.MenuBack))
-                rc = RunMenuCommand(MenuCommands.MenuBack);
-
-            if (rc)
+            foreach (var action in new MenuCommands[] {
+                MenuCommands.MenuUp, MenuCommands.MenuDown, MenuCommands.MenuLeft,
+                MenuCommands.MenuRight,MenuCommands.MenuSelect, MenuCommands.MenuBack})
             {
-                if (MenuChanged != null)
-                    MenuChanged();
+                if (inputManager.IsActionTriggered(action))
+                {
+                    rc = RunMenuCommand(action);
+                    break;
+                }
             }
 
-            return IsMenuActive;
+            MenuAction = _LastAction;
+            return rc;
         }
 
         public void ResetInputs()
@@ -136,6 +130,8 @@ namespace Common.Misc
         protected override void OnAction(object Action)
         {
             System.Diagnostics.Debug.Print("Action {0}", Action);
+
+            _LastAction = Action;
 
             if (ActionHandler != null)
                 ActionHandler(Action);

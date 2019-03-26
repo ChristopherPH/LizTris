@@ -67,22 +67,22 @@ namespace Common.MenuSystem
             }
         }
 
-        public bool NextItem()
+        public MenuBase.MenuResult NextItem()
         {
             if (SelectedIndex >= MenuItems.Length - 1)
-                return false;
+                return MenuBase.MenuResult.None;
 
             SelectedIndex++;
-            return true;
+            return MenuBase.MenuResult.ChangedSelection;
         }
 
-        public bool PreviousItem()
+        public MenuBase.MenuResult PreviousItem()
         {
             if (SelectedIndex <= 0)
-                return false;
+                return MenuBase.MenuResult.None;
 
             SelectedIndex--;
-            return true;
+            return MenuBase.MenuResult.ChangedSelection;
         }
     }
 }
