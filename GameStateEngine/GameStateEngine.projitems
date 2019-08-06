@@ -15,6 +15,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)GameStateEngine\GameEngineSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameStateEngine\GameState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameStateEngine\GameStateOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpolator\InterpolatorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpolator\InterpolatorCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpolator\Interpolators.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Misc\GameStateSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MenuSystem\MenuBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MenuSystem\MenuItem.cs" />
@@ -27,6 +30,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Timer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)GameStateEngine\" />
+    <None Include="$(MSBuildThisFileDirectory)GameStateEngine\ColorNotes.txt" />
   </ItemGroup>
 </Project>
