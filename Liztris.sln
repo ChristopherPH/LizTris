@@ -7,9 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Liztris", "Liztris\Liztris.
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "GameStateEngine", "GameStateEngine\GameStateEngine.shproj", "{A0CDBD0E-3A41-42B7-9425-A838BC2C7383}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{53105BEB-D217-4590-A30B-7B9F4C46F95E}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		GameStateEngine\GameStateEngine.projitems*{27649f31-680c-4fca-acda-efc35c324719}*SharedItemsImports = 4
+		GameStateEngine\GameStateEngine.projitems*{53105beb-d217-4590-a30b-7b9f4c46f95e}*SharedItemsImports = 4
 		GameStateEngine\GameStateEngine.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +24,10 @@ Global
 		{27649F31-680C-4FCA-ACDA-EFC35C324719}.Debug|x86.Build.0 = Debug|x86
 		{27649F31-680C-4FCA-ACDA-EFC35C324719}.Release|x86.ActiveCfg = Release|x86
 		{27649F31-680C-4FCA-ACDA-EFC35C324719}.Release|x86.Build.0 = Release|x86
+		{53105BEB-D217-4590-A30B-7B9F4C46F95E}.Debug|x86.ActiveCfg = Debug|x86
+		{53105BEB-D217-4590-A30B-7B9F4C46F95E}.Debug|x86.Build.0 = Debug|x86
+		{53105BEB-D217-4590-A30B-7B9F4C46F95E}.Release|x86.ActiveCfg = Release|x86
+		{53105BEB-D217-4590-A30B-7B9F4C46F95E}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
