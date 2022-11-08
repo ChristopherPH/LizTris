@@ -10,6 +10,12 @@ using System.Xml;
 
 namespace Liztris
 {
+    public static class Program
+    {
+        // https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-9#top-level-statements
+        public static Settings Settings = Settings.LoadSettings();
+    }
+
     public class GameSettings
     {
         public List<HighScore> HighScores { get; set; } = new List<HighScore>();

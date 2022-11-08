@@ -282,9 +282,6 @@ namespace Liztris
                 }
             };
 
-            GameMenus.MainMenu.MenuChanged = () => { soundMenuSelect.Play(); };
-            GameMenus.PauseMenu.MenuChanged = () => { soundMenuSelect.Play(); };
-
             Intro.IsActive = true;
         }
 
@@ -458,14 +455,23 @@ namespace Liztris
             //Gamestate: MainMenu
             if (GameMenus.MainMenu.IsMenuActive)
             {
-                GameMenus.MainMenu.Update(gameTime);
+                if (GameMenus.MainMenu.Update(gameTime, out var action) !=
+                    Common.MenuSystem.MenuBase.MenuResult.None)
+                {
+                    soundMenuSelect.Play();
+                }
+
                 return;
             }
 
             //Gamestate: PauseMenu
             if (GameMenus.PauseMenu.IsMenuActive)
             {
-                GameMenus.PauseMenu.Update(gameTime);
+                if (GameMenus.PauseMenu.Update(gameTime, out var action) !=
+                    Common.MenuSystem.MenuBase.MenuResult.None)
+                {
+                    soundMenuSelect.Play();
+                }
 
                 if (!GameMenus.PauseMenu.IsMenuActive)
                 {
