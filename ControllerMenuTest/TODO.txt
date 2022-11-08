@@ -1,0 +1,61 @@
+﻿The goal of this project is to
+	Determine player 1 from the button/keyboard press on the title screen
+	Select a profile
+	Allow other players to join from the main menu
+		Allow profile selection when joined
+
+	Think of the rock band menu at the bottom of the screen
+
+	[Player 1][Player 2      ][Player 3   ][Player 4]
+	[Liz     ][Chris         ][Press Start][Press Start]
+	          [Change Profile]
+			  [Control: GamePad | Keyboard]
+	          [Leave         ]
+
+
+
+	Have a main menu to select the game
+
+		Game: <- Liztris -> | <- Dr. Lizio -> | ...
+			Changing the game should change the background
+			Should be able to cycle through all the games
+			Or just a couple options at the top
+
+			Liztris
+			Dr. Lizio
+			Options
+			Exit
+
+	Below that have an options menu
+
+		Options:
+			Video:
+			Audio:
+			Controls:
+
+		Exit:
+
+
+	Main menu - anyone can select, or player 1 can select
+	Choose speed menu - all players control their parts of the menu
+	Player menu - anyone can open player menu, and they control that menu
+				- if multiple players in grid, any player on grid can control menu
+
+	
+	    //menu controls
+    //static text, image (could be animated)
+    //slider (volume) (or incrementing/decrementing values)
+    //chooser (resolutions, profile names) (list, left/right arrows)
+    //radio buttons / group chooser
+    //check box / boolean
+    //action (close menu, open submenu, start game, 
+    //  technically with multiple menu states, this is 
+    //  just a push/pop state
+
+//choices need to be dynamic or static lists
+// resolutions, num players, etc
+
+//actions when item changes - set volume
+//actions when button pressed - apply res changes
+//  technically apply should be a new state that reverts
+//  if there is a problem

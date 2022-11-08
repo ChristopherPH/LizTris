@@ -63,6 +63,8 @@ Game modes
 				and want all the game options to be the same. Consider a
 				battle mode where you are adding an extra player but still 
 				want the other options to be the same...
+				perhaps this would be better if we have a 'saved battle' 
+				default settings that are loaded.
 
 			when opening submenu2, save index of that submenu in submenu1 
 				so that when submenu2 is closed (back), the selected index
@@ -74,3 +76,41 @@ Game modes
 
 		should be able to draw an action (apply, new game) different than
 			a submenu (single right arrow indicating new menu will open?)
+			
+			
+		<menu id="MainMenu" Title="">
+			<menuitem Title="New game" action="ShowNewGame">
+			<menuitem Title="Options" action="ShowOptionMenu">
+			<menuitem Title="Exit Game" confirm="True">
+		</menu>
+		
+		<menu id="NewGame" Title="Select Game">
+			<menuitem Title="Liztris">
+			<menuitem Title="Dr. Lizio">
+			
+			<menuitem Title="Return" action="Back">
+		</menu>
+		
+		<menu id="OptionMenu" Title="Options">
+			<menuitem Title="Video" action="ShowVideoMenu">
+			<menuitem Title="Audio" action="ShowAudioMenu">
+			<menuitem Title="Controls" action="ShowControlMenu">
+			
+			<menuitem Title="Return" action="Back">
+		</menu>
+		
+		<menu id="VideoMenu" Title="Video Options">
+			<menuitem Title="Resolution">
+			<menuitem Title="FullScreen">
+			<menuitem Title="VSync">
+			
+			<menuitem Title="Return" action="Back">
+		</menu>
+		
+		<menu id="AudioMenu" Title="Audio Options">
+			<menuitem Title="Volume">
+			<menuitem Title="Music">
+			
+			<menuitem Title="Return" action="Back">
+		</menu>
+		

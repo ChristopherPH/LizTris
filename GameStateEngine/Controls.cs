@@ -699,12 +699,12 @@ namespace Common
 
         #endregion
 
-                    #region Action Mapping
+        #region Action Mapping
 
 
-                    /// <summary>
-                    /// The action mappings for the game.
-                    /// </summary>
+        /// <summary>
+        /// The action mappings for the game.
+        /// </summary>
         private Dictionary<T, ActionMap> actionMaps = new Dictionary<T, ActionMap>();
 
 

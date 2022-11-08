@@ -33,6 +33,12 @@ namespace Common
             this.Draw(texture, destinationRectangle, Color.White);
         }
 
+        public void DrawPixel(Vector2 Position, Color color, float Scale = 1)
+        {
+            this.Draw(this.WhiteTexture, Position, null, color, 
+                0f, new Vector2(0, 0), new Vector2(Scale, Scale), SpriteEffects.None, 0);
+        }
+
         /// <summary>
         /// Draw a line between the two supplied points.
         /// </summary>

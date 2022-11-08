@@ -141,7 +141,7 @@ namespace Common.Misc
                     new MenuItem("Yes") { SetProperty = "VSync", Value = true },
                 }, 1),
                 new MenuItem("Apply") { DoAction = SettingOptions.ChangeVideo },
-                new CloseMenu("Back"),
+                new CloseMenu("Back"), //TODO: need to reset saved choices when going back
             })
         };
 
@@ -174,7 +174,7 @@ namespace Common.Misc
                     .Where(x => x.Format == SurfaceFormat.Color)
                     .Where(x => x.Width >= 640)
                     .Where(x => x.Height >= 480)
-                    .Select(x => new MenuItem(string.Format("{0}x{1}", x.Width, x.Height))
+                    .Select(x => new MenuItem(string.Format("{0}x{1}", x.Width, x.Height, x.AspectRatio))
                     {
                         SetProperty = "Resolution",
                         Value = string.Format("{0}x{1}", x.Width, x.Height)

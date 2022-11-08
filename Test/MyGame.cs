@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System.Linq;
+using System;
+using Test.ControllerManager;
 
 namespace Test
 {
@@ -142,6 +144,7 @@ namespace Test
 #endif
         }
 
+
         void DrawFade(ExtendedSpriteBatch spriteBatch, int steps, int y, int h, string s, Color c_start, Color c_end, bool premult)
         {
             spriteBatch.DrawString(_font, s,
@@ -168,9 +171,80 @@ namespace Test
             inputManager.Update(PlayerIndex.One);
             
             if ((this.stateTimer > introTimer.Delay) || inputManager.IsActionTriggered(0))
-                Operation = GameStateOperation.ChangeToState(new MenuState());
+                Operation = GameStateOperation.ChangeToState(new TitleState());
 
             Interpolators.Update(gameTime.ElapsedGameTime.TotalMilliseconds);
+        }
+
+        protected override void LoadContent()
+        {
+            _font = Content.Load<SpriteFont>("Font");
+        }
+    }
+
+
+
+
+    public class TitleState : GameState
+    {
+        public enum TitleActions
+        {
+            Go
+        }
+
+        ControlManager<TitleActions> controls = new ControlManager<TitleActions>();
+        SpriteFont _font;
+
+        float _scale = 1;
+        bool _scaleReverse = false;
+        Timer AnimationTimer = new Timer(20);
+
+        public TitleState()
+        {
+            controls.MapControl(Controls.Start, TitleActions.Go);
+            controls.MapControl(Controls.Back, TitleActions.Go);
+        }
+
+        public override void OnStateStarted(bool Resumed)
+        {
+            controls.Update();
+        }
+
+
+        public override void Draw(GameTime gameTime, ExtendedSpriteBatch spriteBatch, Rectangle GameRectangle)
+        {
+            spriteBatch.DrawString(_font, "LizTris", new Vector2(28, 248), Color.Wheat, -0.5f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(_font, "Press a button to start",
+                new Rectangle(0, GameRectangle.Bottom - 100, GameRectangle.Width, 100),
+                ExtendedSpriteBatch.Alignment.Center, Color.Black, _scale);
+        }
+
+        public override void Update(GameTime gameTime, ref GameStateOperation Operation)
+        {
+            AnimationTimer.UpdateAndCheck(gameTime, () =>
+            {
+                if (!_scaleReverse)
+                {
+                    _scale += 0.02f;
+                    if (_scale >= 1.2)
+                        _scaleReverse = true;
+                }
+                else
+                {
+                    _scale -= 0.02f;
+                    if (_scale <= 1)
+                        _scaleReverse = false;
+                }
+            });
+
+            controls.Update();
+
+            if (controls.IsActionTriggered(TitleActions.Go, out var controller))
+            {
+                System.Diagnostics.Debug.Print("Player 1 is at {0}", controller);
+                var m = new MenuState();
+                Operation = GameStateOperation.ChangeToState(m);
+            }
         }
 
         protected override void LoadContent()
@@ -227,6 +301,7 @@ namespace Test
         {
             QuitGame,
             NewGame,
+            TestState,
             Exit,
             Options,
             StartMusic,
@@ -239,6 +314,7 @@ namespace Test
         public static SimpleMenu MainMenu = new SimpleMenu(string.Empty, new MenuItem[]
         {
             new MenuItem("New Game") { DoAction = GameMenuOptions.NewGame },
+            new MenuItem("TestState") { DoAction = GameMenuOptions.TestState },
             new MenuItem("Options") { DoAction = GameMenuOptions.Options },
             new MenuItem("Stop") { DoAction = GameMenuOptions.StopMusic },
             new MenuItem("Music") { DoAction = GameMenuOptions.StartMusic },
@@ -263,11 +339,34 @@ namespace Test
 
         public override void Draw(GameTime gameTime, ExtendedSpriteBatch spriteBatch, Rectangle GameRectangle)
         {
-            MainMenu.Draw(spriteBatch, _font, new Rectangle(40, 40, 600, 600), true);
+             pm.Draw(gameTime, spriteBatch);
+           MainMenu.Draw(spriteBatch, _font, new Rectangle(40, 40, 600, 600), true);
+
         }
+
+        ParticleManager pm = new ParticleManager();
+        Random rand = new Random();
 
         public override void Update(GameTime gameTime, ref GameStateOperation Operation)
         {
+            pm.Update(gameTime);
+
+            for (int i = 0; i < 2; i++) // 2 particles per tick
+            {
+                var speed = 1.0f;
+                var rad = (double)(rand.Next(0, 359)) * (3.1415926 / 180.0);
+                var dx = Math.Cos(rad) * speed;
+                var dy = Math.Sin(rad) * speed;
+
+                pm.AddParticle(
+                    new Vector2(350, this.Engine.GameRectangle.Center.Y), 
+                        
+                    new Vector2((float)dx, (float)dy),
+                    Color.Red, 2,
+                    100, true);
+            }
+
+            
             var rc = MainMenu.Update(gameTime, out object MenuAction);
 
             if (rc.HasFlag(MenuBase.MenuResult.PerformedAction) && (MenuAction != null))
@@ -277,6 +376,10 @@ namespace Test
                     case GameMenuOptions.NewGame:
                         Operation = GameStateOperation.AddState(new ThisIsTheGame());
                         MainMenu.CloseMenu();
+                        break;
+
+                    case GameMenuOptions.TestState:
+                        Operation = GameStateOperation.AddState(new TestState());
                         break;
 
                     case GameMenuOptions.Options:

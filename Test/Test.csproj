@@ -24,6 +24,8 @@
     <Compile Remove="Common\InputExtensions.cs" />
     <Compile Remove="Common\SettingsBase.cs" />
     <Compile Remove="Common\Timer.cs" />
+    <Compile Remove="Incrementor.cs" />
+    <Compile Remove="Interpolator - Copy.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.1.303" />

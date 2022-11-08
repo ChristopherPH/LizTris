@@ -1,0 +1,165 @@
+
+
+/*
+ * New Game
+ *      One Player
+ *      Two Players
+ *          Grid per Player
+ *          Shared Grid
+ *      Three Players
+ *          Grid per Player
+ *          Shared Grid
+ *      Four Players
+ *          Grid per Player
+ *          Shared Grid
+ * Full Screen
+ * Quit
+ * 
+ * New Game
+ *      Players:        [1] [2] [3] [4]
+ *      Shared Grid     [No] [Yes]
+ *      Player 1 Speed  [Slow Medium Fast]
+ *      Player 2 Speed  [Slow Medium Fast]
+ *      Player 3 Speed  [Slow Medium Fast]
+ *      Player 4 Speed  [Slow Medium Fast]
+ *      Player 1 Controls  [Gamepad 1/2/3/4 Keyboard lrud wsad ikjl numpad]
+ *      Player 2 Speed  [Slow Medium Fast]
+ *      Player 3 Speed  [Slow Medium Fast]
+ *      Player 4 Speed  [Slow Medium Fast]
+ */
+
+
+
+/*
+ * New Game
+ *      Single Player
+ *          Speed  (Slow [Normal] Fast)
+ *      Multi Player
+ *          2 Players
+ *              Start Game
+ *              Player 1 Speed  (Slow [Normal] Fast)
+ *              Player 2 Speed  (Slow [Normal] Fast)
+ *              Back
+ *          3 Players
+ *              Start Game
+ *              Player 1 Speed  (Slow [Normal] Fast)
+ *              Player 2 Speed  (Slow [Normal] Fast)
+ *              Player 3 Speed  (Slow [Normal] Fast)
+ *              Back
+ *          4 Players
+ *              Start Game
+ *              Player 1 Speed  (Slow [Normal] Fast)
+ *              Player 2 Speed  (Slow [Normal] Fast)
+ *              Player 3 Speed  (Slow [Normal] Fast)
+ *              Player 4 Speed  (Slow [Normal] Fast)
+ *              Back
+ *          Back
+ *      Multi Player Co-Op (Shared Grid)    SETPROP(shared, true)   OPENMENU
+ *          2 Players                       SETPROP(players, 2)
+ *              Start Game                  EXITMENU, CUSTOMACTION
+ *              Player 1 Speed  (Slow [Normal] Fast)    CHOICE(p1speed, ["Slow", "Normal", "Fast"])
+ *              Player 2 Speed  (Slow [Normal] Fast)    CHOICE(p2speed, ["Slow", "Normal", "Fast"], [Speed.Slow, Speed.Normal, Speed.Fast]
+ *              Back                        CLOSEMENU
+ *          3 Players
+ *              Start Game
+ *              Player 1 Speed  (Slow [Normal] Fast)
+ *              Player 2 Speed  (Slow [Normal] Fast)
+ *              Player 3 Speed  (Slow [Normal] Fast)
+ *              Back
+ *          4 Players
+ *              Start Game
+ *              Player 1 Speed  (Slow [Normal] Fast)
+ *              Player 2 Speed  (Slow [Normal] Fast)
+ *              Player 3 Speed  (Slow [Normal] Fast)
+ *              Player 4 Speed  (Slow [Normal] Fast)
+ *              Back
+ *          Back
+ *
+ * Options
+ *      Fullscreen  [no] [yes]
+ *     
+ * Quit Game
+ *      Are you sure?
+ *          Yes     [No]        CHOICEACTION(quit, ["Yes", "No"], [EXITMENU/CUSTOMACTION, CLOSEMENU])
+ *  
+ *      
+ * Dictionary<string, object>()...
+ * MenuOptions["Fullscreen"] = "no";
+ * 
+ * 
+ * Choice("Fullscreen", new kvp("yes", true), new kvp("no", false))
+ * Action("Apply", videoapply)
+ * 
+ *      
+ */
+
+
+ 
+/*
+ *      Resume
+ *      New Game
+ *      Quit
+ * 
+ * 
+ *      New Game
+ *          1 Player
+ *              Controls: <- Keyboard, Joystick ->
+ *              Speed: <- Slowest, Slow, Normal, Fast, Fastest ->
+ *              Start Game
+ *              
+ *              --------
+ *              
+ *          Players [1, 2, 3, 4]
+ *          
+ *          
+ *          
+ *          [X] Share Grid
+ *      Options
+ *          Video
+ *              [X] Fullscreen
+ *              Resolution <- Generated List... ->
+ *              Apply Changes()
+ *              Back
+ *          Sound
+ *              Music Volume <- 0 - 100, step 5 ->
+ *              Sound Volume <- 0 - 100, step 5 ->
+ *          Controls
+ *              Player 1
+ *                  Player 1 <- Joystick, Keyboard ->
+ *                  Remap buttons
+ *              
+ *      Exit
+ * 
+ * 
+ *      Menu
+ *          Update
+ * 
+ *      Menu
+ *          Draw background (before draw)
+ *          Draw Title
+ *          Draw Each Option (is active selection)
+ *          maybe draw active selected description?
+ *          
+ *          (after draw)
+ *          
+ *          
+ *      Menu 
+ *          Title
+ *          List of items
+ *      
+ *      Menu Items
+ *          Action - something happens when item is selected
+ *                 - open submenu (push onto stack)
+ *                 - BACK/close current menu (pop off stack)
+ *                 - CANCEL/revert any changes, then close current menu (pop off stack)
+ *                 - OK/do something, then close current menu (pop off stack)
+ *                 - APPLY/do something, commit changes
+ *                 - do something, those close all menus?
+ *          Slider/numeric Updown 
+ *          checkbox / yesno / toggle bool
+ *          
+ *          show all choices?  speed: slow [normal] fast
+ *          or show arrows     speed:     slow  ->
+ *          or show arrows     speed: <- normal ->
+ *          or show arrows     speed: <-  fast 
+ */
