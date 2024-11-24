@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Liztris", "Liztris\Liztris.
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "GameStateEngine", "GameStateEngine\GameStateEngine.shproj", "{A0CDBD0E-3A41-42B7-9425-A838BC2C7383}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{28D29C56-23CD-4892-ADD3-A9395D559073}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,10 +17,6 @@ Global
 		{D0D6EFF6-A066-4330-936D-F67C8622320D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0D6EFF6-A066-4330-936D-F67C8622320D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0D6EFF6-A066-4330-936D-F67C8622320D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{28D29C56-23CD-4892-ADD3-A9395D559073}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{28D29C56-23CD-4892-ADD3-A9395D559073}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{28D29C56-23CD-4892-ADD3-A9395D559073}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{28D29C56-23CD-4892-ADD3-A9395D559073}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -31,7 +25,6 @@ Global
 		SolutionGuid = {1A483EEA-3B0C-433A-9B66-60C58CAD1A8D}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		GameStateEngine\GameStateEngine.projitems*{28d29c56-23cd-4892-add3-a9395d559073}*SharedItemsImports = 5
 		GameStateEngine\GameStateEngine.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
 		GameStateEngine\GameStateEngine.projitems*{d0d6eff6-a066-4330-936d-f67c8622320d}*SharedItemsImports = 5
 	EndGlobalSection
