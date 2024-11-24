@@ -12,20 +12,6 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Common\External\**" />
-    <Compile Remove="MenuSystem\**" />
-    <EmbeddedResource Remove="Common\External\**" />
-    <EmbeddedResource Remove="MenuSystem\**" />
-    <None Remove="Common\External\**" />
-    <None Remove="MenuSystem\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Common\ExtendedSpriteBatch.cs" />
-    <Compile Remove="Common\InputExtensions.cs" />
-    <Compile Remove="Common\SettingsBase.cs" />
-    <Compile Remove="Common\Timer.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.1.303" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
   </ItemGroup>
